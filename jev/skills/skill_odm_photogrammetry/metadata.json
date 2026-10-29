@@ -1,0 +1,39 @@
+{
+  "name": "skill_odm_photogrammetry",
+  "version": "1.0.0",
+  "description": "Conector para el motor de fotogrametría aérea OpenDroneMap (NodeODM) y renderizado de mallas 3D.",
+  "category": "photogrammetry_3d",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "odm",
+    "opendronemap",
+    "fotogrametria",
+    "dron",
+    "sfm",
+    "ortofoto",
+    "malla 3d",
+    "terreno",
+    "reconstruccion",
+    "nube de puntos"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción a ejecutar",
+      "enum": ["check_node_status", "inspect_dataset", "create_task_spec", "get_task_status", "import_mesh_to_viewport"],
+      "default": "check_node_status"
+    },
+    "nodeodm_url": {
+      "type": "string",
+      "description": "URL de NodeODM",
+      "default": "http://127.0.0.1:3000"
+    },
+    "images_dir": {
+      "type": "string",
+      "description": "Directorio con imágenes",
+      "default": ""
+    }
+  }
+}

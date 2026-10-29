@@ -1,0 +1,105 @@
+{
+  "name": "skill_cad_mesh",
+  "version": "2.0.0",
+  "description": "Motor de modelado 3D paramétrico con geometría real (booleanas, taladros y vaciados) para ingeniería: engranajes, bridas, tuercas, pernos, ejes, carcasas, escuadras, poleas, rodamientos, cremalleras, codos y resortes. Exporta OBJ, STL, GLB y GLTF y proyecta la malla real en el Viewport Three.js.",
+  "category": "3d_modeling",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "cad",
+    "3d",
+    "malla",
+    "mesh",
+    "gltf",
+    "glb",
+    "stl",
+    "obj",
+    "engranaje",
+    "brida",
+    "resorte",
+    "polea",
+    "rodamiento",
+    "tuerca",
+    "perno",
+    "tornillo",
+    "carcasa",
+    "escuadra",
+    "cremallera",
+    "parametrico",
+    "geometria",
+    "diseno 3d",
+    "modelo 3d",
+    "imprimir 3d",
+    "pieza mecanica",
+    "viewport"
+  ],
+  "dependencies": [
+    "numpy",
+    "manifold3d",
+    "trimesh"
+  ],
+  "parameters": {
+    "model_type": {
+      "type": "string",
+      "description": "Tipo de pieza: spur_gear, helical_gear, flange, washer, hex_nut, bolt, shaft, box_enclosure, l_bracket, pulley, bearing, gear_rack, plate, pipe_elbow, helical_spring, box, cylinder",
+      "enum": [
+        "spur_gear",
+        "helical_gear",
+        "flange",
+        "washer",
+        "hex_nut",
+        "bolt",
+        "shaft",
+        "box_enclosure",
+        "l_bracket",
+        "pulley",
+        "bearing",
+        "gear_rack",
+        "plate",
+        "pipe_elbow",
+        "helical_spring",
+        "box",
+        "cylinder"
+      ],
+      "default": "spur_gear"
+    },
+    "name": {
+      "type": "string",
+      "description": "Nombre de la pieza",
+      "default": "CAD_Part"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Parámetros dimensionales (teeth, pitch_radius, thickness, bore_radius, width, depth, height, wall_thickness, bolt_count, ...)",
+      "default": {}
+    },
+    "export_formats": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Formatos: ['obj','stl','glb','gltf']",
+      "default": [
+        "obj",
+        "stl",
+        "glb",
+        "gltf"
+      ]
+    },
+    "color": {
+      "type": "string",
+      "description": "Color hexadecimal",
+      "default": "#00f0ff"
+    },
+    "quality": {
+      "type": "string",
+      "description": "Teselado: low, medium, high",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    }
+  }
+}

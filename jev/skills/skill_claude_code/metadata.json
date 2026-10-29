@@ -1,0 +1,65 @@
+{
+  "name": "skill_claude_code",
+  "version": "1.0.0",
+  "description": "Conector profundo con Claude Code (Free-Claude-Code) y OpenRouter. Permite síntesis avanzada de código, arquitectura de software, razonamiento, ejecución de consultas y gestión del servidor daemon local.",
+  "category": "code_engineering",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "claude code",
+    "free claude code",
+    "openrouter",
+    "fcc",
+    "fcc-server",
+    "fcc-cloud",
+    "generar codigo",
+    "arquitectura software",
+    "razonamiento",
+    "refactorizar",
+    "programacion senior"
+  ],
+  "dependencies": ["urllib"],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción: 'query', 'generate_code', 'server_status', 'start_server', 'stop_server', 'configure'",
+      "enum": ["query", "generate_code", "server_status", "start_server", "stop_server", "configure"],
+      "default": "query"
+    },
+    "prompt": {
+      "type": "string",
+      "description": "Instrucción, pregunta o descripción de la tarea a resolver",
+      "default": ""
+    },
+    "context": {
+      "type": "string",
+      "description": "Contexto de código previo o archivos del proyecto relevantes",
+      "default": ""
+    },
+    "language": {
+      "type": "string",
+      "description": "Lenguaje de programación objetivo para generate_code",
+      "default": "python"
+    },
+    "model": {
+      "type": "string",
+      "description": "Modelo objetivo en formato provider/model",
+      "default": ""
+    },
+    "openrouter_key": {
+      "type": "string",
+      "description": "Clave API de OpenRouter (para acción 'configure')",
+      "default": ""
+    },
+    "system_prompt": {
+      "type": "string",
+      "description": "Directiva o prompt de sistema personalizado",
+      "default": ""
+    },
+    "output_path": {
+      "type": "string",
+      "description": "Ruta de archivo relativa a workspace para guardar automáticamente el código",
+      "default": ""
+    }
+  }
+}

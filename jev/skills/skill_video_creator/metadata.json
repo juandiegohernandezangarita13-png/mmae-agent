@@ -1,0 +1,53 @@
+{
+  "name": "skill_video_creator",
+  "version": "1.0.0",
+  "description": "Generador Programático de Vídeos de Lanzamiento (Auto-Launch Video Engine). Analiza proyectos o artefactos web en workspace/ y compila vídeos de presentación MP4 (H.264) con motion graphics, transiciones y renderizado acelerado con FFmpeg.",
+  "category": "multimedia_video",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "video de lanzamiento",
+    "launch video",
+    "promo video",
+    "crear video",
+    "motion graphics",
+    "ffmpeg",
+    "video promocional",
+    "generar mp4",
+    "teaser"
+  ],
+  "dependencies": ["ffmpeg", "pillow", "beautifulsoup4"],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción: 'create_launch_video', 'parse_project', 'check_ffmpeg'",
+      "enum": ["create_launch_video", "parse_project", "check_ffmpeg"],
+      "default": "create_launch_video"
+    },
+    "target_path": {
+      "type": "string",
+      "description": "Ruta del archivo HTML/proyecto en workspace/",
+      "default": "workspace/index.html"
+    },
+    "html_content": {
+      "type": "string",
+      "description": "Contenido HTML opcional si se pasa directamente",
+      "default": ""
+    },
+    "output_filename": {
+      "type": "string",
+      "description": "Nombre del archivo de vídeo de salida",
+      "default": "launch_video.mp4"
+    },
+    "resolution": {
+      "type": "string",
+      "description": "Resolución del vídeo: '720p', '1080p', 'vertical_reel', 'square'",
+      "enum": ["720p", "1080p", "vertical_reel", "square"],
+      "default": "720p"
+    },
+    "fps": {
+      "type": "integer",
+      "description": "Fotogramas por segundo",
+      "default": 30
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "name": "skill_combinatorial_analytics",
+  "version": "1.0.0",
+  "description": "Motor de analítica estocástica y combinatoria (distribución hipergeométrica, bondad de ajuste chi-cuadrado, entropía de Shannon, sistemas reducidos y Monte Carlo EV).",
+  "category": "applied_mathematics",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "loteria",
+    "monte carlo",
+    "hipergeometrica",
+    "chi cuadrado",
+    "probabilidad",
+    "estocastico",
+    "valor esperado",
+    "ev",
+    "entropia",
+    "sistemas reducidos",
+    "covering design",
+    "combinatoria"
+  ],
+  "dependencies": ["numpy", "scipy"],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción a ejecutar: 'full_analysis', 'hypergeometric_odds', 'analyze_history', 'monte_carlo_ev', 'generate_reduced_wheel'",
+      "enum": ["full_analysis", "hypergeometric_odds", "analyze_history", "monte_carlo_ev", "generate_reduced_wheel"],
+      "default": "full_analysis"
+    },
+    "total_numbers": {
+      "type": "integer",
+      "description": "Población total de números N (ej. 49)",
+      "default": 49
+    },
+    "pick_count": {
+      "type": "integer",
+      "description": "Cantidad de números sorteados k (ej. 6)",
+      "default": 6
+    },
+    "history_file": {
+      "type": "string",
+      "description": "Ruta a archivo CSV/JSON de histórico",
+      "default": ""
+    },
+    "history_data": {
+      "type": "array",
+      "description": "Datos de sorteos históricos",
+      "default": []
+    },
+    "jackpot": {
+      "type": "number",
+      "description": "Bote acumulado para premio mayor",
+      "default": 10000000.0
+    },
+    "ticket_price": {
+      "type": "number",
+      "description": "Precio de cada apuesta",
+      "default": 2.5
+    },
+    "tax_rate": {
+      "type": "number",
+      "description": "Tasa fiscal sobre premios",
+      "default": 0.20
+    },
+    "monte_carlo_sims": {
+      "type": "integer",
+      "description": "Número de sorteos a simular",
+      "default": 25000
+    },
+    "wheel_numbers": {
+      "type": "array",
+      "description": "Números para sistema reducido",
+      "default": []
+    },
+    "wheel_guarantee": {
+      "type": "integer",
+      "description": "Garantía mínima de aciertos",
+      "default": 4
+    }
+  }
+}

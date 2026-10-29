@@ -1,0 +1,44 @@
+{
+  "name": "skill_rf_adsb_tracker",
+  "version": "1.0.0",
+  "description": "Parser de telemetría de aviación ADS-B/Dump1090 y proyector de trayectorias de vuelo 3D para Three.js.",
+  "category": "rf_aviation",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "adsb",
+    "dump1090",
+    "avion",
+    "radar",
+    "aviacion",
+    "sbs1",
+    "telemetria",
+    "vuelo",
+    "icao",
+    "rf"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción a ejecutar",
+      "enum": ["parse_sbs1", "parse_dump1090_json", "fetch_socket_stream", "generate_3d_flight_scene"],
+      "default": "parse_dump1090_json"
+    },
+    "raw_data": {
+      "type": "string",
+      "description": "Datos crudos SBS-1 o JSON",
+      "default": ""
+    },
+    "host": {
+      "type": "string",
+      "description": "Host del receptor Dump1090",
+      "default": "127.0.0.1"
+    },
+    "port": {
+      "type": "integer",
+      "description": "Puerto del receptor Dump1090",
+      "default": 30003
+    }
+  }
+}

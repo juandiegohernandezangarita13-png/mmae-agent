@@ -1,0 +1,58 @@
+{
+  "name": "skill_web_builder",
+  "version": "1.0.0",
+  "description": "Constructor y estructurador de artefactos web reactivos y modernos (HTML5, Tailwind CDN, componentes interactivos).",
+  "category": "web_development",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "web",
+    "html",
+    "tailwind",
+    "dashboard",
+    "frontend",
+    "artifact",
+    "preview",
+    "sitio web",
+    "landing"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "template_type": {
+      "type": "string",
+      "description": "Tipo de plantilla: 'dashboard', 'landing', 'interactive_calculator', 'data_table', 'custom'",
+      "enum": ["dashboard", "landing", "interactive_calculator", "data_table", "custom"],
+      "default": "dashboard"
+    },
+    "title": {
+      "type": "string",
+      "description": "Título de la página",
+      "default": "JEV Web App"
+    },
+    "theme": {
+      "type": "string",
+      "description": "Tema cromático: 'dark_cyber', 'dark_slate', 'light_clean', 'emerald_tech'",
+      "default": "dark_cyber"
+    },
+    "components": {
+      "type": "array",
+      "description": "Lista de componentes a incluir",
+      "default": ["navbar", "stat_cards", "charts"]
+    },
+    "custom_html": {
+      "type": "string",
+      "description": "HTML personalizado adicional",
+      "default": ""
+    },
+    "custom_css": {
+      "type": "string",
+      "description": "CSS adicional",
+      "default": ""
+    },
+    "custom_js": {
+      "type": "string",
+      "description": "JavaScript interactivo adicional",
+      "default": ""
+    }
+  }
+}

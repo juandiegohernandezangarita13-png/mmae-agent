@@ -6,6 +6,11 @@ def setup_logger(name: str = "MMAE") -> logging.Logger:
     logger.setLevel(logging.INFO)
     
     if not logger.handlers:
+        if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
+            try:
+                sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+            except Exception:
+                pass
         handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
             fmt="[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s",

@@ -1,0 +1,54 @@
+{
+  "name": "skill_browser_operator",
+  "version": "1.0.0",
+  "description": "Operador de navegación web visual e interactiva basada en Playwright y Browser-Use (clics, formularios, extracción estructurada).",
+  "category": "web_automation",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "navegador",
+    "browser",
+    "playwright",
+    "web",
+    "formulario",
+    "scraping",
+    "click",
+    "tipear",
+    "extraer tabla",
+    "automatizacion web"
+  ],
+  "dependencies": ["playwright"],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción: 'navigate', 'click_element', 'type_text', 'extract_structured_data', 'capture_page_state', 'get_interactive_elements', 'close_session'",
+      "enum": ["navigate", "click_element", "type_text", "extract_structured_data", "capture_page_state", "get_interactive_elements", "close_session"],
+      "default": "navigate"
+    },
+    "url": {
+      "type": "string",
+      "description": "URL a navegar",
+      "default": ""
+    },
+    "element_index": {
+      "type": "integer",
+      "description": "Índice del elemento interactivo",
+      "default": 0
+    },
+    "selector": {
+      "type": "string",
+      "description": "Selector CSS opcional",
+      "default": ""
+    },
+    "text": {
+      "type": "string",
+      "description": "Texto a ingresar",
+      "default": ""
+    },
+    "submit": {
+      "type": "boolean",
+      "description": "Presionar Enter tras escribir",
+      "default": false
+    }
+  }
+}

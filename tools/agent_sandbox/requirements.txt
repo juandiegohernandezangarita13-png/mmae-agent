@@ -1,0 +1,2 @@
+# Dependencias para ACE (Agent Computer Environment Sandbox)
+# Utiliza la biblioteca estándar de Python (subprocess, tempfile, re, time).

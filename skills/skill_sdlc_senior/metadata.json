@@ -1,0 +1,61 @@
+{
+  "name": "skill_sdlc_senior",
+  "version": "1.0.0",
+  "description": "Protocolo de Desarrollo Senior (SDLC Suite & ECC). Planificación estructurada con checkpoints obligatorios, auto red-teaming de seguridad (inyecciones SQL/OS, SSRF, CORS abierto, credenciales expuestas) y enforzamiento estricto de pruebas unitarias con cobertura mínima del 80%.",
+  "category": "software_engineering",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "sdlc",
+    "senior",
+    "checkpoints",
+    "red teaming",
+    "seguridad",
+    "cobertura",
+    "testing",
+    "pruebas unitarias",
+    "inyeccion",
+    "vulnerabilidad",
+    "pipeline calidad"
+  ],
+  "dependencies": ["unittest"],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción a ejecutar: 'plan_phase', 'audit_security', 'enforce_testing', 'verify_checkpoint', 'full_lifecycle'",
+      "enum": ["plan_phase", "audit_security", "enforce_testing", "verify_checkpoint", "full_lifecycle"],
+      "default": "plan_phase"
+    },
+    "task_title": {
+      "type": "string",
+      "description": "Título o meta de la tarea a planificar",
+      "default": "Tarea de Desarrollo Senior"
+    },
+    "requirements": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Lista de requerimientos funcionales y no funcionales",
+      "default": []
+    },
+    "code": {
+      "type": "string",
+      "description": "Código fuente a evaluar con auto red-teaming o cálculo de cobertura",
+      "default": ""
+    },
+    "test_file_path": {
+      "type": "string",
+      "description": "Ruta del archivo de pruebas unitarias para ejecución",
+      "default": ""
+    },
+    "min_coverage": {
+      "type": "number",
+      "description": "Porcentaje mínimo de cobertura obligatorio (por defecto 80.0%)",
+      "default": 80.0
+    },
+    "checkpoint_id": {
+      "type": "string",
+      "description": "Identificador del checkpoint a validar",
+      "default": ""
+    }
+  }
+}

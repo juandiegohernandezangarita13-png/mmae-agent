@@ -1,0 +1,40 @@
+{
+  "name": "skill_cryptographic_vault",
+  "version": "1.0.0",
+  "description": "Bóveda y gestor criptográfico local (derivación de claves PBKDF2, hashes seguros HMAC/SHA-256 y verificación en tiempo constante).",
+  "category": "cryptography_security",
+  "trigger_keywords": [
+    "criptografia",
+    "hash",
+    "sha256",
+    "hmac",
+    "pbkdf2",
+    "claves",
+    "firma digital",
+    "seguridad"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción: 'generate_hash', 'verify_hash', 'derive_key', 'generate_hmac'",
+      "enum": [
+        "generate_hash",
+        "verify_hash",
+        "derive_key",
+        "generate_hmac"
+      ],
+      "default": "generate_hash"
+    },
+    "data": {
+      "type": "string",
+      "description": "Datos de entrada a procesar",
+      "default": ""
+    },
+    "secret_key": {
+      "type": "string",
+      "description": "Clave secreta para HMAC o derivación",
+      "default": ""
+    }
+  }
+}

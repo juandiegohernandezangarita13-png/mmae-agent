@@ -1,0 +1,4 @@
+# Dependencias para REA (Reverse Engineering Assistant)
+# El módulo base utiliza la biblioteca estándar de Python (re, hashlib, struct, math, dis).
+# Opcional para inspección avanzada de ejecutables PE de Windows:
+pefile>=2023.2.7

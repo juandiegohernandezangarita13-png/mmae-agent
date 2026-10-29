@@ -1,0 +1,52 @@
+{
+  "name": "skill_osint_investigator",
+  "version": "1.0.0",
+  "description": "Suite OSINT en Terminal y Motor de Inteligencia Multi-Vector. Módulo Email/Identidad (RFC 5322, MX, brechas k-anonymity), Módulo Onion Graph Crawler (Tor v3, topología 3D en Three.js) y Módulo Multi-Vector (BSSID MAC/OUI, Blockchain BTC/ETH EIP-55, Teléfono E.164 y ASN BGP).",
+  "category": "cybersecurity_osint",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "osint",
+    "investigacion",
+    "email footprint",
+    "tor",
+    "onion",
+    "crawler",
+    "bssid",
+    "mac",
+    "oui",
+    "blockchain",
+    "bitcoin",
+    "ethereum",
+    "eip-55",
+    "telefono",
+    "e164",
+    "asn",
+    "bgp",
+    "huella digital"
+  ],
+  "dependencies": ["hashlib", "socket"],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción: 'investigate_email', 'crawl_onion', 'lookup_bssid', 'trace_blockchain', 'lookup_phone', 'lookup_asn', 'full_dossier'",
+      "enum": ["investigate_email", "crawl_onion", "lookup_bssid", "trace_blockchain", "lookup_phone", "lookup_asn", "full_dossier"],
+      "default": "investigate_email"
+    },
+    "target": {
+      "type": "string",
+      "description": "Objetivo principal de la consulta (email, onion URL, MAC, dirección crypto, teléfono o ASN)",
+      "default": ""
+    },
+    "max_depth": {
+      "type": "integer",
+      "description": "Profundidad máxima para el crawler .onion (por defecto 2)",
+      "default": 2
+    },
+    "rssi_dbm": {
+      "type": "integer",
+      "description": "Intensidad de señal WiFi en dBm para estimación de distancia BSSID (ej. -65)",
+      "default": -65
+    }
+  }
+}

@@ -1,0 +1,2887 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JEV // Chat & Viewport 3D</title>
+  <script src="three.min.js"></script>
+  <style>
+    :root {
+      --bg: #000000;
+      --card-bg: #0a0a0a;
+      --border: #222222;
+      --primary: #00f0ff;
+      --primary-dim: #008899;
+      --text: #e6e6e6;
+      --text-dim: #888888;
+      --danger: #ff3344;
+      --user-msg: #0d1a24;
+      --agent-msg: #0f0f0f;
+      --viewport-bg: #050811;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Cabecera */
+    header {
+      height: 48px;
+      background: #000000;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Thinking Orbs: AI Cognitive State Visualizer */
+    .thinking-orb-container {
+      width: 32px;
+      height: 32px;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: transform 0.2s ease, filter 0.3s ease;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .thinking-orb-container:hover {
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.6));
+    }
+
+    .thinking-orb-canvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      display: block;
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .thinking-orb-container {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00ff88;
+      box-shadow: 0 0 6px #00ff88;
+    }
+
+    .status-dot.busy {
+      background: #ffaa00;
+      box-shadow: 0 0 8px #ffaa00;
+      animation: pulse 1s infinite alternate;
+    }
+
+    .status-dot.stopped {
+      background: var(--danger);
+      box-shadow: 0 0 8px var(--danger);
+    }
+
+    @keyframes pulse {
+      from { opacity: 0.4; }
+      to { opacity: 1; }
+    }
+
+    .brand-text {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #ffffff;
+    }
+
+    .status-text {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-header {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid #333333;
+      color: var(--text-dim);
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-header:hover {
+      border-color: #555555;
+      color: #ffffff;
+    }
+
+    .btn-header.active {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-stop-header {
+      background: rgba(255, 51, 68, 0.15);
+      border: 1px solid var(--danger);
+      color: #ff6677;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-stop-header:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    /* Contenedor Principal Split-Screen */
+    .app-main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Panel Izquierdo: Chat */
+    .chat-pane {
+      flex: 1;
+      min-width: 380px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: #000000;
+    }
+
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: #000000;
+    }
+
+    .chat-container::-webkit-scrollbar {
+      width: 5px;
+    }
+    .chat-container::-webkit-scrollbar-thumb {
+      background: #222222;
+      border-radius: 3px;
+    }
+
+    .message {
+      max-width: 90%;
+      padding: 12px 16px;
+      border-radius: 8px;
+      line-height: 1.5;
+      font-size: 13.5px;
+      word-break: break-word;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: var(--user-msg);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      color: #ffffff;
+      border-bottom-right-radius: 2px;
+    }
+
+    .message.agent {
+      align-self: flex-start;
+      background: var(--agent-msg);
+      border: 1px solid #1a1a1a;
+      color: #e6e6e6;
+      border-bottom-left-radius: 2px;
+      max-width: 96%;
+    }
+
+    .md-h2, .md-h3 {
+      font-weight: 700;
+      color: #00f0ff;
+      margin: 10px 0 6px 0;
+      font-size: 13.5px;
+      letter-spacing: 0.5px;
+    }
+    .inline-code {
+      background: rgba(0, 240, 255, 0.08);
+      color: #79c0ff;
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: Consolas, monospace;
+      font-size: 12px;
+    }
+    .code-container {
+      margin: 10px 0;
+      border-radius: 6px;
+      background: #080c12;
+      border: 1px solid #1e2638;
+      overflow: hidden;
+      font-family: Consolas, 'Courier New', monospace;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f1724;
+      padding: 6px 12px;
+      font-size: 11px;
+      border-bottom: 1px solid #1e2638;
+    }
+    .code-lang {
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--primary);
+      letter-spacing: 0.8px;
+    }
+    .btn-copy-code {
+      background: #192233;
+      border: 1px solid #2a374f;
+      color: #c9d1d9;
+      border-radius: 4px;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-copy-code:hover {
+      background: #25334c;
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+    .code-content {
+      padding: 12px 14px;
+      margin: 0;
+      overflow-x: auto;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #e6edf3;
+      white-space: pre;
+      background: transparent;
+    }
+    .code-content code {
+      font-family: Consolas, 'Courier New', monospace;
+    }
+
+    .message.thought {
+      align-self: flex-start;
+      background: #090909;
+      border-left: 3px solid #ffaa00;
+      color: #ffd466;
+      font-size: 12px;
+      max-width: 92%;
+    }
+
+    .message.tool {
+      align-self: flex-start;
+      background: #080808;
+      border-left: 3px solid var(--primary);
+      color: #88ccff;
+      font-family: Consolas, monospace;
+      font-size: 11.5px;
+      max-width: 92%;
+    }
+
+    .message.danger {
+      align-self: flex-start;
+      background: #140406;
+      border-left: 3px solid var(--danger);
+      color: #ff6677;
+      font-size: 12px;
+    }
+
+    .msg-sender {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .message.user .msg-sender {
+      color: var(--primary);
+      text-align: right;
+    }
+
+    /* Barra Inferior */
+    .input-dock {
+      padding: 12px 16px;
+      background: #000000;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .btn-mic {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #111111;
+      border: 1px solid #2a2a2a;
+      color: #ffffff;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .btn-mic:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: #161616;
+    }
+
+    .btn-mic.recording {
+      background: rgba(255, 51, 68, 0.2);
+      border-color: var(--danger);
+      color: #ff3344;
+      animation: mic-blink 1s infinite alternate ease-in-out;
+    }
+
+    @keyframes mic-blink {
+      from { transform: scale(1); box-shadow: 0 0 4px var(--danger); }
+      to { transform: scale(1.08); box-shadow: 0 0 15px var(--danger); }
+    }
+
+    .chat-input {
+      flex: 1;
+      background: #0d0d0d;
+      border: 1px solid #222222;
+      border-radius: 22px;
+      padding: 11px 18px;
+      color: #ffffff;
+      font-size: 13.5px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input:focus {
+      border-color: var(--primary-dim);
+    }
+
+    .chat-input::placeholder {
+      color: #555555;
+    }
+
+    .btn-send {
+      background: #111111;
+      border: 1px solid var(--primary-dim);
+      color: var(--primary);
+      padding: 11px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      border-radius: 22px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .btn-send:hover {
+      background: var(--primary);
+      color: #000000;
+    }
+
+    /* Divisor de Panel (Splitter) */
+    .pane-splitter {
+      width: 4px;
+      background: #141414;
+      cursor: col-resize;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .pane-splitter:hover, .pane-splitter.dragging {
+      background: var(--primary);
+      box-shadow: 0 0 8px var(--primary);
+    }
+
+    /* Panel Derecho: Artefactos y Viewport 3D */
+    .artifacts-pane {
+      width: 48%;
+      min-width: 340px;
+      background: var(--viewport-bg);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+      transition: width 0.15s ease;
+    }
+
+    .artifacts-pane.collapsed {
+      width: 0 !important;
+      min-width: 0 !important;
+      border-left: none;
+      display: none;
+    }
+
+    .artifacts-header {
+      height: 42px;
+      background: #080c14;
+      border-bottom: 1px solid #1a2333;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      flex-shrink: 0;
+    }
+
+    .artifacts-tabs {
+      display: flex;
+      gap: 6px;
+    }
+
+    .artifact-tab {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-dim);
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+    }
+
+    .artifact-tab:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .artifact-tab.active {
+      color: var(--primary);
+      background: rgba(0, 240, 255, 0.12);
+      border-color: rgba(0, 240, 255, 0.3);
+    }
+
+    .artifacts-tools {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-artifact-tool {
+      background: #101622;
+      border: 1px solid #202b3d;
+      color: #94a3b8;
+      padding: 4px 9px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-artifact-tool:hover {
+      border-color: var(--primary);
+      color: #ffffff;
+      background: #182233;
+    }
+
+    .artifacts-body {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .artifact-view {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+    }
+
+    .artifact-view.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Lienzo WebGL Three.js */
+    #threeCanvasContainer {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
+    }
+    #threeCanvasContainer:active {
+      cursor: grabbing;
+    }
+
+    .viewport-overlay {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(5, 8, 17, 0.75);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      backdrop-filter: blur(6px);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 11px;
+      color: #94a3b8;
+      display: flex;
+      gap: 12px;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .viewport-overlay span {
+      color: #00f0ff;
+      font-weight: 700;
+    }
+
+    .viewport-instructions {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(5, 8, 17, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 10px;
+      color: #64748b;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Vista de Código en Artefactos */
+    .code-artifact-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #050811;
+    }
+
+    .code-artifact-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #090e18;
+      border-bottom: 1px solid #1a2333;
+      padding: 8px 14px;
+      font-size: 11px;
+      color: #00f0ff;
+      font-family: Consolas, monospace;
+    }
+
+    .code-artifact-pre {
+      flex: 1;
+      margin: 0;
+      padding: 16px;
+      overflow: auto;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: #e2e8f0;
+      background: transparent;
+      white-space: pre;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =========================================================================
+       ESTILOS DEL PANEL Y BADGE DE FREE CLAUDE CODE (FCC)
+       ========================================================================= */
+    .fcc-badge {
+      margin-left: 14px;
+      color: #38bdf8;
+      font-weight: 600;
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      padding: 3px 9px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+    .fcc-badge:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+    }
+    .fcc-pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #00ff88;
+      box-shadow: 0 0 6px #00ff88;
+      display: inline-block;
+      animation: pulseGreen 2s infinite;
+    }
+    .fcc-pulse-dot.offline {
+      background: #ef4444;
+      box-shadow: 0 0 6px #ef4444;
+      animation: none;
+    }
+    @keyframes pulseGreen {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+      70% { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+    }
+
+    .fcc-view-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #050811;
+    }
+    .fcc-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #090e18;
+      border-bottom: 1px solid #1a2333;
+      padding: 8px 14px;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+    .fcc-top-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: Consolas, monospace;
+    }
+    .fcc-badge-chip {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: bold;
+    }
+    .fcc-badge-chip-green {
+      background: rgba(0, 255, 136, 0.12);
+      border: 1px solid rgba(0, 255, 136, 0.35);
+      color: #00ff88;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: bold;
+    }
+    .fcc-content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .fcc-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .fcc-card {
+      background: rgba(16, 22, 34, 0.7);
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .fcc-card-label {
+      font-size: 9.5px;
+      color: #64748b;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .fcc-card-val {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .fcc-card-sub {
+      font-size: 10px;
+      color: #94a3b8;
+      font-family: Consolas, monospace;
+    }
+    .fcc-interactive-box {
+      background: rgba(11, 17, 32, 0.85);
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+    }
+    .fcc-section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+    .fcc-select {
+      background: #090e18;
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 11px;
+      outline: none;
+    }
+    .fcc-textarea {
+      width: 100%;
+      box-sizing: border-box;
+      background: #080c14;
+      border: 1px solid #202b3d;
+      border-radius: 6px;
+      color: #f1f5f9;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .fcc-textarea:focus {
+      border-color: #38bdf8;
+    }
+    .btn-fcc-submit {
+      margin-top: 8px;
+      align-self: flex-end;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      border: 1px solid #38bdf8;
+      color: #ffffff;
+      padding: 7px 16px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-fcc-submit:hover {
+      filter: brightness(1.2);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+    .fcc-response-container {
+      margin-top: 12px;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      background: #080c14;
+      overflow: hidden;
+    }
+    .fcc-response-header {
+      background: #0d1527;
+      padding: 6px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1e293b;
+    }
+    .fcc-thinking-box {
+      padding: 10px 12px;
+      background: rgba(168, 85, 247, 0.08);
+      border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+      font-size: 11px;
+      color: #c084fc;
+      font-style: italic;
+    }
+    .fcc-response-body {
+      padding: 12px;
+      font-size: 12px;
+      color: #e2e8f0;
+      line-height: 1.5;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+    .fcc-guide-box {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px dashed #334155;
+      border-radius: 6px;
+      padding: 10px 14px;
+    }
+    .fcc-spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(56, 189, 248, 0.3);
+      border-radius: 50%;
+      border-top-color: #38bdf8;
+      animation: spinFcc 1s ease-in-out infinite;
+    }
+    @keyframes spinFcc {
+      to { transform: rotate(360deg); }
+    }
+
+    /* =========================================================================
+       ESTILOS DE IMÁGENES EN CHAT Y RECONOCIMIENTO MULTIMODAL
+       ========================================================================= */
+    .chat-image-card {
+      margin: 10px 0;
+      background: rgba(10, 15, 26, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 8px;
+      overflow: hidden;
+      display: inline-flex;
+      flex-direction: column;
+      max-width: 100%;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+      transition: all 0.25s ease;
+    }
+    .chat-image-card:hover {
+      border-color: #38bdf8;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+    }
+    .chat-rendered-img {
+      display: block;
+      max-width: 100%;
+      max-height: 440px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      cursor: zoom-in;
+      background: #030712;
+      transition: opacity 0.2s ease;
+    }
+    .chat-rendered-img:hover {
+      opacity: 0.95;
+    }
+    .chat-image-toolbar {
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: #090e18;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .chat-image-caption {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 260px;
+    }
+    .btn-img-action {
+      background: #111827;
+      border: 1px solid #374151;
+      color: #e5e7eb;
+      padding: 4px 9px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-img-action:hover {
+      background: #1f2937;
+      color: #38bdf8;
+      border-color: #38bdf8;
+    }
+
+    /* Imagen pegada por el usuario en el chat */
+    .chat-user-thumbnail-wrapper {
+      margin-bottom: 8px;
+    }
+    .chat-pasted-thumb {
+      max-width: 220px;
+      max-height: 160px;
+      border-radius: 6px;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      cursor: zoom-in;
+      display: block;
+      background: #000;
+      transition: all 0.2s;
+    }
+    .chat-pasted-thumb:hover {
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Barra de previsualización de imagen adjunta antes de enviar */
+    .attached-image-bar {
+      margin: 0 16px 8px 16px;
+      padding: 8px 12px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid #38bdf8;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+      animation: fadeIn 0.2s ease;
+    }
+    .attached-thumb {
+      width: 44px;
+      height: 44px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      cursor: pointer;
+    }
+    .attached-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .attached-title {
+      font-size: 11.5px;
+      color: #38bdf8;
+      font-weight: 700;
+    }
+    .attached-subtitle {
+      font-size: 10px;
+      color: #94a3b8;
+    }
+    .btn-remove-attach {
+      background: transparent;
+      border: none;
+      color: #ef4444;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .btn-remove-attach:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+    }
+    .btn-attach {
+      background: #111827;
+      border: 1px solid #374151;
+      color: #e5e7eb;
+      font-size: 15px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .btn-attach:hover {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+    }
+
+    /* Modal Lightbox de Pantalla Completa para Imágenes */
+    .img-modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .img-modal-content {
+      margin: auto;
+      display: block;
+      max-width: 90%;
+      max-height: 85vh;
+      border-radius: 8px;
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+      animation: zoomIn 0.25s ease;
+    }
+    .img-modal-caption {
+      margin: 12px auto;
+      text-align: center;
+      color: #e2e8f0;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .img-modal-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: #f1f5f9;
+      font-size: 36px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .img-modal-close:hover {
+      color: #00f0ff;
+    }
+    @keyframes zoomIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cabecera -->
+  <header>
+    <div class="brand">
+      <div id="thinking-orb-container" class="thinking-orb-container" data-state="STATE_IDLE" title="Orbe Cognitivo JEV (Click para alternar estado)">
+        <canvas id="thinkingOrbCanvas" width="96" height="96" class="thinking-orb-canvas"></canvas>
+      </div>
+      <div class="status-dot" id="statusDot"></div>
+      <div class="brand-text">JEV</div>
+      <div class="status-text" id="statusLabel">ONLINE</div>
+      <div class="status-text" id="qaShieldBadge" style="margin-left: 14px; color: #00ff88; font-weight: 600; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; letter-spacing: 0.5px;">
+        🛡️ Escudo QA: Activo | Vulnerabilidades: 0
+      </div>
+      <div class="status-text fcc-badge" id="fccStatusBadge" onclick="openFccTab()" title="Free Claude Code Proxy (Puerto 8082). Click para abrir la consola interactiva">
+        <span id="fccPulseDot" class="fcc-pulse-dot"></span>
+        <span id="fccBadgeText">⚡ Free Claude Code: Activo (8082)</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-header" id="btnToggleArtifacts" onclick="toggleArtifactsPane()" title="Alternar Visor de Artefactos 3D">
+        🧊 Lienzo 3D
+      </button>
+      <button class="btn-header" id="btnFccToggle" onclick="openFccTab()" title="Abrir consola interactiva de Claude Code" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.35);">
+        ⚡ Claude Code
+      </button>
+      <button class="btn-header" id="btnVoiceToggle" onclick="toggleVoiceOutput()" title="Alternar voz">
+        🔇 Voz: Off
+      </button>
+      <button class="btn-stop-header" onclick="emergencyStop()">⛔ DETENER</button>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal Split-Screen -->
+  <main class="app-main">
+    
+    <!-- Panel Izquierdo: Chat -->
+    <div class="chat-pane" id="chatPane">
+      <div class="chat-container" id="chatContainer">
+        <div class="message agent">
+          <div class="msg-sender">JEV</div>
+          <div>Bienvenido al entorno JEV v2.5. Panel dual activo con soporte de síntesis visual, reconocimiento de imágenes del portapapeles y ejecución autónoma.</div>
+        </div>
+      </div>
+
+      <!-- Barra de Imagen Adjunta / Pegada -->
+      <div id="attachedImageBar" class="attached-image-bar" style="display:none;">
+        <img id="attachedThumb" src="" alt="Adjunto" class="attached-thumb" onclick="openImageModal(this.src)" />
+        <div class="attached-info">
+          <span class="attached-title" id="attachedTitle">📷 Imagen adjunta (Portapapeles)</span>
+          <span class="attached-subtitle">JEV la reconocerá y analizará automáticamente</span>
+        </div>
+        <button type="button" class="btn-remove-attach" onclick="clearAttachedImage()" title="Eliminar imagen">✕</button>
+      </div>
+
+      <div class="input-dock">
+        <button class="btn-mic" id="btnMic" onclick="toggleMicrophone()" title="Hablar por micrófono">🎙️</button>
+        <button class="btn-attach" id="btnAttach" onclick="document.getElementById('fileImageInput').click()" title="Adjuntar imagen o pega con Ctrl+V">📷</button>
+        <input type="file" id="fileImageInput" accept="image/*" style="display:none;" onchange="handleFileSelect(event)">
+        <input type="text" class="chat-input" id="promptInput" 
+               placeholder="Escribe una tarea, pide crear una imagen o pega una captura (Ctrl+V)..." 
+               autocomplete="off" 
+               onkeydown="if(event.key === 'Enter') submitTask()">
+        <button class="btn-send" onclick="submitTask()">ENVIAR</button>
+      </div>
+    </div>
+
+    <!-- Barra Divisora / Splitter -->
+    <div class="pane-splitter" id="paneSplitter" title="Arrastrar para redimensionar"></div>
+
+    <!-- Panel Derecho: Artefactos & 3D Viewport -->
+    <div class="artifacts-pane" id="artifactsPane">
+      <div class="artifacts-header">
+        <div class="artifacts-tabs">
+          <button class="artifact-tab active" id="tab3D" onclick="switchArtifactTab('3d')">🧊 3D Viewport</button>
+          <button class="artifact-tab" id="tabWeb" onclick="switchArtifactTab('web')">🌐 Vista Previa Web (iframe)</button>
+          <button class="artifact-tab" id="tabCode" onclick="switchArtifactTab('code')">📄 Código Fuente</button>
+          <button class="artifact-tab" id="tabFcc" onclick="switchArtifactTab('fcc')" style="color: #38bdf8;">⚡ Claude Code (FCC)</button>
+        </div>
+        <div class="artifacts-tools">
+          <button class="btn-artifact-tool" onclick="reset3DCamera()" title="Centrar cámara">🎥 Centrar</button>
+          <button class="btn-artifact-tool" onclick="clear3DScene()" title="Limpiar lienzo">🧹 Limpiar</button>
+          <button class="btn-artifact-tool" onclick="toggleArtifactsPane()" title="Cerrar panel">✕</button>
+        </div>
+      </div>
+
+      <div class="artifacts-body">
+        <!-- Vista 3D WebGL con Three.js -->
+        <div class="artifact-view active" id="view3D">
+          <div id="threeCanvasContainer"></div>
+          <div class="viewport-overlay">
+            <div>Mallas: <span id="hudCount">0</span></div>
+            <div>Estado: <span id="hudState">WebGL Activo</span></div>
+          </div>
+          <div class="viewport-instructions">
+            Arrastrar: Rotar orbital | Rueda: Zoom | Click: Inspeccionar
+          </div>
+        </div>
+
+        <!-- Vista Previa Web Interactiva (iframe sandbox) -->
+        <div class="artifact-view" id="viewWeb">
+          <div class="web-preview-wrapper" style="width:100%; height:100%; display:flex; flex-direction:column; background:#ffffff;">
+            <div class="web-preview-bar" style="height:36px; background:#0b1120; border-bottom:1px solid #1e293b; display:flex; align-items:center; justify-content:space-between; padding:0 12px; font-size:11px; color:#94a3b8; flex-shrink:0;">
+              <span id="webPreviewTitle" style="color:#00f0ff; font-weight:700; letter-spacing:0.5px;">🌐 VISTA PREVIA WEB (SANDBOX)</span>
+              <div style="display:flex; gap:6px;">
+                <button class="btn-artifact-tool" onclick="reloadWebPreview()" title="Recargar vista">🔄 Recargar</button>
+                <button class="btn-artifact-tool" onclick="openWebPreviewExternal()" title="Abrir en ventana emergente">↗ Abrir</button>
+              </div>
+            </div>
+            <iframe id="webPreviewFrame" sandbox="allow-scripts allow-forms allow-same-origin allow-modals" style="flex:1; width:100%; height:100%; border:none; background:#ffffff;"></iframe>
+          </div>
+        </div>
+
+        <!-- Vista de Código / Archivos -->
+        <div class="artifact-view" id="viewCode">
+          <div class="code-artifact-wrapper">
+            <div class="code-artifact-bar">
+              <span id="codeArtifactFilename">artefacto.py</span>
+              <button class="btn-copy-code" onclick="copyArtifactCode()">📋 Copiar Código</button>
+            </div>
+            <pre class="code-artifact-pre"><code id="codeArtifactBody">// No se ha generado ningún archivo de código aún.</code></pre>
+          </div>
+        </div>
+
+        <!-- Vista Especializada de Free Claude Code (FCC) -->
+        <div class="artifact-view" id="viewFcc">
+          <div class="fcc-view-wrapper">
+            <!-- Barra superior de FCC -->
+            <div class="fcc-top-bar">
+              <div class="fcc-top-title">
+                <span style="color:#38bdf8; font-weight:700;">⚡ CLAUDE CODE PROXY</span>
+                <span class="fcc-badge-chip" id="fccChipState">OPERATIVO :8082</span>
+                <span class="fcc-badge-chip-green" id="fccChipModel">LLaMA 3.3 70B [Free]</span>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="btn-artifact-tool" onclick="refreshFccStatus()" title="Verificar estado de salud del servidor">🔄 Estado</button>
+                <button class="btn-artifact-tool" onclick="restartFccServer()" title="Reiniciar servidor proxy">⚡ Reiniciar</button>
+              </div>
+            </div>
+
+            <!-- Contenido Scrollable de FCC -->
+            <div class="fcc-content-scroll">
+              <!-- Tarjetas de Telemetría -->
+              <div class="fcc-cards-grid">
+                <div class="fcc-card">
+                  <div class="fcc-card-label">ESTADO DEL SERVIDOR LOCAL</div>
+                  <div class="fcc-card-val" id="fccCardStatus" style="color:#00ff88;">ONLINE ✅</div>
+                  <div class="fcc-card-sub" id="fccCardUrl">http://127.0.0.1:8082/v1</div>
+                </div>
+                <div class="fcc-card">
+                  <div class="fcc-card-label">PROVEEDOR / COSTO DE TOKENS</div>
+                  <div class="fcc-card-val" style="color:#38bdf8;">OpenRouter Free API</div>
+                  <div class="fcc-card-sub">0$ / Sin límites de coste</div>
+                </div>
+                <div class="fcc-card">
+                  <div class="fcc-card-label">CONECTOR JEV</div>
+                  <div class="fcc-card-val" style="color:#a855f7;">skill_claude_code</div>
+                  <div class="fcc-card-sub">Autónomo + Telegram Activo</div>
+                </div>
+              </div>
+
+              <!-- Playground interactivo de Claude Code -->
+              <div class="fcc-interactive-box">
+                <div class="fcc-section-title">
+                  <span>🧠 CONSOLA DE DESARROLLO CON CLAUDE CODE</span>
+                  <span style="font-size:11px; color:#64748b; font-weight:normal;">Envía prompts directos al motor de codificación</span>
+                </div>
+
+                <div style="margin-bottom: 10px; display:flex; gap:8px; align-items:center;">
+                  <label style="font-size:11px; color:#94a3b8; font-weight:600;">Modelo:</label>
+                  <select id="fccModelSelector" class="fcc-select">
+                    <option value="anthropic/ollama/qwen2.5-coder:7b" selected>Qwen 2.5 Coder 7B (Ollama Local - 100% Gratuito y Offline)</option>
+                    <option value="open_router/meta-llama/llama-3.3-70b-instruct:free">Meta LLaMA 3.3 70B Instruct (Free OpenRouter)</option>
+                    <option value="open_router/deepseek/deepseek-r1:free">DeepSeek R1 Reasoning (Free OpenRouter)</option>
+                    <option value="anthropic/ollama/deepseek-coder:6.7b">DeepSeek Coder 6.7B (Ollama Local)</option>
+                    <option value="anthropic/ollama/llama3.1:8b">LLaMA 3.1 8B (Ollama Local)</option>
+                    <option value="open_router/anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet (API Key OpenRouter)</option>
+                  </select>
+                </div>
+
+                <div style="position:relative;">
+                  <textarea id="fccPromptInput" class="fcc-textarea" rows="3" placeholder="Ej: Escribe un script en Python para descargar y procesar datos JSON con validación Pydantic..."></textarea>
+                  <button class="btn-fcc-submit" id="btnFccSubmit" onclick="submitFccQuery()">
+                    <span>⚡ Consultar a Claude Code</span>
+                  </button>
+                </div>
+
+                <!-- Indicador de Carga -->
+                <div id="fccLoadingIndicator" style="display:none; padding:12px; color:#38bdf8; font-size:12px; align-items:center; gap:8px;">
+                  <span class="fcc-spinner"></span> Claude Code razonando y generando código mediante OpenRouter...
+                </div>
+
+                <!-- Resultado / Respuesta de Claude Code -->
+                <div class="fcc-response-container" id="fccResponseContainer" style="display:none;">
+                  <div class="fcc-response-header">
+                    <span id="fccResponseModel" style="color:#00f0ff; font-weight:600; font-size:11px;">Respuesta de Claude Code</span>
+                    <div style="display:flex; gap:6px;">
+                      <button class="btn-artifact-tool" onclick="copyFccResponse()">📋 Copiar</button>
+                      <button class="btn-artifact-tool" onclick="projectFccToEditor()">📄 Llevar a Editor de Código</button>
+                    </div>
+                  </div>
+                  <!-- Pensamiento interno si existe -->
+                  <div id="fccThinkingBlock" style="display:none;" class="fcc-thinking-box"></div>
+                  <!-- Contenido de respuesta -->
+                  <div class="fcc-response-body" id="fccResponseBody"></div>
+                </div>
+              </div>
+
+              <!-- Guía de Integración Interna -->
+              <div class="fcc-guide-box">
+                <div style="color:#94a3b8; font-weight:700; margin-bottom:6px; font-size:11px;">🔌 INTEGRACIÓN EN SEGUNDO PLANO CON JEV:</div>
+                <div style="color:#64748b; font-size:11px; line-height:1.5;">
+                  • JEV invoca automáticamente a Claude Code cuando detecta tareas complejas de refactorización o generación de arquitectura mediante la herramienta <code>skill_claude_code</code>.<br>
+                  • También disponible remotamente a través de Telegram: cualquier solicitud de código vía Telegram puede ser sintetizada por Claude Code.<br>
+                  • Servidor daemon administrado por <code>FreeClaudeCodeService</code> en <code>c:\Users\juand\OneDrive\Desktop\IA_Automejorable\tools\free-claude-code</code>.
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal Lightbox para visualización ampliada de imágenes -->
+  <div id="imageLightboxModal" class="img-modal" onclick="closeImageModal(event)">
+    <span class="img-modal-close" onclick="closeImageModal(event)">&times;</span>
+    <img class="img-modal-content" id="imgModalTarget" src="" alt="Vista previa" onclick="event.stopPropagation()">
+    <div id="imgModalCaption" class="img-modal-caption"></div>
+  </div>
+
+  <script>
+    let isBusy = false;
+    let recognition = null;
+    let isRecording = false;
+
+    // --- RECONOCIMIENTO DE VOZ ---
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return;
+      try {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'es-ES';
+        recognition.continuous = false;
+        recognition.interimResults = true;
+
+        recognition.onstart = () => {
+          isRecording = true;
+          document.getElementById('btnMic').classList.add('recording');
+          document.getElementById('statusLabel').innerText = 'ESCUCHANDO...';
+        };
+        recognition.onresult = (event) => {
+          let text = '';
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            text += event.results[i][0].transcript;
+          }
+          document.getElementById('promptInput').value = text;
+        };
+        recognition.onerror = () => {
+          isRecording = false;
+          document.getElementById('btnMic').classList.remove('recording');
+          updateStatus();
+        };
+        recognition.onend = () => {
+          isRecording = false;
+          document.getElementById('btnMic').classList.remove('recording');
+          updateStatus();
+        };
+      } catch (e) { console.error(e); }
+    }
+
+    function toggleMicrophone() {
+      if (!recognition) initSpeechRecognition();
+      if (!recognition) {
+        alert("Reconocimiento de voz no soportado por este navegador.");
+        return;
+      }
+      if (isRecording) {
+        recognition.stop();
+      } else {
+        try { recognition.start(); } catch (e) { console.error(e); }
+      }
+    }
+
+    // --- SÍNTESIS DE VOZ ---
+    let currentAudioPlayer = null;
+
+    window.playAudioOutput = function(audioUrl) {
+      if (!audioUrl) return;
+      try {
+        if (currentAudioPlayer) {
+          currentAudioPlayer.pause();
+          currentAudioPlayer = null;
+        }
+        currentAudioPlayer = new Audio(audioUrl);
+        if (window.setAgentOrbState) window.setAgentOrbState(STATE_SPEAKING);
+        currentAudioPlayer.onended = () => {
+          if (window.setAgentOrbState) window.setAgentOrbState(STATE_IDLE);
+        };
+        currentAudioPlayer.play().catch(e => console.log("Audio playback info:", e));
+      } catch (err) {
+        console.error("Error reproduciendo audio:", err);
+      }
+    };
+
+    function toggleVoiceOutput() {
+      voiceEnabled = !voiceEnabled;
+      const btn = document.getElementById('btnVoiceToggle');
+      if (voiceEnabled) {
+        btn.classList.add('active');
+        btn.innerHTML = '🔊 Voz: On';
+        if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
+      } else {
+        btn.classList.remove('active');
+        btn.innerHTML = '🔇 Voz: Off';
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        if (currentAudioPlayer) {
+          currentAudioPlayer.pause();
+          currentAudioPlayer = null;
+        }
+      }
+
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.toggle_voice_synthesis) {
+        window.pywebview.api.toggle_voice_synthesis(voiceEnabled);
+      }
+    }
+
+    function getBestNaturalSpanishVoice() {
+      if (!('speechSynthesis' in window)) return null;
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices || voices.length === 0) return null;
+      const naturalEs = voices.find(v => 
+        (v.lang.startsWith('es') || v.lang.includes('ES')) && 
+        (v.name.toLowerCase().includes('natural') || v.name.toLowerCase().includes('neural'))
+      );
+      if (naturalEs) return naturalEs;
+      const anyEs = voices.find(v => v.lang.startsWith('es') || v.lang.includes('ES'));
+      return anyEs || voices[0] || null;
+    }
+
+    function speakText(text) {
+      if (!voiceEnabled || !('speechSynthesis' in window)) return;
+      try {
+        window.speechSynthesis.cancel();
+        const clean = text
+          .replace(/```[\s\S]*?```/g, 'código omitido')
+          .replace(/[*#`_{}\[\]()\\|<>~]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim().slice(0, 250);
+        if (!clean) return;
+        const utter = new SpeechSynthesisUtterance(clean);
+        utter.rate = 0.98;
+        utter.pitch = 1.0;
+        const bestVoice = getBestNaturalSpanishVoice();
+        if (bestVoice) { utter.voice = bestVoice; utter.lang = bestVoice.lang; }
+        utter.onstart = () => {
+          if (window.setAgentOrbState) window.setAgentOrbState(STATE_SPEAKING);
+        };
+        utter.onend = () => {
+          if (window.setAgentOrbState) window.setAgentOrbState(STATE_IDLE);
+        };
+        utter.onerror = () => {
+          if (window.setAgentOrbState) window.setAgentOrbState(STATE_IDLE);
+        };
+        window.speechSynthesis.speak(utter);
+      } catch (err) { console.error("Voz error:", err); }
+    }
+
+    function updateStatus(state) {
+      const dot = document.getElementById('statusDot');
+      const label = document.getElementById('statusLabel');
+      if (state === 'busy') {
+        dot.className = 'status-dot busy';
+        label.innerText = 'PROCESANDO...';
+      } else if (state === 'stopped') {
+        dot.className = 'status-dot stopped';
+        label.innerText = 'DETENIDO';
+      } else {
+        dot.className = 'status-dot';
+        label.innerText = 'ONLINE';
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function copyCode(btn) {
+      try {
+        const container = btn.closest('.code-container');
+        const codeEl = container ? container.querySelector('code') : null;
+        const textToCopy = codeEl ? codeEl.innerText : '';
+        if (!textToCopy) return;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          btn.innerHTML = '✓ Copiado';
+          setTimeout(() => { btn.innerHTML = '📋 Copiar'; }, 2000);
+        });
+      } catch (e) {}
+    }
+
+    function copyArtifactCode() {
+      const el = document.getElementById('codeArtifactBody');
+      if (el && el.innerText) {
+        navigator.clipboard.writeText(el.innerText).then(() => {
+          alert("Código copiado al portapapeles.");
+        });
+      }
+    }
+
+    // --- GESTIÓN DE IMÁGENES Y VISIÓN MULTIMODAL ---
+    window.currentAttachedImage = null;
+
+    function setAttachedImage(dataUrl, name) {
+      window.currentAttachedImage = dataUrl;
+      const bar = document.getElementById('attachedImageBar');
+      const thumb = document.getElementById('attachedThumb');
+      const title = document.getElementById('attachedTitle');
+      if (thumb) thumb.src = dataUrl;
+      if (title) title.innerText = name ? `📷 ${name}` : '📷 Imagen adjunta (Portapapeles)';
+      if (bar) bar.style.display = 'flex';
+    }
+
+    function clearAttachedImage() {
+      window.currentAttachedImage = null;
+      const bar = document.getElementById('attachedImageBar');
+      const thumb = document.getElementById('attachedThumb');
+      const fileInput = document.getElementById('fileImageInput');
+      if (bar) bar.style.display = 'none';
+      if (thumb) thumb.src = '';
+      if (fileInput) fileInput.value = '';
+    }
+
+    function handlePasteEvent(e) {
+      if (!e.clipboardData || !e.clipboardData.items) return;
+      const items = e.clipboardData.items;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) {
+            e.preventDefault();
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+              setAttachedImage(evt.target.result, 'Captura del portapapeles (' + (file.name || 'clipboard.png') + ')');
+            };
+            reader.readAsDataURL(file);
+            break;
+          }
+        }
+      }
+    }
+
+    function handleFileSelect(e) {
+      const file = e.target.files && e.target.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          setAttachedImage(evt.target.result, file.name);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function handleDropEvent(e) {
+      e.preventDefault();
+      if (!e.dataTransfer || !e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          setAttachedImage(evt.target.result, file.name);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+    }
+
+    function openImageModal(src, caption) {
+      const modal = document.getElementById('imageLightboxModal');
+      const target = document.getElementById('imgModalTarget');
+      const cap = document.getElementById('imgModalCaption');
+      if (!modal || !target) return;
+      target.src = src;
+      if (cap) cap.innerText = caption || 'Vista ampliada';
+      modal.style.display = 'flex';
+    }
+
+    function closeImageModal(e) {
+      if (e) e.stopPropagation();
+      const modal = document.getElementById('imageLightboxModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function downloadImageFromCard(btn, filename) {
+      try {
+        const card = btn.closest('.chat-image-card');
+        const img = card ? card.querySelector('img') : null;
+        if (!img || !img.src) return;
+        downloadImage(img.src, filename);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function downloadImage(src, filename) {
+      const a = document.createElement('a');
+      a.href = src;
+      a.download = (filename || 'imagen_jev').replace(/[^a-zA-Z0-9_-]/g, '_') + '.jpg';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    window.onAgentImageGenerated = function(imageUri, prompt) {
+      if (!imageUri) return;
+      const cleanPrompt = prompt || 'Imagen generada por IA';
+      const markdownImg = `![${cleanPrompt}](${imageUri})`;
+      appendMessage('agent', 'JEV (SÍNTESIS VISUAL)', markdownImg);
+    };
+
+    function renderMarkdown(raw) {
+      if (!raw) return '';
+      const codeBlocks = [];
+      const imageBlocks = [];
+      const codePlaceholder = '___CODE_BLOCK_';
+      const imgPlaceholder = '___IMG_BLOCK_';
+
+      // 1. Extraer bloques de código multilínea antes de escapar
+      let textWithPlaceholders = raw.replace(/```([a-zA-Z0-9_-]*)\r?\n([\s\S]*?)```/g, (match, lang, code) => {
+        const idx = codeBlocks.length;
+        codeBlocks.push({ lang: lang.trim() || 'CÓDIGO', code: code });
+        return `${codePlaceholder}${idx}___`;
+      });
+
+      // 2. Extraer imágenes markdown: ![alt](src) antes de escapar para proteger URIs base64
+      textWithPlaceholders = textWithPlaceholders.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+        const idx = imageBlocks.length;
+        imageBlocks.push({ alt: alt.trim() || 'Imagen Generada', src: src.trim() });
+        return `${imgPlaceholder}${idx}___`;
+      });
+
+      let safeText = escapeHtml(textWithPlaceholders);
+      safeText = safeText.replace(/^### (.*$)/gim, '<div class="md-h3">$1</div>');
+      safeText = safeText.replace(/^## (.*$)/gim, '<div class="md-h2">$1</div>');
+      safeText = safeText.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      safeText = safeText.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+      safeText = safeText.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+      safeText = safeText.replace(/\r?\n/g, '<br>');
+
+      // Restaurar bloques de código
+      safeText = safeText.replace(new RegExp(`${codePlaceholder}(\\d+)___`, 'g'), (match, idxStr) => {
+        const item = codeBlocks[parseInt(idxStr, 10)];
+        if (!item) return '';
+        return `<div class="code-container">
+          <div class="code-header">
+            <span class="code-lang">${escapeHtml(item.lang)}</span>
+            <button class="btn-copy-code" onclick="copyCode(this)">📋 Copiar</button>
+          </div>
+          <pre class="code-content"><code>${escapeHtml(item.code)}</code></pre>
+        </div>`;
+      });
+
+      // Restaurar tarjetas de imágenes interactivas
+      safeText = safeText.replace(new RegExp(`${imgPlaceholder}(\\d+)___`, 'g'), (match, idxStr) => {
+        const item = imageBlocks[parseInt(idxStr, 10)];
+        if (!item) return '';
+        const safeAlt = escapeHtml(item.alt);
+        return `<div class="chat-image-card">
+          <img src="${item.src}" alt="${safeAlt}" class="chat-rendered-img" onclick="openImageModal(this.src, '${safeAlt}')" title="Haz clic para ampliar" />
+          <div class="chat-image-toolbar">
+            <span class="chat-image-caption" title="${safeAlt}">🎨 ${safeAlt}</span>
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="btn-img-action" onclick="openImageModal(this.closest('.chat-image-card').querySelector('img').src, '${safeAlt}')">🔍 Ampliar</button>
+              <button type="button" class="btn-img-action" onclick="downloadImageFromCard(this, '${safeAlt}')">💾 Guardar</button>
+            </div>
+          </div>
+        </div>`;
+      });
+
+      return safeText;
+    }
+
+    function appendMessage(type, sender, text, pastedImage) {
+      const container = document.getElementById('chatContainer');
+      const msg = document.createElement('div');
+      msg.className = 'message ' + type;
+      const senderDiv = document.createElement('div');
+      senderDiv.className = 'msg-sender';
+      senderDiv.innerText = sender;
+      const contentDiv = document.createElement('div');
+
+      if (pastedImage) {
+        const imgWrap = document.createElement('div');
+        imgWrap.className = 'chat-user-thumbnail-wrapper';
+        const thumb = document.createElement('img');
+        thumb.src = pastedImage;
+        thumb.alt = 'Imagen adjunta';
+        thumb.className = 'chat-pasted-thumb';
+        thumb.title = 'Haz clic para ampliar';
+        thumb.onclick = function() { openImageModal(this.src, 'Imagen pegada por el usuario'); };
+        imgWrap.appendChild(thumb);
+        contentDiv.appendChild(imgWrap);
+      }
+
+      if (type === 'agent' || type === 'user' || type === 'thought') {
+        const textSpan = document.createElement('div');
+        textSpan.innerHTML = renderMarkdown(text);
+        contentDiv.appendChild(textSpan);
+      } else {
+        const textSpan = document.createElement('div');
+        textSpan.innerText = text;
+        contentDiv.appendChild(textSpan);
+      }
+      msg.appendChild(senderDiv);
+      msg.appendChild(contentDiv);
+      container.appendChild(msg);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function submitTask() {
+      const input = document.getElementById('promptInput');
+      const text = input.value.trim();
+      const attached = window.currentAttachedImage;
+
+      if (!text && !attached) return;
+
+      input.value = '';
+      appendMessage('user', 'TÚ', text || 'Analiza esta imagen adjunta', attached);
+      updateStatus('busy');
+
+      if (window.pywebview && window.pywebview.api) {
+        if (attached) {
+          window.pywebview.api.execute_task_with_image(text || 'Describe y analiza esta imagen en detalle.', attached);
+          clearAttachedImage();
+        } else {
+          window.pywebview.api.execute_task(text);
+        }
+      }
+    }
+
+    function emergencyStop() {
+      updateStatus('stopped');
+      appendMessage('danger', 'SISTEMA', '⛔ Tarea cancelada inmediatamente.');
+      speakText("Operación cancelada.");
+      if (window.pywebview && window.pywebview.api) {
+        window.pywebview.api.stop_agent();
+      }
+    }
+
+    // --- GESTIÓN DE PANELES Y TABS ---
+    function toggleArtifactsPane(forceState) {
+      const pane = document.getElementById('artifactsPane');
+      const btn = document.getElementById('btnToggleArtifacts');
+      if (forceState !== undefined) {
+        pane.classList.toggle('collapsed', !forceState);
+      } else {
+        pane.classList.toggle('collapsed');
+      }
+      const isVisible = !pane.classList.contains('collapsed');
+      btn.classList.toggle('active', isVisible);
+      setTimeout(onWindowResize, 200);
+    }
+
+    function switchArtifactTab(tabId) {
+      const tab3D = document.getElementById('tab3D');
+      const tabWeb = document.getElementById('tabWeb');
+      const tabCode = document.getElementById('tabCode');
+      const tabFcc = document.getElementById('tabFcc');
+      const view3D = document.getElementById('view3D');
+      const viewWeb = document.getElementById('viewWeb');
+      const viewCode = document.getElementById('viewCode');
+      const viewFcc = document.getElementById('viewFcc');
+
+      if (tab3D) tab3D.classList.toggle('active', tabId === '3d');
+      if (tabWeb) tabWeb.classList.toggle('active', tabId === 'web');
+      if (tabCode) tabCode.classList.toggle('active', tabId === 'code');
+      if (tabFcc) tabFcc.classList.toggle('active', tabId === 'fcc');
+
+      if (view3D) view3D.classList.toggle('active', tabId === '3d');
+      if (viewWeb) viewWeb.classList.toggle('active', tabId === 'web');
+      if (viewCode) viewCode.classList.toggle('active', tabId === 'code');
+      if (viewFcc) viewFcc.classList.toggle('active', tabId === 'fcc');
+
+      if (tabId === '3d') {
+        setTimeout(onWindowResize, 50);
+      }
+    }
+
+    function openFccTab() {
+      toggleArtifactsPane(true);
+      switchArtifactTab('fcc');
+      refreshFccStatus();
+    }
+
+    // --- MOTOR 3D THREE.JS EN VIVO & ORBIT CONTROLS NATIVOS ---
+    let scene, camera, renderer, dynamicGroup;
+    let controls = null;
+    let sceneGrid = null;
+    let pendingSceneData = null;
+
+    class SimpleOrbitControls {
+      constructor(camera, domElement) {
+        this.camera = camera;
+        this.domElement = domElement;
+        this.target = new THREE.Vector3(0, 0, 0);
+        this.radius = 8.5;
+        this.theta = Math.PI / 4;
+        this.phi = Math.PI / 3;
+        this.minRadius = 0.05;
+        this.maxRadius = 10000.0;
+        this.isMouseDown = false;
+        this.isPanning = false;
+        this.prevMouse = { x: 0, y: 0 };
+
+        this.onMouseDown = this.onMouseDown.bind(this);
+        this.onMouseMove = this.onMouseMove.bind(this);
+        this.onMouseUp = this.onMouseUp.bind(this);
+        this.onWheel = this.onWheel.bind(this);
+
+        this.domElement.addEventListener('mousedown', this.onMouseDown);
+        window.addEventListener('mousemove', this.onMouseMove);
+        window.addEventListener('mouseup', this.onMouseUp);
+        this.domElement.addEventListener('wheel', this.onWheel, { passive: false });
+        this.updateCamera();
+      }
+
+      updateCamera() {
+        this.phi = Math.max(0.01, Math.min(Math.PI - 0.01, this.phi));
+        const x = this.target.x + this.radius * Math.sin(this.phi) * Math.sin(this.theta);
+        const y = this.target.y + this.radius * Math.cos(this.phi);
+        const z = this.target.z + this.radius * Math.sin(this.phi) * Math.cos(this.theta);
+        this.camera.position.set(x, y, z);
+        this.camera.lookAt(this.target);
+      }
+
+      onMouseDown(e) {
+        this.isMouseDown = true;
+        this.isPanning = (e.button === 2 || e.shiftKey);
+        this.prevMouse = { x: e.clientX, y: e.clientY };
+      }
+
+      onMouseMove(e) {
+        if (!this.isMouseDown) return;
+        const deltaX = e.clientX - this.prevMouse.x;
+        const deltaY = e.clientY - this.prevMouse.y;
+        this.prevMouse = { x: e.clientX, y: e.clientY };
+
+        if (this.isPanning) {
+          const factor = this.radius * 0.0015;
+          this.target.x -= deltaX * factor;
+          this.target.y += deltaY * factor;
+        } else {
+          this.theta -= deltaX * 0.008;
+          this.phi -= deltaY * 0.008;
+        }
+        this.updateCamera();
+      }
+
+      onMouseUp() {
+        this.isMouseDown = false;
+      }
+
+      onWheel(e) {
+        e.preventDefault();
+        this.radius += e.deltaY * 0.01;
+        this.radius = Math.max(this.minRadius, Math.min(this.maxRadius, this.radius));
+        this.updateCamera();
+      }
+
+      reset() {
+        this.target.set(0, 0, 0);
+        this.radius = 12.0;
+        this.theta = Math.PI / 4;
+        this.phi = Math.PI / 3;
+        this.updateCamera();
+        // Reencuadrar la escena activa (piezas CAD en milímetros incluidas)
+        if (typeof frameDynamicGroup === 'function') {
+          const fitted = frameDynamicGroup(1.7);
+          if (!fitted) this.updateCamera();
+        }
+      }
+    }
+
+    function initThreeEngine() {
+      const container = document.getElementById('threeCanvasContainer');
+      if (!container || !window.THREE) return;
+
+      const width = container.clientWidth || 400;
+      const height = container.clientHeight || 400;
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color('#050811');
+
+      camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 1000);
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      if (THREE.sRGBEncoding !== undefined) renderer.outputEncoding = THREE.sRGBEncoding;
+      if (THREE.ACESFilmicToneMapping !== undefined) {
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 0.98;
+      }
+      container.innerHTML = '';
+      container.appendChild(renderer.domElement);
+
+      controls = new SimpleOrbitControls(camera, renderer.domElement);
+
+      // Iluminación de estudio (clave blanca + relleno cian + contraluz magenta)
+      const ambient = new THREE.AmbientLight(0xffffff, 0.42);
+      scene.add(ambient);
+
+      const hemiLight = new THREE.HemisphereLight(0x9fd8ff, 0x0a1220, 0.65);
+      scene.add(hemiLight);
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.05);
+      keyLight.position.set(9, 14, 10);
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0x00f0ff, 0.55);
+      fillLight.position.set(-10, 5, -8);
+      scene.add(fillLight);
+
+      const rimLight = new THREE.DirectionalLight(0xff0077, 0.35);
+      rimLight.position.set(2, -9, -12);
+      scene.add(rimLight);
+
+      // Rejilla base
+      applyGrid(14, 14, -1.5);
+
+      dynamicGroup = new THREE.Group();
+      scene.add(dynamicGroup);
+
+      // Exponer instancias Three.js activas para inyección de scripts frontend desacoplados
+      window.scene = scene;
+      window.camera = camera;
+      window.renderer = renderer;
+      window.controls = controls;
+      window.dynamicGroup = dynamicGroup;
+
+      // Malla de bienvenida (Torus holográfico giratorio)
+      const demoGeo = new THREE.TorusGeometry(1.6, 0.35, 24, 48);
+      const demoMat = new THREE.MeshStandardMaterial({
+        color: 0x00f0ff,
+        roughness: 0.2,
+        metalness: 0.8,
+        wireframe: false
+      });
+      const demoMesh = new THREE.Mesh(demoGeo, demoMat);
+      demoMesh.name = "Demo_Holo_Ring";
+      dynamicGroup.add(demoMesh);
+      updateHudCount();
+
+      // Detección de clics por raycasting
+      renderer.domElement.addEventListener('click', onCanvasClick);
+
+      animate();
+
+      // Si una escena (p. ej. una pieza CAD) llegó antes de que Three.js
+      // terminara de montarse, se renderiza ahora.
+      if (pendingSceneData) {
+        const queued = pendingSceneData;
+        pendingSceneData = null;
+        render3DScene(queued);
+      }
+    }
+
+    function applyGrid(size, divisions, y) {
+      if (!scene) return;
+      if (sceneGrid) {
+        scene.remove(sceneGrid);
+        if (sceneGrid.geometry) sceneGrid.geometry.dispose();
+        if (sceneGrid.material) sceneGrid.material.dispose();
+        sceneGrid = null;
+      }
+      const s = Math.max(4, Number(size) || 14);
+      const d = Math.max(4, Math.min(120, Number(divisions) || 14));
+      sceneGrid = new THREE.GridHelper(s, d, 0x00f0ff, 0x1e293b);
+      sceneGrid.position.y = (y === undefined || y === null) ? -1.5 : Number(y);
+      scene.add(sceneGrid);
+    }
+
+    function onCanvasClick(event) {
+      if (!scene || !camera) return;
+      const rect = renderer.domElement.getBoundingClientRect();
+      const mouse = new THREE.Vector2(
+        ((event.clientX - rect.left) / rect.width) * 2 - 1,
+        -((event.clientY - rect.top) / rect.height) * 2 + 1
+      );
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(dynamicGroup.children, true);
+      if (intersects.length > 0) {
+        const hit = intersects[0].object;
+        if (hit.material && hit.material.emissive) {
+          const origColor = hit.material.emissive.getHex();
+          hit.material.emissive.setHex(0xffffff);
+          setTimeout(() => { hit.material.emissive.setHex(origColor); }, 300);
+        }
+        if (window.pywebview && window.pywebview.api && window.pywebview.api.on_viewport_event) {
+          window.pywebview.api.on_viewport_event('mesh_selected', {
+            name: hit.name || 'Malla_Sin_Nombre',
+            position: [hit.position.x, hit.position.y, hit.position.z]
+          });
+        }
+      }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (dynamicGroup) {
+        // Rotación continua sutil del conjunto
+        dynamicGroup.rotation.y += 0.003;
+      }
+      if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+      }
+    }
+
+    function onWindowResize() {
+      const container = document.getElementById('threeCanvasContainer');
+      if (!container || !renderer || !camera) return;
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      if (width > 0 && height > 0) {
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+      }
+    }
+    window.addEventListener('resize', onWindowResize);
+
+    function reset3DCamera() {
+      if (controls) controls.reset();
+    }
+
+    function disposeObject3D(obj) {
+      if (!obj) return;
+      obj.traverse(function (node) {
+        if (node.geometry) node.geometry.dispose();
+        if (node.material) {
+          if (Array.isArray(node.material)) {
+            node.material.forEach(function (m) { if (m) m.dispose(); });
+          } else {
+            node.material.dispose();
+          }
+        }
+      });
+    }
+
+    function clear3DScene() {
+      if (!dynamicGroup) return;
+      while (dynamicGroup.children.length > 0) {
+        const obj = dynamicGroup.children[0];
+        disposeObject3D(obj);
+        dynamicGroup.remove(obj);
+      }
+      updateHudCount();
+    }
+
+    function updateHudCount() {
+      const countEl = document.getElementById('hudCount');
+      if (countEl && dynamicGroup) {
+        let meshes = 0;
+        dynamicGroup.traverse(function (node) { if (node.isMesh) meshes += 1; });
+        countEl.innerText = meshes;
+      }
+    }
+
+    // --- PARSER DE ESCENAS 3D (JSON THREE.JS + BUFFERGEOMETRY REAL) ---
+    function createGeometryFromSpec(gInfo) {
+      const type = (gInfo && gInfo.type) || 'BoxGeometry';
+      const p = (gInfo && gInfo.parameters) || {};
+
+      if (type === 'BufferGeometry') {
+        const raw = gInfo.positions || [];
+        if (!raw.length) return new THREE.BoxGeometry(2, 2, 2);
+        const flat = Array.isArray(raw[0]) ? [].concat.apply([], raw) : raw;
+        const positions = new Float32Array(flat);
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const indices = gInfo.indices || [];
+        if (indices.length) {
+          const vertexCount = positions.length / 3;
+          const IndexArray = vertexCount > 65535 ? Uint32Array : Uint16Array;
+          geometry.setIndex(new THREE.BufferAttribute(new IndexArray(indices), 1));
+        }
+        geometry.computeVertexNormals();
+        geometry.computeBoundingSphere();
+        return geometry;
+      }
+
+      switch (type) {
+        case 'SphereGeometry':
+          return new THREE.SphereGeometry(p.radius || 1.5, p.widthSegments || 32, p.heightSegments || 32);
+        case 'CylinderGeometry':
+          return new THREE.CylinderGeometry(
+            p.radiusTop !== undefined ? p.radiusTop : 1,
+            p.radiusBottom !== undefined ? p.radiusBottom : 1,
+            p.height || 3,
+            p.radialSegments || 32
+          );
+        case 'ConeGeometry':
+          return new THREE.ConeGeometry(p.radius || 1, p.height || 2, p.radialSegments || 24);
+        case 'TorusGeometry':
+          return new THREE.TorusGeometry(p.radius || 1.8, p.tube || 0.4, p.radialSegments || 24, p.tubularSegments || 48);
+        case 'PlaneGeometry':
+          return new THREE.PlaneGeometry(p.width || 10, p.height || 10);
+        case 'CircleGeometry':
+          return new THREE.CircleGeometry(p.radius || 1, p.segments || 32);
+        case 'RingGeometry':
+          return new THREE.RingGeometry(p.innerRadius || 0.5, p.outerRadius || 1, p.thetaSegments || 32);
+        case 'LatheGeometry': {
+          const pts = (p.points || []).map(function (pt) { return new THREE.Vector2(pt[0], pt[1]); });
+          if (!pts.length) {
+            pts.push(new THREE.Vector2(0.1, 0));
+            pts.push(new THREE.Vector2(1, 1));
+          }
+          return new THREE.LatheGeometry(pts, p.segments || 32);
+        }
+        default:
+          return new THREE.BoxGeometry(p.width || 2, p.height || 2, p.depth || 2);
+      }
+    }
+
+    function createMaterialFromSpec(mInfo) {
+      const spec = mInfo || {};
+      const props = {
+        color: spec.color || '#00f0ff',
+        roughness: spec.roughness !== undefined ? Number(spec.roughness) : 0.35,
+        metalness: spec.metalness !== undefined ? Number(spec.metalness) : 0.45,
+        wireframe: Boolean(spec.wireframe),
+        flatShading: Boolean(spec.flatShading),
+        transparent: Boolean(spec.transparent),
+        opacity: spec.opacity !== undefined ? Number(spec.opacity) : 1.0
+      };
+      if (spec.side === 'double') props.side = THREE.DoubleSide;
+      const material = new THREE.MeshStandardMaterial(props);
+      if (spec.emissive) {
+        material.emissive = new THREE.Color(spec.emissive);
+        material.emissiveIntensity = spec.emissiveIntensity !== undefined ? Number(spec.emissiveIntensity) : 1.0;
+      }
+      return material;
+    }
+
+    function buildSceneElement(item, parent, index) {
+      const type = String(item.type || 'mesh').toLowerCase();
+
+      if (type === 'grid_helper') {
+        const gp = item.parameters || {};
+        const pos = item.position || [0, -1.5, 0];
+        applyGrid(gp.size, gp.divisions, pos[1]);
+        return;
+      }
+
+      if (type === 'arrow_helper' || type === 'arrow') {
+        const dirArr = item.direction || item.dir || [0, 1, 0];
+        const dir = new THREE.Vector3(dirArr[0], dirArr[1], dirArr[2]).normalize();
+        const origArr = item.origin || item.position || [0, 0, 0];
+        const origin = new THREE.Vector3(origArr[0], origArr[1], origArr[2]);
+        const length = item.length !== undefined ? Number(item.length) : 3;
+        let hex = 0x00f0ff;
+        if (item.color) {
+          hex = typeof item.color === 'number' ? item.color : parseInt(String(item.color).replace('#', '0x'), 16);
+        }
+        const arrow = new THREE.ArrowHelper(
+          dir, origin, length, hex,
+          item.headLength !== undefined ? Number(item.headLength) : 0.6,
+          item.headWidth !== undefined ? Number(item.headWidth) : 0.4
+        );
+        arrow.name = item.name || ('Arrow_' + index);
+        parent.add(arrow);
+        return;
+      }
+
+      if (type === 'group') {
+        const group = new THREE.Group();
+        group.name = item.name || ('Group_' + index);
+        if (item.position) group.position.set(item.position[0], item.position[1], item.position[2]);
+        if (item.rotation) group.rotation.set(item.rotation[0], item.rotation[1], item.rotation[2]);
+        if (item.scale) group.scale.set(item.scale[0], item.scale[1], item.scale[2]);
+        (item.children || []).forEach(function (child, childIndex) {
+          buildSceneElement(child, group, childIndex);
+        });
+        parent.add(group);
+        return;
+      }
+
+      const geometry = createGeometryFromSpec(item.geometry);
+      const material = createMaterialFromSpec(item.material);
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.name = item.name || ('Mesh_' + index);
+      if (item.position) mesh.position.set(item.position[0], item.position[1], item.position[2]);
+      if (item.rotation) mesh.rotation.set(item.rotation[0], item.rotation[1], item.rotation[2]);
+      if (item.scale) mesh.scale.set(item.scale[0], item.scale[1], item.scale[2]);
+      if (item.userData) mesh.userData = item.userData;
+      parent.add(mesh);
+    }
+
+    function frameDynamicGroup(margin) {
+      if (!controls || !dynamicGroup || !dynamicGroup.children.length) return null;
+      const box = new THREE.Box3().setFromObject(dynamicGroup);
+      if (box.isEmpty()) return null;
+      const sphere = box.getBoundingSphere(new THREE.Sphere());
+      const radius = Math.max(0.5, sphere.radius || 0.5);
+      const fov = (camera && camera.fov) ? camera.fov : 55;
+      const fitted = (radius * (margin || 1.7)) / Math.sin((fov * 0.5) * Math.PI / 180);
+      controls.target.copy(sphere.center);
+      controls.radius = Math.max(2.0, fitted);
+      controls.updateCamera();
+      return { center: sphere.center, radius: radius };
+    }
+
+    function applySceneCamera(sceneData) {
+      if (!controls) return;
+      const cam = sceneData.camera;
+      if (cam && cam.radius !== undefined) {
+        if (cam.target) controls.target.set(cam.target[0] || 0, cam.target[1] || 0, cam.target[2] || 0);
+        controls.radius = Math.max(0.6, Number(cam.radius) || controls.radius);
+        if (cam.theta !== undefined) controls.theta = Number(cam.theta);
+        if (cam.phi !== undefined) controls.phi = Number(cam.phi);
+        controls.updateCamera();
+      } else {
+        frameDynamicGroup(1.7);
+      }
+    }
+
+    function render3DScene(sceneData) {
+      if (!sceneData || typeof sceneData !== 'object') return;
+
+      // Escena recibida antes de que Three.js estuviera listo: se encola.
+      if (!scene || !dynamicGroup) {
+        pendingSceneData = sceneData;
+        toggleArtifactsPane(true);
+        switchArtifactTab('3d');
+        return;
+      }
+
+      clear3DScene();
+
+      if (sceneData.background) {
+        try { scene.background = new THREE.Color(sceneData.background); } catch (e) { }
+      }
+
+      const elements = sceneData.elements || sceneData.meshes || [];
+      const bounds = sceneData.bounds || null;
+      const gridSpec = sceneData.grid || null;
+
+      if (gridSpec) {
+        applyGrid(
+          gridSpec.size,
+          gridSpec.divisions,
+          bounds && bounds.min ? (bounds.min[1] - 1.0) : -1.5
+        );
+      } else if (bounds && bounds.min && bounds.max) {
+        const span = Math.abs(bounds.max[1] - bounds.min[1]);
+        applyGrid(Math.max(14, Math.ceil((span + 20) / 5) * 5), 14, bounds.min[1] - 1.0);
+      }
+
+      elements.forEach(function (item, index) {
+        buildSceneElement(item, dynamicGroup, index);
+      });
+
+      applySceneCamera(sceneData);
+      updateHudCount();
+      switchArtifactTab('3d');
+      toggleArtifactsPane(true);
+      setTimeout(onWindowResize, 60);
+
+      const hudState = document.getElementById('hudState');
+      if (hudState) {
+        const title = sceneData.title || 'Escena 3D Cargada';
+        hudState.innerText = title;
+        hudState.title = title;
+      }
+    }
+
+    // --- RENDERIZADO DE CÓDIGO EN ARTEFACTOS ---
+    function renderCodeArtifact(code, filename) {
+      const codeEl = document.getElementById('codeArtifactBody');
+      const fnameEl = document.getElementById('codeArtifactFilename');
+      if (codeEl) codeEl.innerText = code;
+      if (fnameEl) fnameEl.innerText = filename || 'archivo.py';
+      switchArtifactTab('code');
+      toggleArtifactsPane(true);
+    }
+
+    // --- RENDERIZADO DE VISTA PREVIA WEB REACTIVA (IFRAME SANDBOX) ---
+    let currentWebHtml = '';
+
+    function renderWebPreview(htmlContent, title) {
+      currentWebHtml = htmlContent || '';
+      const frame = document.getElementById('webPreviewFrame');
+      const titleEl = document.getElementById('webPreviewTitle');
+      if (titleEl && title) {
+        titleEl.innerText = '🌐 ' + title.toUpperCase();
+      }
+      if (frame) {
+        frame.srcdoc = currentWebHtml;
+      }
+      switchArtifactTab('web');
+      toggleArtifactsPane(true);
+    }
+
+    function reloadWebPreview() {
+      const frame = document.getElementById('webPreviewFrame');
+      if (frame && currentWebHtml) {
+        frame.srcdoc = currentWebHtml;
+      }
+    }
+
+    function openWebPreviewExternal() {
+      if (!currentWebHtml) return;
+      try {
+        const blob = new Blob([currentWebHtml], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      } catch (e) {
+        console.error("Error abriendo vista previa externa:", e);
+      }
+    }
+
+    window.onRenderWebPreview = function(htmlContent, title) {
+      renderWebPreview(htmlContent, title);
+    };
+
+    // --- CALLBACKS GLOBALES EXPUESTOS AL BACKEND ---
+    window.executeViewportScript = function(jsCode) {
+      try {
+        const fn = new Function('scene', 'camera', 'renderer', 'dynamicGroup', 'THREE', jsCode);
+        const res = fn(window.scene, window.camera, window.renderer, window.dynamicGroup, window.THREE);
+        updateHudCount();
+        switchArtifactTab('3d');
+        toggleArtifactsPane(true);
+        const hud = document.getElementById('hudState');
+        if (hud) hud.innerText = 'Script Ejecutado';
+        return { success: true, result: String(res) };
+      } catch (err) {
+        console.error("Error ejecutando script en Viewport:", err);
+        return { success: false, error: err.message };
+      }
+    };
+    window.onExecuteViewportScript = window.executeViewportScript;
+
+    window.onRender3DScene = function(sceneData) {
+      try {
+        const parsed = typeof sceneData === 'string' ? JSON.parse(sceneData) : sceneData;
+        render3DScene(parsed);
+      } catch (e) {
+        console.error("Error parseando escena 3D:", e);
+      }
+    };
+
+    window.onRenderCodeArtifact = function(code, filename) {
+      renderCodeArtifact(code, filename);
+    };
+
+    // =========================================================================
+    // THINKING ORBS: AI COGNITIVE STATE VISUALIZER
+    // =========================================================================
+    const STATE_IDLE = 'STATE_IDLE';
+    const STATE_THINKING = 'STATE_THINKING';
+    const STATE_TOOL_EXEC = 'STATE_TOOL_EXEC';
+    const STATE_SPEAKING = 'STATE_SPEAKING';
+    const STATE_ERROR = 'STATE_ERROR';
+
+    const STATE_MAP = {
+      'idle': STATE_IDLE,
+      'state_idle': STATE_IDLE,
+      'thinking': STATE_THINKING,
+      'state_thinking': STATE_THINKING,
+      'tool_exec': STATE_TOOL_EXEC,
+      'state_tool_exec': STATE_TOOL_EXEC,
+      'tool': STATE_TOOL_EXEC,
+      'tools': STATE_TOOL_EXEC,
+      'busy': STATE_THINKING,
+      'speaking': STATE_SPEAKING,
+      'state_speaking': STATE_SPEAKING,
+      'voice': STATE_SPEAKING,
+      'error': STATE_ERROR,
+      'state_error': STATE_ERROR,
+      'danger': STATE_ERROR,
+      'stopped': STATE_IDLE
+    };
+
+    const ORB_CONFIGS = {
+      [STATE_IDLE]: {
+        name: 'STATE_IDLE',
+        label: 'Reposo / En Espera',
+        primary: [0, 240, 255],     // Cian brillante
+        secondary: [0, 102, 255],   // Azul zafiro
+        core: [230, 255, 255],      // Blanco hielo
+        glow: 'rgba(0, 240, 255, 0.45)',
+        speed: 0.02,
+        turbulence: 0.12,
+        pulseRate: 1.6,
+        rings: 1,
+        ringSpeed: 0.015,
+        rippleAlpha: 0.0
+      },
+      [STATE_THINKING]: {
+        name: 'STATE_THINKING',
+        label: 'Procesamiento Cognitivo (LLM)',
+        primary: [168, 85, 247],    // Púrpura neón
+        secondary: [0, 240, 255],   // Cian reactivo
+        core: [250, 240, 255],      // Blanco lila
+        glow: 'rgba(168, 85, 247, 0.65)',
+        speed: 0.065,
+        turbulence: 0.45,
+        pulseRate: 3.2,
+        rings: 2,
+        ringSpeed: 0.045,
+        rippleAlpha: 0.2
+      },
+      [STATE_TOOL_EXEC]: {
+        name: 'STATE_TOOL_EXEC',
+        label: 'Ejecución de Herramientas y Código',
+        primary: [0, 255, 136],     // Verde esmeralda
+        secondary: [251, 191, 36],  // Ámbar dorado
+        core: [240, 255, 235],      // Blanco lima
+        glow: 'rgba(0, 255, 136, 0.75)',
+        speed: 0.12,
+        turbulence: 0.65,
+        pulseRate: 4.8,
+        rings: 3,
+        ringSpeed: 0.085,
+        rippleAlpha: 0.1
+      },
+      [STATE_SPEAKING]: {
+        name: 'STATE_SPEAKING',
+        label: 'Síntesis de Voz Activa',
+        primary: [236, 72, 153],    // Rosa fucsia
+        secondary: [168, 85, 247],  // Violeta
+        core: [255, 240, 250],      // Blanco rosáceo
+        glow: 'rgba(236, 72, 153, 0.70)',
+        speed: 0.045,
+        turbulence: 0.28,
+        pulseRate: 2.8,
+        rings: 2,
+        ringSpeed: 0.025,
+        rippleAlpha: 0.85
+      },
+      [STATE_ERROR]: {
+        name: 'STATE_ERROR',
+        label: 'Alerta de Error / Timeout',
+        primary: [255, 51, 68],     // Rojo carmesí
+        secondary: [239, 68, 68],   // Rojo escarlata
+        core: [255, 210, 210],      // Blanco fuego
+        glow: 'rgba(255, 51, 68, 0.85)',
+        speed: 0.08,
+        turbulence: 0.55,
+        pulseRate: 6.5,
+        rings: 1,
+        ringSpeed: -0.04,
+        rippleAlpha: 0.0
+      }
+    };
+
+    class ThinkingOrb {
+      constructor(containerId, canvasId) {
+        this.container = document.getElementById(containerId);
+        this.canvas = document.getElementById(canvasId);
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        
+        this.currentState = STATE_IDLE;
+        this.time = 0;
+        this.currentValues = { ...ORB_CONFIGS[STATE_IDLE] };
+        this.targetValues = { ...ORB_CONFIGS[STATE_IDLE] };
+        this.audioRipples = [0, 0.33, 0.66];
+        
+        if (this.container) {
+          this.container.transitionTo = (stateName) => this.transitionTo(stateName);
+          this.container.addEventListener('click', () => this.cycleNextState());
+        }
+
+        this.animate = this.animate.bind(this);
+        requestAnimationFrame(this.animate);
+      }
+
+      transitionTo(stateName) {
+        const raw = String(stateName).trim().toLowerCase();
+        const norm = STATE_MAP[raw] || STATE_MAP[String(stateName).trim()] || (ORB_CONFIGS[stateName] ? stateName : STATE_IDLE);
+        this.currentState = norm;
+        this.targetValues = { ...ORB_CONFIGS[norm] };
+
+        if (this.container) {
+          this.container.dataset.state = norm;
+          this.container.title = `Orbe Cognitivo JEV: ${ORB_CONFIGS[norm].label} (Click para alternar)`;
+        }
+      }
+
+      cycleNextState() {
+        const states = [STATE_IDLE, STATE_THINKING, STATE_TOOL_EXEC, STATE_SPEAKING, STATE_ERROR];
+        const nextIdx = (states.indexOf(this.currentState) + 1) % states.length;
+        this.transitionTo(states[nextIdx]);
+      }
+
+      lerp(a, b, t) {
+        return a + (b - a) * t;
+      }
+
+      lerpColor(c1, c2, t) {
+        return [
+          this.lerp(c1[0], c2[0], t),
+          this.lerp(c1[1], c2[1], t),
+          this.lerp(c1[2], c2[2], t)
+        ];
+      }
+
+      animate() {
+        requestAnimationFrame(this.animate);
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        const cx = w / 2;
+        const cy = h / 2;
+        const ctx = this.ctx;
+        ctx.clearRect(0, 0, w, h);
+
+        const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        const lerpFactor = prefersReduced ? 0.2 : 0.07;
+        const cur = this.currentValues;
+        const tgt = this.targetValues;
+
+        cur.primary = this.lerpColor(cur.primary, tgt.primary, lerpFactor);
+        cur.secondary = this.lerpColor(cur.secondary, tgt.secondary, lerpFactor);
+        cur.core = this.lerpColor(cur.core, tgt.core, lerpFactor);
+        cur.speed = this.lerp(cur.speed, tgt.speed, lerpFactor);
+        cur.turbulence = this.lerp(cur.turbulence, tgt.turbulence, lerpFactor);
+        cur.pulseRate = this.lerp(cur.pulseRate, tgt.pulseRate, lerpFactor);
+        cur.rings = this.lerp(cur.rings, tgt.rings, lerpFactor);
+        cur.ringSpeed = this.lerp(cur.ringSpeed, tgt.ringSpeed, lerpFactor);
+        cur.rippleAlpha = this.lerp(cur.rippleAlpha, tgt.rippleAlpha, lerpFactor);
+
+        this.time += prefersReduced ? 0.005 : cur.speed;
+
+        const baseR = w * 0.26;
+        const pulse = prefersReduced ? 1.0 : (1.0 + 0.07 * Math.sin(this.time * cur.pulseRate));
+        const r = baseR * pulse;
+
+        // 1. Ondas de sonido / Síntesis de voz (STATE_SPEAKING)
+        if (cur.rippleAlpha > 0.02 && !prefersReduced) {
+          ctx.save();
+          for (let i = 0; i < this.audioRipples.length; i++) {
+            this.audioRipples[i] = (this.audioRipples[i] + 0.02) % 1.0;
+            const ripProg = this.audioRipples[i];
+            const ripR = r + (w * 0.22) * ripProg;
+            const ripAlpha = cur.rippleAlpha * (1.0 - ripProg) * 0.6;
+            ctx.beginPath();
+            ctx.arc(cx, cy, ripR, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(${Math.round(cur.primary[0])}, ${Math.round(cur.primary[1])}, ${Math.round(cur.primary[2])}, ${ripAlpha})`;
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // 2. Anillos orbitales giratorios (STATE_TOOL_EXEC / STATE_THINKING)
+        if (cur.rings > 0.4 && !prefersReduced) {
+          ctx.save();
+          const ringCount = Math.round(cur.rings);
+          for (let i = 0; i < ringCount; i++) {
+            const ringR = r * (1.25 + i * 0.22);
+            const rot = this.time * cur.ringSpeed * (i % 2 === 0 ? 1 : -1) + (i * Math.PI / 3);
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(rot);
+            ctx.beginPath();
+            ctx.arc(0, 0, ringR, 0, Math.PI * 2);
+            ctx.setLineDash([6, 8]);
+            ctx.strokeStyle = `rgba(${Math.round(cur.secondary[0])}, ${Math.round(cur.secondary[1])}, ${Math.round(cur.secondary[2])}, 0.45)`;
+            ctx.lineWidth = 1.4;
+            ctx.stroke();
+
+            // Partícula brillante en el anillo
+            ctx.beginPath();
+            ctx.arc(ringR, 0, 2.2, 0, Math.PI * 2);
+            ctx.fillStyle = `rgb(${Math.round(cur.core[0])}, ${Math.round(cur.core[1])}, ${Math.round(cur.core[2])})`;
+            ctx.shadowColor = `rgb(${Math.round(cur.primary[0])}, ${Math.round(cur.primary[1])}, ${Math.round(cur.primary[2])})`;
+            ctx.shadowBlur = 8;
+            ctx.fill();
+            ctx.restore();
+          }
+          ctx.restore();
+        }
+
+        // 3. Aura / Resplandor exterior difuso
+        const glowGrad = ctx.createRadialGradient(cx, cy, r * 0.4, cx, cy, r * 1.6);
+        glowGrad.addColorStop(0, `rgba(${Math.round(cur.primary[0])}, ${Math.round(cur.primary[1])}, ${Math.round(cur.primary[2])}, 0.55)`);
+        glowGrad.addColorStop(0.6, `rgba(${Math.round(cur.secondary[0])}, ${Math.round(cur.secondary[1])}, ${Math.round(cur.secondary[2])}, 0.25)`);
+        glowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = glowGrad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 1.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 4. Perímetro orgánico con armónicos sinusoidales
+        ctx.save();
+        ctx.beginPath();
+        const steps = 36;
+        for (let i = 0; i <= steps; i++) {
+          const theta = (i / steps) * Math.PI * 2;
+          let deform = 0;
+          if (!prefersReduced) {
+            deform = cur.turbulence * (
+              Math.sin(theta * 3 + this.time * 2.5) * 0.08 +
+              Math.cos(theta * 5 - this.time * 3.2) * 0.06
+            );
+          }
+          const radiusHarmonic = r * (1.0 + deform);
+          const px = cx + Math.cos(theta) * radiusHarmonic;
+          const py = cy + Math.sin(theta) * radiusHarmonic;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+
+        // Gradiente interior del cuerpo del orbe
+        const offsetX = !prefersReduced ? Math.cos(this.time * 1.4) * (r * 0.25) : 0;
+        const offsetY = !prefersReduced ? Math.sin(this.time * 1.4) * (r * 0.25) : 0;
+        const bodyGrad = ctx.createRadialGradient(cx + offsetX, cy + offsetY, r * 0.05, cx, cy, r);
+        bodyGrad.addColorStop(0, `rgb(${Math.round(cur.core[0])}, ${Math.round(cur.core[1])}, ${Math.round(cur.core[2])})`);
+        bodyGrad.addColorStop(0.35, `rgb(${Math.round(cur.primary[0])}, ${Math.round(cur.primary[1])}, ${Math.round(cur.primary[2])})`);
+        bodyGrad.addColorStop(0.85, `rgb(${Math.round(cur.secondary[0])}, ${Math.round(cur.secondary[1])}, ${Math.round(cur.secondary[2])})`);
+        bodyGrad.addColorStop(1.0, `rgba(${Math.round(cur.secondary[0])}, ${Math.round(cur.secondary[1])}, ${Math.round(cur.secondary[2])}, 0.85)`);
+
+        ctx.fillStyle = bodyGrad;
+        ctx.fill();
+
+        // 5. Núcleo interior brillante de plasma
+        ctx.beginPath();
+        const coreR = r * 0.32;
+        ctx.arc(cx + offsetX * 0.5, cy + offsetY * 0.5, coreR, 0, Math.PI * 2);
+        const coreGrad = ctx.createRadialGradient(cx + offsetX * 0.5, cy + offsetY * 0.5, 0, cx + offsetX * 0.5, cy + offsetY * 0.5, coreR);
+        coreGrad.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+        coreGrad.addColorStop(0.6, `rgba(${Math.round(cur.core[0])}, ${Math.round(cur.core[1])}, ${Math.round(cur.core[2])}, 0.6)`);
+        coreGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = coreGrad;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // Controlador JavaScript expuesto
+    window.setAgentOrbState = function(stateName) {
+      const orb = document.getElementById('thinking-orb-container');
+      if (orb && typeof orb.transitionTo === 'function') {
+        orb.transitionTo(stateName);
+      } else if (orb) {
+        orb.dataset.state = stateName;
+      }
+    };
+
+    function initThinkingOrb() {
+      try {
+        window.thinkingOrbInstance = new ThinkingOrb('thinking-orb-container', 'thinkingOrbCanvas');
+      } catch (e) {
+        console.error("Error iniciando ThinkingOrb:", e);
+      }
+    }
+
+    window.onAgentStopped = function() {
+      updateStatus('stopped');
+      window.setAgentOrbState(STATE_IDLE);
+    };
+
+    window.onAgentThought = function(thought) {
+      appendMessage('thought', 'PENSAMIENTO', thought);
+      window.setAgentOrbState(STATE_THINKING);
+    };
+
+    window.onAgentToolCall = function(toolName, argsStr) {
+      updateStatus('busy');
+      appendMessage('tool', 'ACCIÓN', `⚡ ${toolName}: ${argsStr.slice(0, 140)}`);
+      window.setAgentOrbState(STATE_TOOL_EXEC);
+    };
+
+    window.onAgentToolResult = function(toolName, resultStr, success) {
+      if (!success) {
+        appendMessage('danger', 'ERROR', `✗ ${toolName}: ${resultStr.slice(0, 140)}`);
+        window.setAgentOrbState(STATE_ERROR);
+      } else {
+        window.setAgentOrbState(STATE_THINKING);
+      }
+    };
+
+    window.onAgentFinish = function(finalAnswer) {
+      updateStatus('online');
+      appendMessage('agent', 'JEV', finalAnswer);
+      speakText(finalAnswer);
+      if (voiceEnabled) {
+        window.setAgentOrbState(STATE_SPEAKING);
+        setTimeout(() => window.setAgentOrbState(STATE_IDLE), Math.min(finalAnswer.length * 60, 6000));
+      } else {
+        window.setAgentOrbState(STATE_IDLE);
+      }
+    };
+
+    window.onUpdateQAShield = function(statusText, vulnCount) {
+      const badge = document.getElementById('qaShieldBadge');
+      if (badge) {
+        if (vulnCount > 0) {
+          badge.style.color = '#ffaa00';
+          badge.innerText = `🛡️ Escudo QA: Alerta | Vulnerabilidades: ${vulnCount}`;
+        } else {
+          badge.style.color = '#00ff88';
+          badge.innerText = `🛡️ Escudo QA: Activo | Vulnerabilidades: 0`;
+        }
+      }
+    };
+
+    // =========================================================================
+    // CONTROLADOR Y CLIENTE INTERACTIVO FREE CLAUDE CODE (FCC)
+    // =========================================================================
+    window.lastFccResponse = null;
+    window.lastFccCode = null;
+
+    function updateFccUi(status) {
+      if (!status) return;
+      const isHealthy = Boolean(status.is_healthy);
+      const isRunning = Boolean(status.is_running || isHealthy);
+      const port = status.port || 8082;
+      const model = status.configured_model || status.default_model || 'LLaMA 3.3 70B (Free)';
+
+      // Actualizar Pill / Badge en Cabecera
+      const badgeText = document.getElementById('fccBadgeText');
+      const pulseDot = document.getElementById('fccPulseDot');
+      if (badgeText) {
+        if (isHealthy) {
+          badgeText.innerText = `⚡ Free Claude Code: Activo (${port})`;
+        } else if (isRunning) {
+          badgeText.innerText = `⚡ Claude Code: Iniciando [${port}]`;
+        } else {
+          badgeText.innerText = `⚡ Claude Code: Inactivo`;
+        }
+      }
+      if (pulseDot) {
+        if (isHealthy) {
+          pulseDot.className = 'fcc-pulse-dot';
+        } else {
+          pulseDot.className = 'fcc-pulse-dot offline';
+        }
+      }
+
+      // Actualizar Chips y Tarjetas en la Vista FCC
+      const chipState = document.getElementById('fccChipState');
+      if (chipState) {
+        chipState.innerText = isHealthy ? `OPERATIVO :${port}` : (isRunning ? `CONECTANDO :${port}` : 'DETENIDO');
+        chipState.style.borderColor = isHealthy ? 'rgba(56, 189, 248, 0.4)' : '#ef4444';
+        chipState.style.color = isHealthy ? '#38bdf8' : '#ef4444';
+      }
+
+      const chipModel = document.getElementById('fccChipModel');
+      if (chipModel) {
+        const shortModel = String(model).replace('open_router/', '').replace(':free', ' [Free]');
+        chipModel.innerText = shortModel;
+      }
+
+      const cardStatus = document.getElementById('fccCardStatus');
+      if (cardStatus) {
+        cardStatus.innerText = isHealthy ? 'ONLINE ✅' : (isRunning ? 'INICIANDO ⏳' : 'OFFLINE ❌');
+        cardStatus.style.color = isHealthy ? '#00ff88' : (isRunning ? '#fbbf24' : '#ef4444');
+      }
+
+      const cardUrl = document.getElementById('fccCardUrl');
+      if (cardUrl) {
+        cardUrl.innerText = `http://127.0.0.1:${port}/v1`;
+      }
+    }
+
+    function refreshFccStatus() {
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.get_fcc_status) {
+        window.pywebview.api.get_fcc_status()
+          .then(status => updateFccUi(status))
+          .catch(err => console.error("Error consultando FCC status:", err));
+      }
+    }
+
+    function restartFccServer() {
+      const chipState = document.getElementById('fccChipState');
+      if (chipState) chipState.innerText = 'REINICIANDO...';
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.restart_fcc_server) {
+        window.pywebview.api.restart_fcc_server()
+          .then(res => {
+            if (res && res.status) updateFccUi(res.status);
+          })
+          .catch(err => console.error("Error reiniciando FCC:", err));
+      }
+    }
+
+    function submitFccQuery() {
+      const input = document.getElementById('fccPromptInput');
+      const prompt = input ? input.value.trim() : '';
+      if (!prompt) return;
+
+      const sel = document.getElementById('fccModelSelector');
+      const model = sel ? sel.value : null;
+
+      const loading = document.getElementById('fccLoadingIndicator');
+      const btn = document.getElementById('btnFccSubmit');
+      const container = document.getElementById('fccResponseContainer');
+      const body = document.getElementById('fccResponseBody');
+      const thinkBox = document.getElementById('fccThinkingBlock');
+      const respModel = document.getElementById('fccResponseModel');
+
+      if (loading) loading.style.display = 'flex';
+      if (btn) btn.disabled = true;
+      if (container) container.style.display = 'none';
+
+      if (window.setAgentOrbState) window.setAgentOrbState(STATE_TOOL_EXEC);
+
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.query_claude_code) {
+        window.pywebview.api.query_claude_code(prompt, model)
+          .then(res => {
+            if (loading) loading.style.display = 'none';
+            if (btn) btn.disabled = false;
+            if (window.setAgentOrbState) window.setAgentOrbState(STATE_IDLE);
+
+            if (!res || !res.success) {
+              if (container) container.style.display = 'block';
+              if (body) body.innerHTML = `<span style="color:#ef4444; font-weight:bold;">Error al consultar Claude Code:</span><br>${escapeHtml(res ? res.error : 'Sin respuesta')}`;
+              return;
+            }
+
+            window.lastFccResponse = res;
+            if (container) container.style.display = 'block';
+            if (respModel) respModel.innerText = `Respuesta de Claude Code (${res.model || model})`;
+
+            if (res.thinking && thinkBox) {
+              thinkBox.innerText = `💭 Razonamiento interno: ${res.thinking}`;
+              thinkBox.style.display = 'block';
+            } else if (thinkBox) {
+              thinkBox.style.display = 'none';
+            }
+
+            if (body) {
+              body.innerHTML = renderMarkdown(res.content);
+            }
+
+            if (res.code_snippets && res.code_snippets.length > 0) {
+              window.lastFccCode = res.code_snippets[0].code;
+            } else {
+              window.lastFccCode = res.content;
+            }
+          })
+          .catch(err => {
+            if (loading) loading.style.display = 'none';
+            if (btn) btn.disabled = false;
+            if (window.setAgentOrbState) window.setAgentOrbState(STATE_ERROR);
+            if (container) container.style.display = 'block';
+            if (body) body.innerHTML = `<span style="color:#ef4444;">Fallo de conexión RPC: ${escapeHtml(String(err))}</span>`;
+          });
+      }
+    }
+
+    function copyFccResponse() {
+      const textToCopy = window.lastFccCode || (window.lastFccResponse ? window.lastFccResponse.content : '');
+      if (textToCopy) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          alert("Solución de Claude Code copiada al portapapeles.");
+        });
+      }
+    }
+
+    function projectFccToEditor() {
+      const code = window.lastFccCode || (window.lastFccResponse ? window.lastFccResponse.content : '');
+      if (!code) return;
+      if (window.onRenderCodeArtifact) {
+        window.onRenderCodeArtifact(code, 'claude_code_solution.py');
+      }
+      switchArtifactTab('code');
+    }
+
+    window.onUpdateFCCStatus = function(status) {
+      updateFccUi(status);
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initSpeechRecognition();
+      initThreeEngine();
+      initThinkingOrb();
+      refreshFccStatus();
+      setInterval(refreshFccStatus, 4000);
+
+      // Listeners globales para portapapeles y arrastrar imágenes
+      window.addEventListener('paste', handlePasteEvent);
+      window.addEventListener('dragover', handleDragOver);
+      window.addEventListener('drop', handleDropEvent);
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeImageModal();
+      });
+    });
+  </script>
+</body>
+</html>

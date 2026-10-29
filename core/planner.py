@@ -1,7 +1,12 @@
 import json
 import re
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from utils.logger import log
+
+try:
+    from jev.core.planner import DAGPlanner
+except Exception:
+    DAGPlanner = None
 
 class TaskPlanner:
     """
@@ -38,7 +43,7 @@ class TaskPlanner:
         log.info(f"Planificador inicializado con {len(self.tasks)} subtareas.")
         return self.tasks
 
-    def get_next_task(self) -> Dict[str, Any] | None:
+    def get_next_task(self) -> Optional[Dict[str, Any]]:
         if self.current_index < len(self.tasks):
             return self.tasks[self.current_index]
         return None

@@ -1,0 +1,65 @@
+{
+  "name": "skill_web_design_pro",
+  "version": "1.0.0",
+  "description": "Motor de Diseño Web Anti-Genericidad (UI/UX Pro Max). Catálogo de 68 sistemas de diseño visual (Dark Cyberpunk, Neo-Brutalism, Minimal Enterprise, Glassmorphism, Aurora UI, etc.), tipografía Google Fonts emparejada, escala armónica de 8pt, certificación de contraste WCAG AA/AAA y microinteracciones fluidas cubic-bezier. Proyección automática a Vista Previa Web.",
+  "category": "web_design",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "diseno web",
+    "ui",
+    "ux",
+    "pro max",
+    "anti genericidad",
+    "dark cyberpunk",
+    "neo brutalism",
+    "minimal enterprise",
+    "glassmorphism",
+    "aurora ui",
+    "wcag",
+    "escala 8pt",
+    "cubic bezier",
+    "landing page",
+    "dashboard pro",
+    "vista previa web"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción: 'generate_ui', 'list_themes', 'audit_anti_generic', 'refactor_to_theme'",
+      "enum": ["generate_ui", "list_themes", "audit_anti_generic", "refactor_to_theme"],
+      "default": "generate_ui"
+    },
+    "theme": {
+      "type": "string",
+      "description": "ID del tema (ej. 'dark_cyberpunk', 'neo_brutalism', 'minimal_enterprise', 'aurora_luminescence')",
+      "default": "dark_cyberpunk"
+    },
+    "title": {
+      "type": "string",
+      "description": "Título de la interfaz o aplicación",
+      "default": "Dashboard de Control JEV"
+    },
+    "headline": {
+      "type": "string",
+      "description": "Titular de impacto visual",
+      "default": ""
+    },
+    "subtext": {
+      "type": "string",
+      "description": "Texto descriptivo o subtítulo",
+      "default": ""
+    },
+    "html_code": {
+      "type": "string",
+      "description": "Código HTML existente a auditar o refactorizar",
+      "default": ""
+    },
+    "output_path": {
+      "type": "string",
+      "description": "Ruta de archivo para guardar el HTML",
+      "default": ""
+    }
+  }
+}

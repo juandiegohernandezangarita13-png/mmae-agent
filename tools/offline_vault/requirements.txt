@@ -1,0 +1,2 @@
+# Dependencias para Offline Knowledge & Vault Engine
+# Diseñado para funcionar 100% autónomo con la biblioteca estándar de Python (sqlite3 FTS5 nativo).

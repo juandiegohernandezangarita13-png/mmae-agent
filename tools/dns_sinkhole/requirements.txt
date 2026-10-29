@@ -1,0 +1,2 @@
+# Dependencias para DNS Sinkhole & Ad-Filter
+# Utiliza la biblioteca estándar de Python (socket, struct, threading, time).

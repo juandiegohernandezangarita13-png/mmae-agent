@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JEV Island</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --font: system-ui, "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    --mono: "Cascadia Code", "Consolas", ui-monospace, monospace;
+
+    --ink: #f5f6f8;
+    --ink-2: #f1f2f4;
+    --dim: #9398a1;
+    --dim-2: #8e939c;
+    --dim-3: #6b7079;
+    --card: #141518;
+    --card-flat: #0e0f11;
+    --tab-on: #1d1f23;
+    --hairline: rgba(255, 255, 255, 0.05);
+
+    --cyan: #22d3ee;
+    --violet: #8b5cf6;
+    --amber: #f59e0b;
+    --green: #2dd4bf;
+    --red: #ef4444;
+
+    --wash: transparent;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    overflow: hidden;
+    font-family: var(--font);
+    color: var(--ink);
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #stage {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 1. MODO PÍLDORA COMPACTA (Screenshot 3)                            */
+  /* ------------------------------------------------------------------ */
+  .pill {
+    position: relative;
+    width: 232px;
+    height: 54px;
+    background: #000000;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+    transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.25, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .pill:hover {
+    transform: translateY(1px);
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .pill .pill-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pill-mochi-canvas {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    display: block;
+    pointer-events: none;
+  }
+
+  .pill-ticker {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    flex: 1;
+    padding: 0 4px;
+  }
+
+  .compact-state {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.1px;
+  }
+
+  .compact-sub {
+    font-size: 10px;
+    color: var(--dim-2);
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Cuadrícula 2x2 de los 4 Mini-Mochis (Screenshot 3) */
+  #mini-grid {
+    width: 29px;
+    height: 29px;
+    flex: 0 0 29px;
+    display: grid;
+    grid-template-columns: 13px 13px;
+    grid-template-rows: 13px 13px;
+    gap: 3px;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .mini-canvas {
+    width: 13px;
+    height: 13px;
+    display: block;
+    border-radius: 4px;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 2. PANEL EXPANDIDO DINÁMICO (Screenshot 1 y Screenshot 2)         */
+  /* ------------------------------------------------------------------ */
+  .panel {
+    position: relative;
+    width: 474px;
+    height: 340px;
+    border-radius: 0 0 24px 24px;
+    background: #000000;
+    display: none;
+    flex-direction: column;
+    padding: 8px 12px 12px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: none;
+    opacity: 0;
+    transform: translateY(-8px) scale(0.985);
+    transform-origin: top center;
+    transition: opacity 0.22s ease, transform 0.24s cubic-bezier(0.2, 0.9, 0.25, 1);
+  }
+
+  body.expanded .panel {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  body.expanded .pill { display: none; }
+
+  /* Barra de Navegación Superior (Screenshot 1 & Screenshot 2) */
+  #header {
+    height: 34px;
+    flex: 0 0 34px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+    margin-bottom: 6px;
+  }
+
+  .tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tab {
+    width: 32px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    border-radius: 12px;
+    color: var(--dim-2);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .tab:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--ink);
+  }
+
+  .tab.on {
+    background: var(--tab-on);
+    color: var(--ink);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .header-actions button {
+    border: 0;
+    background: transparent;
+    color: var(--dim-2);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+
+  .header-actions button:hover {
+    color: var(--ink);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .header-actions button.on {
+    color: var(--ink);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* TARJETA INTERNA CON WASH AMBIENTAL                                 */
+  /* ------------------------------------------------------------------ */
+  .card-container {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    border-radius: 20px;
+    background: var(--card);
+    border: 1px solid var(--hairline);
+    overflow: hidden;
+    display: flex;
+  }
+
+  .card-container.wash::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(340px 340px at 16% 50%, var(--wash) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+    transition: background 0.3s ease;
+  }
+
+  /* Mascota en el lado izquierdo de la tarjeta */
+  .card-mascot-box {
+    position: relative;
+    width: 104px;
+    flex: 0 0 104px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    padding-left: 8px;
+  }
+
+  .card-mochi-canvas {
+    width: 86px;
+    height: 86px;
+    display: block;
+  }
+
+  .card-content {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 14px 12px 2px;
+  }
+
+  /* Vistas intercambiables dentro del panel */
+  .view-pane {
+    display: none;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .view-pane.active {
+    display: flex;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* VISTA: PERMISOS / APROBACIÓN (Screenshot 1)                       */
+  /* ------------------------------------------------------------------ */
+  .who-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--dim-2);
+  }
+
+  .who-row .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ffffff;
+    display: inline-block;
+  }
+
+  .who-row .n {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .code {
+    font: 400 12px var(--mono);
+    color: #e8e9ec;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 6px 12px;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: text;
+  }
+
+  .actions-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .btn {
+    font: 500 12.5px var(--font);
+    padding: 6px 14px;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: transform 0.08s ease-out, background 0.12s ease-out;
+  }
+
+  .btn:active {
+    transform: scale(0.95);
+  }
+
+  .btn.primary {
+    background: var(--ink);
+    color: #0b0c0e;
+    font-weight: 600;
+  }
+
+  .btn.secondary {
+    background: rgba(255, 255, 255, 0.09);
+    color: var(--ink-2);
+  }
+
+  .btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .btn .kbd {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 3px;
+    opacity: 0.7;
+    line-height: 1;
+  }
+
+  .btn.primary .kbd {
+    border: 1px solid rgba(0, 0, 0, 0.35);
+  }
+
+  .btn.secondary .kbd {
+    border: 1px solid rgba(255, 255, 255, 0.35);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* VISTA: CHAT INTEGRADO (Screenshot 2)                              */
+  /* ------------------------------------------------------------------ */
+  .chat-pane {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 8px;
+  }
+
+  .chat-log {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-right: 4px;
+  }
+
+  .chat-log::-webkit-scrollbar {
+    width: 4px;
+  }
+  .chat-log::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 2px;
+  }
+
+  .chat-bubble {
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 6px 10px;
+    border-radius: 12px;
+    max-width: 90%;
+    word-break: break-word;
+    user-select: text;
+  }
+
+  .chat-bubble.user {
+    align-self: flex-end;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--ink);
+  }
+
+  .chat-bubble.agent {
+    align-self: flex-start;
+    background: rgba(139, 92, 246, 0.16);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    color: #ede9fe;
+  }
+
+  .chat-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px 4px 12px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    margin-top: auto;
+  }
+
+  .chat-input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font: 400 12.5px var(--font);
+    outline: none;
+    cursor: text;
+  }
+
+  .chat-input::placeholder {
+    color: var(--dim-3);
+  }
+
+  .send-btn {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #0b0c0e;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: transform 0.08s ease-out, background 0.15s ease;
+  }
+
+  .send-btn:active {
+    transform: scale(0.92);
+  }
+
+  .send-btn:hover {
+    background: #ffffff;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* VISTA: OVERVIEW / TELEMETRÍA (Home)                                */
+  /* ------------------------------------------------------------------ */
+  .overview-pane {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    gap: 8px;
+  }
+
+  .overview-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .overview-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .overview-sub {
+    font-size: 10px;
+    color: var(--dim-2);
+  }
+
+  .activity-box {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 48px;
+  }
+
+  .activity-text {
+    font-size: 11.5px;
+    color: var(--ink-2);
+    line-height: 1.35;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .tool-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font: 400 10px var(--mono);
+    color: var(--green);
+    background: rgba(45, 212, 191, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    align-self: flex-start;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+  }
+
+  .stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .stat-card .lbl {
+    font-size: 9px;
+    color: var(--dim-3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .stat-card .lbl b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .stat-card .bar-track {
+    height: 3px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .stat-card .bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--cyan), var(--violet));
+    transition: width 0.4s ease;
+  }
+
+  .overview-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+  }
+
+  .btn-sm {
+    font: 500 11px var(--font);
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .btn-sm:hover {
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .btn-sm.primary {
+    background: rgba(0, 240, 255, 0.16);
+    border-color: rgba(0, 240, 255, 0.35);
+    color: #e0f9ff;
+  }
+
+  .btn-sm.danger {
+    color: #fecdd3;
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+  .btn-sm.danger:hover {
+    background: rgba(239, 68, 68, 0.15);
+  }
+
+  .btn-sm.on {
+    background: rgba(45, 212, 191, 0.18);
+    border-color: rgba(45, 212, 191, 0.4);
+    color: #ccfbf1;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* VISTA: DROP / SUBIDA DE ARCHIVO (Choreography)                      */
+  /* ------------------------------------------------------------------ */
+  .drop-pane {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 100%;
+    border: 1.5px dashed rgba(255, 255, 255, 0.18);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .drop-pane.dragover {
+    border-color: var(--cyan);
+    background: rgba(34, 211, 238, 0.06);
+  }
+
+  .drop-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .drop-hint {
+    font-size: 11px;
+    color: var(--dim-2);
+  }
+
+  /* Shake animation for alerts */
+  body.shake #stage { animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(-50%); }
+    25% { transform: translateX(calc(-50% - 6px)); }
+    75% { transform: translateX(calc(-50% + 6px)); }
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body data-state="idle" class="collapsed">
+
+<div id="stage">
+  <!-- 1. ISLA COLAPSADA (Compact Pill, Screenshot 3) -->
+  <div class="pill" id="pill" title="Abrir isla de JEV">
+    <div class="pill-left">
+      <canvas class="pill-mochi-canvas" id="pillMochiCanvas" width="72" height="72"></canvas>
+      <div class="pill-ticker">
+        <div class="compact-state" id="compactState">JEV listo</div>
+        <div class="compact-sub" id="compactSub">agente autónomo local</div>
+      </div>
+    </div>
+    <!-- Cuadrícula 2x2 de los 4 Mini-Mochis -->
+    <div id="mini-grid">
+      <canvas class="mini-canvas" id="mini0" width="28" height="28" title="Agent 1"></canvas>
+      <canvas class="mini-canvas" id="mini1" width="28" height="28" title="Agent 2"></canvas>
+      <canvas class="mini-canvas" id="mini2" width="28" height="28" title="Agent 3"></canvas>
+      <canvas class="mini-canvas" id="mini3" width="28" height="28" title="Agent 4"></canvas>
+    </div>
+  </div>
+
+  <!-- 2. PANEL EXPANDIDO (Screenshot 1 & Screenshot 2) -->
+  <div class="panel" id="panel">
+    <!-- Barra superior de navegación e iconos -->
+    <header id="header">
+      <div class="tabs">
+        <button class="tab" id="tabHome" title="Vista General">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 3.2 2.8 10.6V21h6.6v-5.4h5.2V21h6.6V10.6L12 3.2z"/>
+          </svg>
+        </button>
+        <button class="tab" id="tabChat" title="Preguntar a JEV">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 3.6c-5 0-9 3.3-9 7.4 0 2.3 1.3 4.4 3.3 5.7-.2 1.2-.8 2.4-1.7 3.4 1.9-.2 3.6-.9 4.9-1.9 .8.2 1.6.3 2.5.3 5 0 9-3.3 9-7.5s-4-7.4-9-7.4z"/>
+          </svg>
+        </button>
+        <button class="tab" id="tabDrop" title="Soltar Archivos">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="header-actions">
+        <button id="soundBtn" title="Activar/Desactivar Voz y Sonido">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" id="soundIcon">
+            <path d="M11 4.5 6.5 8.2H3.4v7.6h3.1L11 19.5v-15zm3.2 3a5.3 5.3 0 0 1 0 9 .9.9 0 0 0 .9 1.55 7.1 7.1 0 0 0 0-12.1.9.9 0 0 0-.9 1.55zm2.6-3.1a8.9 8.9 0 0 1 0 15.2.9.9 0 0 0 .92 1.55 10.7 10.7 0 0 0 0-18.3.9.9 0 0 0-.92 1.55z"/>
+          </svg>
+        </button>
+        <button id="gearBtn" title="Abrir Ventana Completa de JEV">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm0 1.8a1.6 1.6 0 1 1 0 3.2 1.6 1.6 0 0 1 0-3.2zM10.9 2h2.2l.35 2.1c.6.17 1.16.4 1.67.71l1.9-1 1.55 1.55-1 1.9c.3.5.54 1.07.7 1.67l2.13.35v2.2l-2.12.35c-.17.6-.4 1.16-.71 1.67l1 1.9-1.55 1.55-1.9-1c-.5.3-1.07.54-1.67.7L13.1 22h-2.2l-.35-2.12c-.6-.17-1.16-.4-1.67-.71l-1.9 1L5.43 18.6l1-1.9c-.3-.5-.54-1.07-.7-1.67L3.6 14.7v-2.2l2.12-.35c.17-.6.4-1.16.71-1.67l-1-1.9 1.55-1.55 1.9 1c.5-.3 1.07-.54 1.67-.7L10.9 2z"/>
+          </svg>
+        </button>
+        <button id="collapseBtn" title="Contraer">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M18 15l-6-6-6 6"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Tarjeta Interior de la Isla -->
+    <div class="card-container wash" id="mainCard">
+      <!-- Mochi Mascot a la izquierda -->
+      <div class="card-mascot-box">
+        <canvas class="card-mochi-canvas" id="cardMochiCanvas" width="172" height="172"></canvas>
+      </div>
+
+      <!-- Contenido intercambiable a la derecha -->
+      <div class="card-content">
+        <!-- VISTA 1: APROBACIÓN DE ACCIONES SENSIBLES (Screenshot 1) -->
+        <div class="view-pane" id="approvalCard">
+          <div class="who-row">
+            <span class="dot"></span>
+            <span class="n">JEV</span>
+            <span>needs permission</span>
+          </div>
+          <div class="code" id="approvalCmd">curl evil.example.com</div>
+          <div class="actions-row">
+            <button class="btn secondary" id="denyBtn">
+              <span>Deny</span>
+              <span class="kbd">N</span>
+            </button>
+            <button class="btn primary" id="allowBtn">
+              <span>Allow</span>
+              <span class="kbd">Y</span>
+            </button>
+            <button class="btn secondary" id="alwaysBtn">
+              <span>Always</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- VISTA 2: CHAT INTEGRADO (Screenshot 2) -->
+        <div class="view-pane chat-pane" id="chatView">
+          <div class="chat-log" id="chatLog">
+            <div class="chat-bubble agent">Bonjour ! Je suis JEV. En quoi puis-je t'aider ?</div>
+          </div>
+          <div class="chat-bar">
+            <input type="text" class="chat-input" id="chatInput" placeholder="bonjour Mochi" spellcheck="false" autocomplete="off" />
+            <button class="send-btn" id="chatSendBtn" title="Enviar">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 4.5 5.5 11l1.5 1.5 4-4V19.5h2V8.5l4 4L18.5 11 12 4.5z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- VISTA 3: OVERVIEW Y TELEMETRÍA (Home) -->
+        <div class="view-pane overview-pane" id="overviewView">
+          <div class="overview-header">
+            <div class="overview-title">JEV Autonomous Core</div>
+            <div class="overview-sub" id="modelVal">—</div>
+          </div>
+
+          <div class="activity-box">
+            <div class="activity-text" id="activityText">Sin actividad reciente. Pídeme algo desde la ventana de JEV o el chat flotante.</div>
+            <div class="tool-chip hidden" id="toolChip"></div>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="lbl"><span>CPU</span><b id="cpuVal">0%</b></div>
+              <div class="bar-track"><div class="bar-fill" id="cpuBar"></div></div>
+            </div>
+            <div class="stat-card">
+              <div class="lbl"><span>RAM</span><b id="ramVal">0%</b></div>
+              <div class="bar-track"><div class="bar-fill" id="ramBar"></div></div>
+            </div>
+            <div class="stat-card">
+              <div class="lbl"><span>Estado</span><b id="stateText">idle</b></div>
+              <div class="bar-track"><div class="bar-fill" style="width: 100%; background: var(--green);"></div></div>
+            </div>
+          </div>
+
+          <div class="overview-actions">
+            <button class="btn-sm primary" id="openMainBtn">Abrir JEV</button>
+            <button class="btn-sm" id="safeModeBtn">Modo Seguro</button>
+            <button class="btn-sm danger" id="stopAgentBtn">Detener</button>
+          </div>
+        </div>
+
+        <!-- VISTA 4: SOLTAR ARCHIVOS (Drop Zone) -->
+        <div class="view-pane drop-pane" id="dropView">
+          <div class="drop-title">Dépose tes fichiers ici</div>
+          <div class="drop-hint">Arrastra imágenes, documentos o código para análisis instantáneo</div>
+          <input type="file" id="filePickerInput" style="display: none;" multiple />
+          <button class="btn secondary" style="margin-top: 8px;" id="chooseFileBtn">Seleccionar archivo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ------------------------------------------------------------------
+  // 1. MOTOR MATEMÁTICO CANVAS 2D DE MOCHI (BotEngine fiel a Coucou)
+  // ------------------------------------------------------------------
+  var EXP = 2.7;
+  var EYE_W = 0.25;
+  var EYE_H = 0.27;
+  var EYE_SP = 0.37;
+  var EYE_P = -0.12;
+
+  function ringR(y) {
+    var a = Math.min(1, Math.abs(y));
+    return Math.pow(1 - Math.pow(a, EXP), 1 / EXP);
+  }
+
+  function mochiPath(rx, ry) {
+    var p = new Path2D();
+    var n = 96, e = 2 / EXP;
+    for (var i = 0; i <= n; i++) {
+      var a = (i / n) * Math.PI * 2;
+      var ca = Math.cos(a), sa = Math.sin(a);
+      var x = rx * Math.sign(ca) * Math.pow(Math.abs(ca), e);
+      var y = ry * Math.sign(sa) * Math.pow(Math.abs(sa), e);
+      if (i === 0) p.moveTo(x, y);
+      else p.lineTo(x, y);
+    }
+    p.closePath();
+    return p;
+  }
+
+  function drawRoundRect(ctx, x, y, w, h, r) {
+    var radius = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + w, y, x + w, y + h, radius);
+    ctx.arcTo(x + w, y + h, x, y + h, radius);
+    ctx.arcTo(x, y + h, x, y, radius);
+    ctx.arcTo(x, y, x + w, y, radius);
+    ctx.closePath();
+  }
+
+  function BotEngine(options) {
+    options = options || {};
+    this.isMini = !!options.isMini;
+    this.bodyColor = options.bodyColor || null; // e.g. '#2DD4BF' para mini bots
+
+    this.yaw = 0;
+    this.pitch = 0;
+    this.open = 1; // 1 = abierto, 0.08 = parpadeo
+    this.tilt = 0;
+    this.sx = 1;
+    this.sy = 1;
+    this.oy = 0;
+    this.ox = 0;
+    this.mouth = 0; // 0 = cerrado, >0 = abierto
+
+    this.state = "idle";
+    this.badge = null; // 'bang' | 'dots' | 'dot' | null
+
+    this.nextBlink = Date.now() + 1500 + Math.random() * 2500;
+    this.blinkUntil = 0;
+  }
+
+  BotEngine.prototype.update = function (targetYaw, targetPitch) {
+    var now = Date.now();
+    // Parpadeo natural
+    if (now > this.nextBlink && now > this.blinkUntil) {
+      this.blinkUntil = now + 140;
+      this.nextBlink = now + 2500 + Math.random() * 3200;
+    }
+    if (now < this.blinkUntil) {
+      this.open = 0.08;
+    } else {
+      this.open = 1;
+    }
+
+    // Suave seguimiento del cursor
+    if (typeof targetYaw === "number") {
+      this.yaw += (targetYaw - this.yaw) * 0.16;
+      this.pitch += (targetPitch - this.pitch) * 0.16;
+    } else {
+      var t = now / 1000;
+      var idleYaw = Math.sin(t * 0.8) * 0.12;
+      var idlePitch = Math.cos(t * 1.1) * 0.06;
+      this.yaw += (idleYaw - this.yaw) * 0.08;
+      this.pitch += (idlePitch - this.pitch) * 0.08;
+    }
+
+    // Respiración sutil
+    var breath = Math.sin((now / 1000) * 2.2);
+    this.oy = breath * 0.02;
+  };
+
+  BotEngine.prototype.draw = function (ctx, w, h) {
+    var R = w * 0.3;
+    var rx = R * 1.14;
+    var ry = R * 0.88;
+    var cx = w / 2 + this.ox * R;
+    var cy = h / 2 + this.oy * R + R * 0.06;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    if (this.tilt) ctx.rotate(this.tilt);
+    ctx.scale(this.sx, this.sy);
+
+    var path = mochiPath(rx, ry);
+
+    // 1. Cuerpo
+    if (this.bodyColor) {
+      // Mini Mochi: color plano brillante
+      ctx.fillStyle = this.bodyColor;
+      ctx.fill(path);
+    } else {
+      // Mochi Principal: sombreado volumétrico en 3 capas
+      var lin = ctx.createLinearGradient(rx * 0.7, -ry * 0.85, -rx * 0.8, ry * 0.9);
+      lin.addColorStop(0, "#EDEDEF");
+      lin.addColorStop(1, "#C4C5CA");
+      ctx.fillStyle = lin;
+      ctx.fill(path);
+
+      var shadow = ctx.createRadialGradient(0, 0, R * 0.15, 0, 0, R * 1.25);
+      shadow.addColorStop(0, "rgba(0,0,0,0)");
+      shadow.addColorStop(0.6, "rgba(0,0,0,0)");
+      shadow.addColorStop(1, "rgba(0,0,0,0.18)");
+      ctx.fillStyle = shadow;
+      ctx.fill(path);
+
+      var spec = ctx.createRadialGradient(rx * 0.34, -ry * 0.46, 0, rx * 0.34, -ry * 0.46, R * 0.42);
+      spec.addColorStop(0, "rgba(255,255,255,0.6)");
+      spec.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = spec;
+      ctx.fill(path);
+    }
+
+    // 2. Colorete / Mejillas rosadas (blush) en el Mochi principal
+    if (!this.isMini) {
+      ctx.save();
+      ctx.clip(path);
+      var yOffset = Math.sin(this.yaw) * rx * 0.8;
+      ctx.fillStyle = "rgba(255, 120, 150, 0.45)";
+      for (var sd of [-1, 1]) {
+        ctx.beginPath();
+        ctx.ellipse(sd * rx * 0.54 + yOffset, ry * 0.22, R * 0.18, R * 0.10, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // 3. Ojos esféricos con perspectiva 3D
+    ctx.save();
+    ctx.clip(path);
+    for (var side of [-1, 1]) {
+      var eyeYaw = side * EYE_SP + this.yaw;
+      var eyePitch = EYE_P + this.pitch;
+      var cp = Math.cos(eyePitch);
+      var visible = Math.cos(eyeYaw) * cp > 0.04;
+      if (!visible) continue;
+
+      var ex = Math.sin(eyeYaw) * cp * rx;
+      var ey = -Math.sin(eyePitch) * ry;
+      var fx = Math.max(0.18, Math.cos(eyeYaw));
+      var fy = Math.max(0.18, cp) * this.open;
+      var ew = R * (this.isMini ? 0.30 : EYE_W);
+      var eh = R * (this.isMini ? 0.32 : EYE_H);
+
+      ctx.save();
+      ctx.translate(ex, ey);
+      ctx.scale(fx, fy);
+      ctx.fillStyle = this.isMini ? "#10131A" : "rgb(26,20,18)";
+      drawRoundRect(ctx, -ew / 2, -eh / 2, ew, eh, Math.min(ew, eh) / 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.restore();
+
+    // 4. Boca (cuando está comiendo o hablando)
+    if (this.mouth > 0.05) {
+      ctx.save();
+      ctx.clip(path);
+      var mw = R * 0.32;
+      var mh = R * this.mouth;
+      ctx.fillStyle = "rgba(26,20,18,0.85)";
+      ctx.beginPath();
+      ctx.ellipse(0, ry * 0.45, mw / 2, mh / 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    ctx.restore();
+
+    // 5. Warning Badge '!' (Screenshot 1) o Dots Badge
+    if (this.badge && !this.isMini) {
+      var bx = cx - R * 0.72;
+      var by = cy - R * 0.72;
+      ctx.save();
+      ctx.translate(bx, by);
+
+      if (this.badge === "bang") {
+        // Círculo amarillo/ámbar con borde negro y '!' blanco adentro
+        ctx.fillStyle = "#000000";
+        ctx.beginPath();
+        ctx.arc(0, 0, R * 0.32, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#F59E0B";
+        ctx.beginPath();
+        ctx.arc(0, 0, R * 0.25, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "900 " + Math.round(R * 0.34) + "px system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("!", 0, R * 0.02);
+      } else if (this.badge === "dots") {
+        var pw = R * 0.72, ph = R * 0.36;
+        drawRoundRect(ctx, -pw / 2, -ph / 2, pw, ph, ph / 2);
+        ctx.fillStyle = "#8B5CF6";
+        ctx.fill();
+        var tPhase = (Date.now() / 350);
+        for (var d = 0; d < 3; d++) {
+          var dotR = R * 0.06 * (1 + 0.3 * Math.sin(tPhase - d * 0.6));
+          ctx.fillStyle = "#FFFFFF";
+          ctx.beginPath();
+          ctx.arc((d - 1) * R * 0.18, 0, dotR, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+  };
+
+  // ------------------------------------------------------------------
+  // 2. INSTANCIACIÓN DE ENGINES
+  // ------------------------------------------------------------------
+  var pillCanvas = document.getElementById("pillMochiCanvas");
+  var cardCanvas = document.getElementById("cardMochiCanvas");
+  var pillCtx = pillCanvas.getContext("2d");
+  var cardCtx = cardCanvas.getContext("2d");
+
+  var pillBot = new BotEngine({ isMini: false });
+  var cardBot = new BotEngine({ isMini: false });
+
+  // 4 Mini Mochis: Verde, Naranja, Púrpura, Rojo (Screenshot 3)
+  var miniColors = ["#2DD4BF", "#F59E0B", "#8B5CF6", "#EF4444"];
+  var miniBots = [];
+  for (var m = 0; m < 4; m++) {
+    var cElem = document.getElementById("mini" + m);
+    var mCtx = cElem.getContext("2d");
+    var mEngine = new BotEngine({ isMini: true, bodyColor: miniColors[m] });
+    mEngine.nextBlink = Date.now() + 1000 + m * 800;
+    miniBots.push({ canvas: cElem, ctx: mCtx, engine: mEngine });
+  }
+
+  // Animación del Frame Loop
+  var mouseTarget = { yaw: 0, pitch: 0 };
+  var hasHover = false;
+
+  function animLoop() {
+    // 1. Mochi de la Píldora
+    pillBot.update(hasHover ? mouseTarget.yaw : null, hasHover ? mouseTarget.pitch : null);
+    pillCtx.clearRect(0, 0, pillCanvas.width, pillCanvas.height);
+    pillBot.draw(pillCtx, pillCanvas.width, pillCanvas.height);
+
+    // 2. Mochi del Panel
+    cardBot.update(hasHover ? mouseTarget.yaw : null, hasHover ? mouseTarget.pitch : null);
+    cardCtx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
+    cardBot.draw(cardCtx, cardCanvas.width, cardCanvas.height);
+
+    // 3. Mini Mochis
+    for (var i = 0; i < miniBots.length; i++) {
+      var mb = miniBots[i];
+      mb.engine.update();
+      mb.ctx.clearRect(0, 0, mb.canvas.width, mb.canvas.height);
+      mb.engine.draw(mb.ctx, mb.canvas.width, mb.canvas.height);
+    }
+
+    requestAnimationFrame(animLoop);
+  }
+  requestAnimationFrame(animLoop);
+
+  // ------------------------------------------------------------------
+  // 3. CONTROL DE VISTAS (Tabs & Cards)
+  // ------------------------------------------------------------------
+  var currentTab = "home"; // 'home' | 'chat' | 'drop'
+  var activeView = "overview"; // 'approval' | 'chat' | 'overview' | 'drop'
+  var isExpanded = false;
+  var lastSnapshot = null;
+
+  var approvalPane = document.getElementById("approvalCard");
+  var chatPane = document.getElementById("chatView");
+  var overviewPane = document.getElementById("overviewView");
+  var dropPane = document.getElementById("dropView");
+  var mainCard = document.getElementById("mainCard");
+
+  var tabHome = document.getElementById("tabHome");
+  var tabChat = document.getElementById("tabChat");
+  var tabDrop = document.getElementById("tabDrop");
+
+  function switchView(viewName) {
+    activeView = viewName;
+    approvalPane.classList.toggle("active", viewName === "approval");
+    chatPane.classList.toggle("active", viewName === "chat");
+    overviewPane.classList.toggle("active", viewName === "overview");
+    dropPane.classList.toggle("active", viewName === "drop");
+
+    tabHome.classList.toggle("on", viewName === "overview" && currentTab === "home");
+    tabChat.classList.toggle("on", viewName === "chat");
+    tabDrop.classList.toggle("on", viewName === "drop");
+
+    // Ajustar wash ambiental según la vista activa
+    if (viewName === "approval") {
+      mainCard.style.setProperty("--wash", "rgba(245, 158, 11, 0.40)"); // Ámbar intenso (Screenshot 1)
+      cardBot.badge = "bang";
+    } else if (viewName === "chat") {
+      mainCard.style.setProperty("--wash", "rgba(99, 102, 241, 0.28)"); // Índigo elegante (Screenshot 2)
+      cardBot.badge = null;
+    } else if (viewName === "drop") {
+      mainCard.style.setProperty("--wash", "rgba(34, 211, 238, 0.25)"); // Cian suave
+      cardBot.badge = null;
+    } else {
+      mainCard.style.setProperty("--wash", "rgba(139, 92, 246, 0.18)"); // Púrpura sutil
+      cardBot.badge = null;
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // 4. API BRIDGE CON PYTHON (PyWebView)
+  // ------------------------------------------------------------------
+  function api() { return (window.pywebview && window.pywebview.api) || null; }
+
+  function callApi(name) {
+    var a = api();
+    if (!a || typeof a[name] !== "function") return Promise.resolve(null);
+    var args = Array.prototype.slice.call(arguments, 1);
+    try { return Promise.resolve(a[name].apply(a, args)); }
+    catch (err) { return Promise.resolve(null); }
+  }
+
+  function setExpandedUI(val) {
+    isExpanded = val;
+    document.body.classList.toggle("expanded", val);
+    document.body.classList.toggle("collapsed", !val);
+  }
+
+  function expandIsland() {
+    if (isExpanded) return;
+    callApi("expand").then(function () {
+      setTimeout(function () { setExpandedUI(true); }, 30);
+    });
+  }
+
+  function collapseIsland() {
+    if (!isExpanded) return;
+    setExpandedUI(false);
+    setTimeout(function () {
+      callApi("collapse");
+    }, 220);
+  }
+
+  // ------------------------------------------------------------------
+  // 5. RENDERIZADO Y POLLING DE ESTADO
+  // ------------------------------------------------------------------
+  function render(snapshot) {
+    if (!snapshot) return;
+    lastSnapshot = snapshot;
+    var state = snapshot.state || "idle";
+    document.body.setAttribute("data-state", state);
+
+    // Si hay una acción pendiente que requiere aprobación, forzar vista approval
+    if (snapshot.pending) {
+      document.getElementById("approvalCmd").textContent = snapshot.pending.command || snapshot.pending.tool || "curl evil.example.com";
+      document.getElementById("compactState").textContent = "JEV needs permission";
+      document.getElementById("compactSub").textContent = "acción sensible esperando respuesta";
+      cardBot.badge = "bang";
+      pillBot.badge = "bang";
+      switchView("approval");
+      if (!isExpanded) {
+        expandIsland();
+        document.body.classList.add("shake");
+        setTimeout(function () { document.body.classList.remove("shake"); }, 400);
+      }
+    } else {
+      if (activeView === "approval") {
+        switchView(currentTab === "chat" ? "chat" : "overview");
+      }
+      cardBot.badge = state === "thinking" ? "dots" : null;
+      pillBot.badge = state === "thinking" ? "dots" : null;
+
+      // Actualizar ticker de la píldora
+      if (state === "thinking") {
+        document.getElementById("compactState").textContent = "Pensando…";
+        document.getElementById("compactSub").textContent = snapshot.thought || "analizando contexto";
+      } else if (state === "tool") {
+        document.getElementById("compactState").textContent = "Ejecutando";
+        document.getElementById("compactSub").textContent = snapshot.tool || "herramienta activa";
+      } else {
+        document.getElementById("compactState").textContent = "JEV listo";
+        document.getElementById("compactSub").textContent = "agente autónomo local";
+      }
+    }
+
+    // Actualizar campos de vista overview
+    var actElem = document.getElementById("activityText");
+    if (snapshot.pending) {
+      actElem.textContent = "Permiso requerido para ejecutar: " + (snapshot.pending.command || snapshot.pending.tool);
+    } else if (snapshot.tool_in_progress) {
+      actElem.textContent = "Ejecutando " + snapshot.tool + "…";
+    } else if (snapshot.thought) {
+      actElem.textContent = snapshot.thought.replace(/[*_#>`]/g, "").trim();
+    } else if (snapshot.task) {
+      actElem.textContent = snapshot.task;
+    } else {
+      actElem.textContent = "Sin actividad reciente. Pídeme algo desde el chat flotante o la ventana principal.";
+    }
+
+    var toolChip = document.getElementById("toolChip");
+    if (snapshot.tool && (snapshot.tool_in_progress || snapshot.pending)) {
+      toolChip.textContent = snapshot.tool + (snapshot.tool_args ? " · " + snapshot.tool_args : "");
+      toolChip.classList.remove("hidden");
+    } else {
+      toolChip.classList.add("hidden");
+    }
+
+    document.getElementById("cpuVal").textContent = (snapshot.cpu || 0) + "%";
+    document.getElementById("ramVal").textContent = (snapshot.ram || 0) + "%";
+    document.getElementById("cpuBar").style.width = Math.min(100, Math.max(2, snapshot.cpu || 0)) + "%";
+    document.getElementById("ramBar").style.width = Math.min(100, Math.max(2, snapshot.ram || 0)) + "%";
+    document.getElementById("modelVal").textContent = snapshot.model || "—";
+    document.getElementById("stateText").textContent = state;
+
+    document.getElementById("safeModeBtn").classList.toggle("on", !!snapshot.confirm_risky);
+    document.getElementById("soundBtn").classList.toggle("on", !!snapshot.voice);
+  }
+
+  function refresh() {
+    return callApi("get_status").then(function (snapshot) {
+      if (snapshot) render(snapshot);
+      return snapshot;
+    }).catch(function () { return null; });
+  }
+
+  function pollChatHistory() {
+    callApi("get_chat_history").then(function (res) {
+      if (res && res.messages && res.messages.length > 0) {
+        var log = document.getElementById("chatLog");
+        log.innerHTML = "";
+        res.messages.forEach(function (m) {
+          var b = document.createElement("div");
+          b.className = "chat-bubble " + (m.role === "user" ? "user" : "agent");
+          b.textContent = m.content;
+          log.appendChild(b);
+        });
+        log.scrollTop = log.scrollHeight;
+      }
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // 6. GESTIÓN DE EVENTOS Y ACCIONES
+  // ------------------------------------------------------------------
+  // Píldora
+  document.getElementById("pill").addEventListener("click", expandIsland);
+  document.getElementById("collapseBtn").addEventListener("click", function (e) {
+    e.stopPropagation();
+    collapseIsland();
+  });
+
+  // Pestañas
+  tabHome.addEventListener("click", function () {
+    currentTab = "home";
+    switchView("overview");
+  });
+  tabChat.addEventListener("click", function () {
+    currentTab = "chat";
+    switchView("chat");
+    pollChatHistory();
+    setTimeout(function () { document.getElementById("chatInput").focus(); }, 100);
+  });
+  tabDrop.addEventListener("click", function () {
+    currentTab = "drop";
+    switchView("drop");
+  });
+
+  // Botones de Cabecera
+  document.getElementById("gearBtn").addEventListener("click", function () {
+    callApi("open_main");
+  });
+  document.getElementById("openMainBtn").addEventListener("click", function () {
+    callApi("open_main");
+    collapseIsland();
+  });
+  document.getElementById("soundBtn").addEventListener("click", function () {
+    callApi("toggle_voice").then(refresh);
+  });
+  document.getElementById("stopAgentBtn").addEventListener("click", function () {
+    callApi("stop_agent").then(refresh);
+  });
+  document.getElementById("safeModeBtn").addEventListener("click", function () {
+    var cur = !!(lastSnapshot && lastSnapshot.confirm_risky);
+    callApi("set_confirm_risky", !cur).then(refresh);
+  });
+
+  // Aprobación (Screenshot 1)
+  document.getElementById("allowBtn").addEventListener("click", function () {
+    callApi("resolve_approval", true).then(function () {
+      switchView(currentTab === "chat" ? "chat" : "overview");
+      refresh();
+    });
+  });
+  document.getElementById("denyBtn").addEventListener("click", function () {
+    callApi("resolve_approval", false).then(function () {
+      switchView(currentTab === "chat" ? "chat" : "overview");
+      refresh();
+    });
+  });
+  document.getElementById("alwaysBtn").addEventListener("click", function () {
+    callApi("resolve_approval", true).then(function () {
+      switchView(currentTab === "chat" ? "chat" : "overview");
+      refresh();
+    });
+  });
+
+  // Chat Integrado (Screenshot 2)
+  function sendChatInput() {
+    var input = document.getElementById("chatInput");
+    var text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+
+    var log = document.getElementById("chatLog");
+    var userBubble = document.createElement("div");
+    userBubble.className = "chat-bubble user";
+    userBubble.textContent = text;
+    log.appendChild(userBubble);
+    log.scrollTop = log.scrollHeight;
+
+    cardBot.badge = "dots";
+    callApi("send_chat", text).then(function () {
+      refresh();
+      setTimeout(pollChatHistory, 1500);
+    });
+  }
+
+  document.getElementById("chatSendBtn").addEventListener("click", sendChatInput);
+  document.getElementById("chatInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendChatInput();
+    }
+  });
+
+  // Soltar archivos (Drag & Drop)
+  var dropZone = document.getElementById("dropView");
+  var chooseBtn = document.getElementById("chooseFileBtn");
+  var filePicker = document.getElementById("filePickerInput");
+
+  chooseBtn.addEventListener("click", function () {
+    filePicker.click();
+  });
+
+  filePicker.addEventListener("change", function () {
+    if (filePicker.files && filePicker.files[0]) {
+      processFile(filePicker.files[0]);
+    }
+  });
+
+  function processFile(file) {
+    var reader = new FileReader();
+    reader.onload = function (evt) {
+      var dataUrl = evt.target.result;
+      callApi("send_file_drop", file.name, dataUrl, "Analiza este archivo");
+      // Mostrar en chat y pasar a la vista chat
+      currentTab = "chat";
+      switchView("chat");
+      var log = document.getElementById("chatLog");
+      var ub = document.createElement("div");
+      ub.className = "chat-bubble user";
+      ub.textContent = "📎 [Archivo subido: " + file.name + "]";
+      log.appendChild(ub);
+      log.scrollTop = log.scrollHeight;
+    };
+    if (file.type.indexOf("image") >= 0) {
+      reader.readAsDataURL(file);
+    } else {
+      reader.readAsText(file);
+    }
+  }
+
+  window.addEventListener("dragover", function (e) {
+    e.preventDefault();
+    dropZone.classList.add("dragover");
+    cardBot.mouth = 0.42; // Mochi abre la boca esperando el archivo
+  });
+  window.addEventListener("dragleave", function (e) {
+    e.preventDefault();
+    dropZone.classList.remove("dragover");
+    cardBot.mouth = 0;
+  });
+  window.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dropZone.classList.remove("dragover");
+    cardBot.mouth = 0;
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFile(e.dataTransfer.files[0]);
+    }
+  });
+
+  // Atajos de Teclado Globales (Y = Allow, N = Deny, Esc = Collapse)
+  document.addEventListener("keydown", function (event) {
+    var key = String(event.key || "").toLowerCase();
+    if (activeView === "approval") {
+      if (key === "y" || key === "enter") {
+        event.preventDefault();
+        callApi("resolve_approval", true).then(function () {
+          switchView(currentTab === "chat" ? "chat" : "overview");
+          refresh();
+        });
+        return;
+      }
+      if (key === "n" || key === "escape") {
+        event.preventDefault();
+        callApi("resolve_approval", false).then(function () {
+          switchView(currentTab === "chat" ? "chat" : "overview");
+          refresh();
+        });
+        return;
+      }
+    }
+    if (event.key === "Escape") {
+      collapseIsland();
+    }
+  });
+
+  // Seguimiento de Movimiento del Ratón para los Ojos de Mochi
+  document.addEventListener("mousemove", function (e) {
+    hasHover = true;
+    var cx = window.innerWidth / 2;
+    var cy = isExpanded ? 160 : 27;
+    mouseTarget.yaw = Math.max(-0.45, Math.min(0.45, (e.clientX - cx) / 200));
+    mouseTarget.pitch = Math.max(-0.35, Math.min(0.35, (e.clientY - cy) / 180));
+  });
+
+  document.addEventListener("mouseleave", function () {
+    hasHover = false;
+  });
+
+  // Inicialización y Polling
+  switchView("overview");
+  refresh();
+  setInterval(refresh, 900);
+})();
+</script>
+</body>
+</html>

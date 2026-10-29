@@ -1,0 +1,76 @@
+{
+  "name": "fluid_dynamics_pde_solver",
+  "version": "1.0.0",
+  "description": "Suite de cálculo numérico para mecánica de fluidos (Navier-Stokes en 2D incompresible con proyección de Chorin, operadores diferenciales y condiciones de contorno).",
+  "category": "physics_simulation",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "navier-stokes",
+    "dinámica de fluidos",
+    "cfd",
+    "vorticidad",
+    "flujo laminar",
+    "advección-difusión",
+    "simulacion fluidos",
+    "poisson",
+    "chorin"
+  ],
+  "dependencies": [
+    "numpy"
+  ],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción a ejecutar: 'solve_step', 'run_simulation', 'get_info'",
+      "enum": ["solve_step", "run_simulation", "get_info"],
+      "default": "run_simulation"
+    },
+    "nx": {
+      "type": "integer",
+      "description": "Número de nodos en dirección X",
+      "default": 32
+    },
+    "ny": {
+      "type": "integer",
+      "description": "Número de nodos en dirección Y",
+      "default": 32
+    },
+    "lx": {
+      "type": "number",
+      "description": "Longitud del dominio en X (metros)",
+      "default": 1.0
+    },
+    "ly": {
+      "type": "number",
+      "description": "Longitud del dominio en Y (metros)",
+      "default": 1.0
+    },
+    "reynolds": {
+      "type": "number",
+      "description": "Número de Reynolds (Re)",
+      "default": 100.0
+    },
+    "dt": {
+      "type": "number",
+      "description": "Paso de integración temporal delta_t",
+      "default": 0.001
+    },
+    "steps": {
+      "type": "integer",
+      "description": "Número de pasos temporales a simular",
+      "default": 10
+    },
+    "scenario": {
+      "type": "string",
+      "description": "Escenario de flujo: 'lid_driven_cavity', 'channel_flow'",
+      "enum": ["lid_driven_cavity", "channel_flow"],
+      "default": "lid_driven_cavity"
+    },
+    "export_viewport_3d": {
+      "type": "boolean",
+      "description": "Si True, genera especificación 3D compatible con Three.js Viewport",
+      "default": true
+    }
+  }
+}

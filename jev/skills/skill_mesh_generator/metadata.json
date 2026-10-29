@@ -1,0 +1,30 @@
+{
+  "name": "skill_mesh_generator",
+  "description": "Generador de geometrías procedurales 3D (cubos, cilindros, esferas, toros, mallas paramétricas) exportables en formato estándar Three.js JSON.",
+  "version": "1.0.0",
+  "category": "3d_graphics",
+  "trigger_keywords": [
+    "3d",
+    "mesh",
+    "threejs",
+    "cubo",
+    "cilindro",
+    "esfera",
+    "geometria",
+    "modelo 3d",
+    "viewport"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "shape": {
+      "type": "string",
+      "description": "Tipo de geometría: 'box', 'cylinder', 'sphere', 'torus', 'plane', 'parametric_grid', 'composite_scene', 'arrow', 'arrow_helper'",
+      "enum": ["box", "cylinder", "sphere", "torus", "plane", "parametric_grid", "composite_scene", "arrow", "arrow_helper"]
+    },
+    "params": {
+      "type": "object",
+      "description": "Parámetros de dimensiones y material: width, height, depth, radius, color, wireframe, metalness, roughness",
+      "default": {}
+    }
+  }
+}

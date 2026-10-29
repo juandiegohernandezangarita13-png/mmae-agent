@@ -1,6 +1,11 @@
 import ast
 from typing import Dict, Any
 
+try:
+    from jev.self_improvement.evaluator import SelfImprovementEvaluator
+except Exception:
+    SelfImprovementEvaluator = None
+
 class OutputEvaluator:
     """
     Analiza código generado en Python y respuestas técnicas para verificar

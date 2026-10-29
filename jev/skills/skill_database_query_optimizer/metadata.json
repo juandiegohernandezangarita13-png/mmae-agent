@@ -1,0 +1,23 @@
+{
+  "name": "skill_database_query_optimizer",
+  "version": "1.0.0",
+  "description": "Optimizador heurístico y auditor estático de consultas SQL (análisis de cláusulas WHERE, indexación y detección de full-table scans).",
+  "category": "database_engineering",
+  "trigger_keywords": [
+    "sql",
+    "query",
+    "database",
+    "optimizador sql",
+    "indices",
+    "performance db",
+    "slow query"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "query": {
+      "type": "string",
+      "description": "Consulta SQL a auditar y optimizar",
+      "default": "SELECT * FROM users WHERE status = 'active';"
+    }
+  }
+}

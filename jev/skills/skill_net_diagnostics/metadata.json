@@ -1,0 +1,44 @@
+{
+  "name": "skill_net_diagnostics",
+  "description": "Diagnóstico nativo de red y conectividad: Ping TCP de baja latencia, resolución DNS y cálculo estadístico de RTT/jitter sin dependencias externas.",
+  "version": "1.0.0",
+  "category": "network_engineering",
+  "trigger_keywords": [
+    "red",
+    "ping",
+    "tcp",
+    "dns",
+    "rtt",
+    "latencia",
+    "diagnostico",
+    "puerto",
+    "conexion"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Operación de diagnóstico: 'tcp_ping', 'dns_resolve', 'diagnose_host'",
+      "enum": ["tcp_ping", "dns_resolve", "diagnose_host"]
+    },
+    "target": {
+      "type": "string",
+      "description": "Host o dirección IP objetivo (ej. '127.0.0.1', '8.8.8.8', 'google.com')"
+    },
+    "port": {
+      "type": "integer",
+      "description": "Puerto TCP para el ping (por defecto 80 o 443)",
+      "default": 80
+    },
+    "count": {
+      "type": "integer",
+      "description": "Número de sondas TCP consecutivas para cálculo de RTT",
+      "default": 3
+    },
+    "timeout": {
+      "type": "number",
+      "description": "Timeout en segundos por intento",
+      "default": 2.0
+    }
+  }
+}

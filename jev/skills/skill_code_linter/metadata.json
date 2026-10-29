@@ -1,0 +1,32 @@
+{
+  "name": "skill_code_linter",
+  "description": "Validador estático interno de código Python mediante ast.parse. Detecta errores de sintaxis, funciones placeholder incompletas y antipatrones antes de escribir a disco.",
+  "version": "1.0.0",
+  "category": "code_quality",
+  "trigger_keywords": [
+    "linter",
+    "sintaxis",
+    "ast",
+    "validar codigo",
+    "analisis estatico",
+    "placeholder",
+    "calidad codigo"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "code": {
+      "type": "string",
+      "description": "Contenido del código fuente de Python a auditar"
+    },
+    "file_path": {
+      "type": "string",
+      "description": "Ruta opcional o nombre del archivo",
+      "default": "unnamed.py"
+    },
+    "strict_placeholders": {
+      "type": "boolean",
+      "description": "Si es True, marcar como error funciones vacías o con pass/...",
+      "default": true
+    }
+  }
+}

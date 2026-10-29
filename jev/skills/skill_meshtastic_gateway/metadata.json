@@ -1,0 +1,39 @@
+{
+  "name": "skill_meshtastic_gateway",
+  "version": "1.0.0",
+  "description": "Gateway y conector de radio LoRa mallada Meshtastic para comunicaciones y telemetría fuera de red (off-grid).",
+  "category": "rf_lora",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "meshtastic",
+    "lora",
+    "offgrid",
+    "radio",
+    "malla",
+    "telemetria",
+    "heltec",
+    "tbeam",
+    "iot",
+    "hardware"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción a ejecutar",
+      "enum": ["send_text", "broadcast_telemetry", "parse_packet", "check_gateway_status", "simulate_mesh"],
+      "default": "check_gateway_status"
+    },
+    "destination": {
+      "type": "string",
+      "description": "Destino del mensaje",
+      "default": "^all"
+    },
+    "message": {
+      "type": "string",
+      "description": "Contenido del mensaje",
+      "default": ""
+    }
+  }
+}

@@ -1,4 +1,9 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
+
+try:
+    from jev.core.memory import HierarchicalMemory
+except Exception:
+    HierarchicalMemory = None
 
 class ExecutionMemory:
     """

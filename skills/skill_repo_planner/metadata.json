@@ -1,0 +1,75 @@
+{
+  "name": "skill_repo_planner",
+  "version": "1.0.0",
+  "description": "Motor de Edición Atómica de Proyectos y Sandbox Branching (Plandex-Style Engine). Mapeo sintáctico de repositorios con AST Context Slicer, ramas de staging aisladas (.jev_staging/<plan_id>/), unified diffs y confirmación atómica con rollback automático ante fallos de sintaxis o tests.",
+  "category": "code_engineering",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "refactorizacion",
+    "edicion atomica",
+    "sandbox branching",
+    "plandex",
+    "staging",
+    "ast context slicer",
+    "diff unificado",
+    "rollback atomico",
+    "map repo",
+    "rebanada de codigo",
+    "plan de cambios"
+  ],
+  "dependencies": ["tree-sitter", "tree-sitter-languages", "gitpython"],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción a ejecutar: 'map_repo', 'get_slice', 'create_plan', 'stage_file', 'patch_staged_file', 'get_diff', 'validate_plan', 'commit_plan', 'rollback_plan', 'list_plans'",
+      "enum": [
+        "map_repo",
+        "get_slice",
+        "create_plan",
+        "stage_file",
+        "patch_staged_file",
+        "get_diff",
+        "validate_plan",
+        "commit_plan",
+        "rollback_plan",
+        "list_plans"
+      ],
+      "default": "map_repo"
+    },
+    "plan_id": {
+      "type": "string",
+      "description": "Identificador único de la rama de ensayo (ej. 'refactor_auth')",
+      "default": "main_plan"
+    },
+    "target_path": {
+      "type": "string",
+      "description": "Ruta relativa del archivo o carpeta objetivo",
+      "default": ""
+    },
+    "content": {
+      "type": "string",
+      "description": "Contenido textual para escribir en staging",
+      "default": ""
+    },
+    "target_content": {
+      "type": "string",
+      "description": "Texto exacto a reemplazar en patch_staged_file",
+      "default": ""
+    },
+    "replacement_content": {
+      "type": "string",
+      "description": "Nuevo texto de reemplazo en patch_staged_file",
+      "default": ""
+    },
+    "symbol_name": {
+      "type": "string",
+      "description": "Nombre de símbolo para get_slice",
+      "default": ""
+    },
+    "test_command": {
+      "type": "string",
+      "description": "Comando de prueba antes de commit",
+      "default": ""
+    }
+  }
+}

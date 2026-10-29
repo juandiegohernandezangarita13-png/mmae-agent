@@ -1,0 +1,5 @@
+# Dependencias para WiFi Sensing Analyzer
+# Nota: La implementación básica utiliza la biblioteca estándar de Python (math, subprocess, time, json).
+# Librerías opcionales para visualización o procesamiento avanzado de señales:
+numpy>=1.24.0
+scipy>=1.10.0

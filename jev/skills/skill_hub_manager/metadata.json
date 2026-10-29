@@ -1,0 +1,43 @@
+{
+  "name": "skill_hub_manager",
+  "version": "1.0.0",
+  "description": "Meta-gestor dinámico de habilidades (Dynamic Skill Fetcher & Auto-Installer). Busca, descarga, audita con AST e inyecta en caliente nuevas skills.",
+  "category": "meta_capability",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "hub",
+    "skills",
+    "habilidades",
+    "instalar skill",
+    "descargar skill",
+    "tool gap",
+    "carencia",
+    "buscar herramientas",
+    "auto install",
+    "meta gestor"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción: 'search', 'install', 'search_and_install', 'audit', 'list_hub_inventory', 'update_all'",
+      "enum": ["search", "install", "search_and_install", "audit", "list_hub_inventory", "update_all"],
+      "default": "search"
+    },
+    "task_description": {
+      "type": "string",
+      "description": "Descripción del objetivo o carencia para búsqueda semántica",
+      "default": ""
+    },
+    "skill_name": {
+      "type": "string",
+      "description": "Nombre de la habilidad",
+      "default": ""
+    },
+    "source_path": {
+      "type": "string",
+      "description": "Ruta de origen local opcional",
+      "default": ""
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "skill_qa_auditor",
+  "version": "1.0.0",
+  "description": "Subsistema de Auditoría de Seguridad y Control de Calidad LLM (Giskard QA & Red-Teaming Suite). Escanea inyecciones de prompts, fuga de credenciales, alucinaciones y robustez de código.",
+  "category": "qa_security",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "qa",
+    "red teaming",
+    "giskard",
+    "seguridad llm",
+    "prompt injection",
+    "jailbreak",
+    "fuga credenciales",
+    "alucinacion",
+    "robustez codigo",
+    "control de calidad"
+  ],
+  "dependencies": ["giskard"],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción: 'audit_response', 'audit_code', 'scan_prompt_injection', 'get_qa_status'",
+      "enum": ["audit_response", "audit_code", "scan_prompt_injection", "get_qa_status"],
+      "default": "audit_response"
+    },
+    "text": {
+      "type": "string",
+      "description": "Texto o respuesta de modelo a auditar",
+      "default": ""
+    },
+    "code": {
+      "type": "string",
+      "description": "Código fuente a evaluar estáticamente",
+      "default": ""
+    },
+    "filename": {
+      "type": "string",
+      "description": "Nombre de archivo asociado al código",
+      "default": "snippet.py"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "skill_openpilot_telemetry",
+  "version": "1.0.0",
+  "description": "Lector y decodificador de telemetría CAN y mensajes Cereal de Comma.ai Openpilot con proyección 3D.",
+  "category": "automotive_ai",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "openpilot",
+    "comma",
+    "cereal",
+    "can bus",
+    "automotriz",
+    "coche",
+    "conduccion autonoma",
+    "trayectoria",
+    "volante",
+    "carril"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción a ejecutar",
+      "enum": ["parse_telemetry_event", "analyze_driving_log", "generate_drive_3d_scene", "simulate_driving_step"],
+      "default": "simulate_driving_step"
+    },
+    "speed_mps": {
+      "type": "number",
+      "description": "Velocidad del vehículo en m/s",
+      "default": 25.0
+    },
+    "steering_angle_deg": {
+      "type": "number",
+      "description": "Ángulo del volante en grados",
+      "default": -2.5
+    }
+  }
+}

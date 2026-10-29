@@ -1,0 +1,31 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+
+# Secretos y variables de entorno
+.env
+*.env.local
+OpenRouter
+
+# Directorios temporales y repos externos clonados
+temp_mmae/
+repos/
+tools/free-claude-code/
+workspace/
+
+# Archivos generados y cachés en tiempo de ejecución
+data/
+*.log
+
+# Base de datos local y estado
+vault.db
+.mmae_state.json
+
+# Archivos de caché del sistema operativo
+.DS_Store
+Thumbs.db

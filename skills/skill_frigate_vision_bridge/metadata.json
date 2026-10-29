@@ -1,0 +1,39 @@
+{
+  "name": "skill_frigate_vision_bridge",
+  "version": "1.0.0",
+  "description": "Puente de eventos y cliente REST/MQTT para el NVR de visión artificial local Frigate.",
+  "category": "computer_vision",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "frigate",
+    "nvr",
+    "camara",
+    "vision artificial",
+    "deteccion",
+    "persona",
+    "coche",
+    "seguridad",
+    "intruso",
+    "mqtt"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción a ejecutar",
+      "enum": ["parse_mqtt_event", "query_api_events", "evaluate_security_rule", "get_snapshot_info"],
+      "default": "parse_mqtt_event"
+    },
+    "camera": {
+      "type": "string",
+      "description": "Nombre de la cámara",
+      "default": ""
+    },
+    "label": {
+      "type": "string",
+      "description": "Etiqueta del objeto detectado",
+      "default": "person"
+    }
+  }
+}

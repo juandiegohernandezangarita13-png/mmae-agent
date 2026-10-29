@@ -1,0 +1,45 @@
+{
+  "name": "skill_voice_engine",
+  "version": "1.0.0",
+  "description": "Motor de síntesis (TTS), clonación zero-shot de voz local y transcripción (STT) sin conexión a la nube.",
+  "category": "speech_audio",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "voz",
+    "tts",
+    "stt",
+    "clonacion de voz",
+    "whisper",
+    "xtts",
+    "f5tts",
+    "hablar",
+    "audio",
+    "transcribir",
+    "doblaje"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción: 'synthesize_speech', 'transcribe_audio', 'clone_voice', 'audio_to_audio_translate', 'register_voice_profile'",
+      "enum": ["synthesize_speech", "transcribe_audio", "clone_voice", "audio_to_audio_translate", "register_voice_profile"],
+      "default": "synthesize_speech"
+    },
+    "text": {
+      "type": "string",
+      "description": "Texto a sintetizar o doblar",
+      "default": ""
+    },
+    "speaker_wav": {
+      "type": "string",
+      "description": "Ruta a muestra de voz",
+      "default": "data/voice_samples/user_voice.wav"
+    },
+    "language": {
+      "type": "string",
+      "description": "Código ISO de idioma",
+      "default": "es"
+    }
+  }
+}
