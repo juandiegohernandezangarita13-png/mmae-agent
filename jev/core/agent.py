@@ -72,9 +72,20 @@ class AgentCore:
         self.on_tool_result = on_tool_result or (lambda name, res: None)
 
         self.messages: List[Dict[str, Any]] = []
+        self.conversation_history: List[Dict[str, str]] = []
         self.abort_requested = False
         self.is_running = False
         self.user_interrupt_queue: queue.Queue = queue.Queue()
+
+        # Memoria Unificada Persistente (Mem0, Graffiti, Coach, LangMem, Leta)
+        try:
+            from core.memory import UnifiedMemorySystem
+            self.unified_memory = UnifiedMemorySystem(
+                memory_dir=self.config.memory_dir,
+                hierarchical_memory=self.memory
+            )
+        except Exception:
+            self.unified_memory = None
 
         # Motor de autorreflexión y autoevolución en caliente
         self.evolving_engine = SelfEvolvingAgent(
@@ -146,19 +157,26 @@ class AgentCore:
             "todo bien", "que haces", "quien eres", "quien eres tu", "cual es tu nombre",
             "como te llamas", "quien te creo", "presentate", "gracias", "muchas gracias",
             "mil gracias", "ok gracias", "adios", "chau", "hasta luego", "nos vemos",
-            "vale gracias", "de acuerdo", "que puedes hacer", "ayuda", "help"
+            "vale gracias", "de acuerdo", "que puedes hacer", "ayuda", "help",
+            "como me llamo", "quien soy", "sabes mi nombre", "recuerdas mi nombre",
+            "cual es mi nombre", "sabes quien soy", "te acuerdas de mi", "te acuerdas de mi nombre",
+            "me conoces", "que sabes de mi", "que recuerdas de mi", "recuerdas que te dije",
+            "recuerdas como me llamo", "sabes quien soy yo"
         }
 
         if clean_text in conversational_phrases:
             return True
 
-        # Saludos breves con apelativo o nombre: "hola jev", "hola jarvis", "buenas tardes amigo"
-        if len(words) <= 3 and words[0] in {"hola", "buenas", "hey", "hello", "hi", "saludos", "gracias"}:
+        # Saludos breves con apelativo o nombre: "hola jev", "hola jarvis", "buenas tardes amigo" o presentaciones ("soy diego")
+        if clean_text.startswith(("soy ", "me llamo ", "mi nombre es ")) and len(words) <= 4:
+            return True
+
+        if len(words) <= 3 and words[0] in {"hola", "buenas", "hey", "hello", "hi", "saludos", "gracias", "soy"}:
             return True
 
         return False
 
-    def _build_system_prompt(self, procedural_context: str = "") -> str:
+    def _build_system_prompt(self, procedural_context: str = "", memory_context: str = "") -> str:
         """Construye el prompt maestro del sistema integrando directrices, lecciones aprendidas y memoria procedimental."""
         lessons_text = self.memory.get_lessons_prompt()
 
@@ -312,6 +330,7 @@ PILARES DE OPERACIÓN AUTÓNOMA PROACTIVA (MMAE-AGENT / MODO SEGUNDO PLANO):
 
 {lessons_text}
 {procedural_context}
+{memory_context}
 
 RESILIENCIA COGNITIVA Y MONITOR CANARIO DE CONTEXTO:
 - Directiva Centinela de Integridad: En cada respuesta o bloque de pensamiento interno, debes incluir internamente la marca centinela canaria exacta:
@@ -502,9 +521,10 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
     def _run_task_loop(self, user_goal: str) -> str:
         """Bucle interno de ejecución de la tarea optimizado con System-1 Jev Router."""
         # 0. Pre-Flight System-1 Jev Router (<200ms)
+        tool_names = [t.name if hasattr(t, "name") else str(t) for t in self.registry.list_tools()] if hasattr(self.registry, "list_tools") else None
         preflight: PreFlightDecision = self.jev_router.pre_flight_check(
             user_goal,
-            available_tools=self.registry.list_tools() if hasattr(self.registry, "list_tools") else None
+            available_tools=tool_names
         )
         self.on_thought(
             f"⚡ [Jev System-1 Router ({preflight.total_latency_ms:.1f}ms)]: "
@@ -517,21 +537,40 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
             self.on_thought(f"🚨 [Noul Bloqueo]: {reason}")
             return reason
 
+        # Extracción y recuperación de memoria persistente multicapa (Mem0, Graffiti, Coach)
+        if hasattr(self, "unified_memory") and self.unified_memory:
+            try:
+                self.unified_memory.user.extract_and_add_from_text(user_goal)
+            except Exception:
+                pass
+
+        memory_context = ""
+        if hasattr(self, "unified_memory") and self.unified_memory:
+            try:
+                memory_context = self.unified_memory.build_unified_context(query=user_goal)
+            except Exception:
+                pass
+
         # Filtro Choice / Score: Resolución conversacional sin invocar DAG pesado ni herramientas
         if preflight.action == "fast_deterministic" or self.is_conversational_intent(user_goal):
-            self.on_thought("💬 [Modo Chat Directo]: Saludo o mensaje conversacional detectado. Respondiendo directamente sin herramientas...")
+            self.on_thought("💬 [Modo Chat Directo]: Interacción conversacional detectada. Respondiendo con contexto de memoria...")
             chat_system = (
-                "Eres JEV (JARVIS Evolutionary Virtual-agent), un asistente virtual autónomo que opera localmente en la máquina del usuario. "
-                "Responde al saludo o pregunta conversacional del usuario de forma cordial, inteligente y concisa (1 o 2 líneas máximo). "
+                "Eres JEV (JARVIS Evolutionary Virtual-agent), un asistente virtual autónomo que opera localmente en la máquina del usuario.\n"
+                "Tu idioma obligatorio es EXCLUSIVAMENTE ESPAÑOL.\n"
+                "Tienes acceso a la memoria persistente del usuario (recuerdas su nombre, preferencias y datos previos).\n"
+                "Responde al saludo o pregunta conversacional del usuario de forma cordial, empática, inteligente y concisa (1 o 2 líneas máximo).\n"
                 "Responde ÚNICAMENTE con texto directo para el usuario. "
                 "Queda ESTRICTAMENTE PROHIBIDO usar código, invocar herramientas del sistema o simular pulsaciones de teclado."
             )
+            if memory_context:
+                chat_system += f"\n\nContexto de Memoria Persistente del Usuario:\n{memory_context}"
+
+            recent_history = getattr(self, "conversation_history", [])[-8:]
+            messages_payload = [{"role": "system", "content": chat_system}] + recent_history + [{"role": "user", "content": user_goal}]
+
             try:
                 resp = self.llm.chat(
-                    messages=[
-                        {"role": "system", "content": chat_system},
-                        {"role": "user", "content": user_goal}
-                    ],
+                    messages=messages_payload,
                     tools=[]
                 )
                 answer = resp.content.strip() if resp.content else "¡Hola! Soy JEV, tu asistente autónomo local. ¿En qué puedo ayudarte hoy?"
@@ -540,6 +579,21 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
 
             self.messages.append({"role": "user", "content": user_goal})
             self.messages.append({"role": "assistant", "content": answer})
+            if hasattr(self, "conversation_history"):
+                self.conversation_history.append({"role": "user", "content": user_goal})
+                self.conversation_history.append({"role": "assistant", "content": answer})
+
+            if hasattr(self, "unified_memory") and self.unified_memory:
+                try:
+                    self.unified_memory.record_turn_and_learn(
+                        user_input=user_goal,
+                        agent_output=answer,
+                        tools_used=[],
+                        task_success=True,
+                        sync=True
+                    )
+                except Exception:
+                    pass
 
             self.memory.record_episode(
                 task=user_goal,
@@ -578,8 +632,9 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
         self.on_thought(f"📋 **Plan DAG Generado ({len(plan.tasks)} micro-tareas)**:\n" + "\n".join(plan_summary_lines))
 
         # 3. Construir mensajes iniciales
-        self.messages = [
-            {"role": "system", "content": self._build_system_prompt(procedural_context)},
+        system_content = self._build_system_prompt(procedural_context=procedural_context, memory_context=memory_context)
+        recent_history = getattr(self, "conversation_history", [])[-4:]
+        self.messages = [{"role": "system", "content": system_content}] + recent_history + [
             {"role": "user", "content": f"Meta general: {user_goal}\n\nEstructura de tareas DAG inicial:\n" + "\n".join(plan_summary_lines)}
         ]
 
@@ -997,6 +1052,21 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
 
         if final_answer:
             self.messages.append({"role": "assistant", "content": final_answer})
+            if hasattr(self, "conversation_history"):
+                self.conversation_history.append({"role": "user", "content": user_goal})
+                self.conversation_history.append({"role": "assistant", "content": final_answer})
+
+        if hasattr(self, "unified_memory") and self.unified_memory:
+            try:
+                self.unified_memory.record_turn_and_learn(
+                    user_input=user_goal,
+                    agent_output=final_answer,
+                    tools_used=tools_used,
+                    task_success=success,
+                    sync=True
+                )
+            except Exception:
+                pass
 
         # Registrar episodio en memoria
         self.memory.record_episode(

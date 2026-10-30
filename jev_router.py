@@ -244,21 +244,24 @@ class JevRouter:
         if not options:
             return ChoiceResult(selected="", confidence=0.0, probabilities={}, rationale="Lista de opciones vacía")
 
+        # Normalizar opciones a cadenas (soporta objetos BaseTool o strings indistintamente)
+        norm_options = [opt.name if hasattr(opt, "name") else str(opt) for opt in options]
+
         start = time.perf_counter()
         payload = {
             "prompt": prompt,
-            "options": options,
+            "options": norm_options,
             "context": context or {}
         }
 
         # Intento de invocación a TypeSafe AI System-1
         api_data, api_latency = self.client.post("choice", payload)
         if api_data and isinstance(api_data, dict):
-            selected = api_data.get("selected") or options[0]
+            selected = api_data.get("selected") or norm_options[0]
             confidence = float(api_data.get("confidence", 0.9))
             probs = api_data.get("probabilities")
             if not isinstance(probs, dict):
-                probs = {opt: (confidence if opt == selected else (1.0 - confidence) / max(1, len(options) - 1)) for opt in options}
+                probs = {opt: (confidence if opt == selected else (1.0 - confidence) / max(1, len(norm_options) - 1)) for opt in norm_options}
             return ChoiceResult(
                 selected=selected,
                 confidence=confidence,
@@ -269,7 +272,7 @@ class JevRouter:
             )
 
         # Fallback local determinista de ultra-alta velocidad (<1ms)
-        local_result = self._local_choice_heuristic(prompt, options, context)
+        local_result = self._local_choice_heuristic(prompt, norm_options, context)
         latency = (time.perf_counter() - start) * 1000.0
         local_result.latency_ms = latency
         return local_result

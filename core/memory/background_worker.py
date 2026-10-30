@@ -173,6 +173,7 @@ class BackgroundMemoryWorker:
     def _extract_temporal_facts(self, text: str) -> None:
         """Detecta afirmaciones temporales de transición o estado actual."""
         temporal_patterns = [
+            (r"(?:soy|me llamo|mi nombre es)\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ]+)", "has_name"),
             # "ahora uso X" / "ahora trabajo en X" / "cambié a X"
             (r"(?:ahora uso|cambié a|me pasé a|migré a)\s+([a-zA-Z0-9_\-\.\+]+)", "uses_tool"),
             (r"(?:ahora trabajo en|nuevo proyecto es|estoy desarrollando)\s+([a-zA-Z0-9_\-\.\+]+)", "active_project"),

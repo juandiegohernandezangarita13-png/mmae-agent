@@ -270,6 +270,7 @@ class UserPersistentMemory:
         """
         extracted = []
         patterns = [
+            (r"(?:soy|me llamo|mi nombre es|puedes llamarme|llámame)\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ]+)", UserMemoryCategory.PERSONAL_FACT.value, "nombre_usuario"),
             (r"(?:prefiero|me gusta|mi preferencia es|prioriza)\s+([^\.\n]+)", UserMemoryCategory.PREFERENCE.value, "preferencia"),
             (r"(?:siempre usa|usa siempre|debes usar|utiliza)\s+([^\.\n]+)", UserMemoryCategory.WORKFLOW_RULE.value, "regla_uso"),
             (r"(?:no uses|nunca hagas|evita|no me gusta|prohibido)\s+([^\.\n]+)", UserMemoryCategory.SYSTEM_DIRECTIVE.value, "restriccion"),
@@ -282,8 +283,12 @@ class UserPersistentMemory:
             matches = re.finditer(pat, text, re.IGNORECASE)
             for m in matches:
                 val = m.group(1).strip()
-                if len(val) > 2:
-                    sub_key = f"{key_prefix}_{len(extracted) + 1}"
+                if len(val) > 1:
+                    if key_prefix == "nombre_usuario":
+                        sub_key = "nombre_usuario"
+                        val = val.capitalize()
+                    else:
+                        sub_key = f"{key_prefix}_{len(extracted) + 1}"
                     res = self.add(value=val, category=cat, key=sub_key, user_id=user_id, raw_text=m.group(0))
                     extracted.append(res)
         return extracted
