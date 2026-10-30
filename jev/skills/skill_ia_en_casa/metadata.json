@@ -1,0 +1,51 @@
+{
+  "name": "skill_ia_en_casa",
+  "version": "1.0.0",
+  "description": "Catálogo 'IA en casa · Parte 7': 5 IAs locales sin tarjeta de video potente (Piper TTS, llamafile, stable-diffusion.cpp, fastsdcpu, BitNet). Lista, recomienda según la RAM/GPU del equipo, detecta qué está instalado, instala Piper y sintetiza voz en español local.",
+  "category": "local_ai",
+  "runtime": "python_native",
+  "status": "registered_idle",
+  "trigger_keywords": [
+    "ia en casa",
+    "ia local",
+    "sin gpu",
+    "sin tarjeta de video",
+    "4gb",
+    "pc vieja",
+    "piper",
+    "llamafile",
+    "stable-diffusion.cpp",
+    "fastsdcpu",
+    "bitnet",
+    "1 bit"
+  ],
+  "dependencies": [],
+  "parameters": {
+    "action": {
+      "type": "string",
+      "description": "Acción: 'list' (catálogo), 'recommend' (según hardware), 'status' (qué está instalado), 'install_piper', 'speak' (TTS con Piper), 'clone' (clona el repo en repos/ para leer su README)",
+      "enum": ["list", "recommend", "status", "install_piper", "speak", "clone"],
+      "default": "list"
+    },
+    "tool_id": {
+      "type": "string",
+      "description": "Herramienta objetivo para 'clone': piper, llamafile, sdcpp, fastsdcpu, bitnet",
+      "default": ""
+    },
+    "category": {
+      "type": "string",
+      "description": "Filtro opcional: voz, chat, imagenes",
+      "default": ""
+    },
+    "text": {
+      "type": "string",
+      "description": "Texto a sintetizar con 'speak'",
+      "default": ""
+    },
+    "voice": {
+      "type": "string",
+      "description": "Voz de Piper (p. ej. es_MX-claude-high, es_ES-davefx-medium, es_AR-daniela-high)",
+      "default": "es_MX-claude-high"
+    }
+  }
+}

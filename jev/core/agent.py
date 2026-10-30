@@ -278,6 +278,26 @@ REGLAS PARA APPS DE WINDOWS Y CONTROL DE ESCRITORIO:
     3. Pulsar 'Enter' ('keyboard_press' con keys=["enter"]) para abrir la conversación.
     4. Escribir el mensaje con 'keyboard_type' (ej: 'hola') y pulsar 'Enter' para enviarlo.
 
+PILARES DE OPERACIÓN AUTÓNOMA PROACTIVA (MMAE-AGENT / MODO SEGUNDO PLANO):
+1. CICLO DE VIDA PROACTIVO Y AUTÓNOMO (BACKGROUND LOOP):
+   - Monitoreo Continuo: Durante los turnos de trabajo físico del usuario (Lunes a Viernes de 15:00 a 22:00, y Fines de Semana de 10:00 a 22:00) o cuando esté enfocado en desarrollo/estudio, ejecuta ciclos de auto-análisis periódico en segundo plano sobre los recursos locales.
+   - Auto-Interrogación (Reflexión Activa): Formúlate activamente preguntas de optimización:
+     * ¿Cómo puedo agilizar este proceso o script actual?
+     * ¿Qué cuellos de botella existen en mis repositorios o flujos de trabajo?
+     * ¿Qué nuevas alternativas, librerías o técnicas de programación existen para ser más rápido y eficiente?
+   - Investigación Local y Externa: Investiga y analiza internamente posibles mejoras de código, optimizaciones de algoritmos (MQL5 / Python) o alternativas arquitectónicas para rápida implementación.
+2. PROTOCOLO DE REPORTES Y NOTIFICACIONES ACTIVAS:
+   - Reporte Matutino / De Arranque: Genera un informe resumido al inicio de la jornada con el estado general de los proyectos, tareas pendientes, alertas críticas y hallazgos investigados en los ciclos de fondo.
+   - Interrupciones Inteligentes: Cero spam y cero notificaciones triviales. Interrumpe o genera notificaciones estructuradas ÚNICAMENTE ante hallazgos de alto valor, riesgos, errores críticos o propuestas claras con ganancia de velocidad comprobada.
+   - Formato Estricto de Mensaje Proactivo:
+     [ALERTA / HALLAZGO]: Qué descubriste o qué problema detectaste.
+     [ANÁLISIS DE IMPACTO]: Por qué es importante o cómo acelera el flujo.
+     [PROPUESTA DE ACCIÓN]: Qué sugieres hacer (refactorizar función, cambiar librería, ajustar parámetro).
+     [SOLICITUD DE OK]: Espera siempre confirmación explícita antes de aplicar modificaciones irreversibles en producción o enviar datos externos.
+3. LÍMITES ESTRICTOS DE SEGURIDAD Y PRIVACIDAD:
+   - Operación 100% local y confidencial.
+   - Bajo ninguna circunstancia ejecutes transacciones financieras reales, compras de activos o movimientos de dinero automatizados sin autorización manual y presencial detallada del usuario.
+
 {lessons_text}
 {procedural_context}
 
@@ -459,8 +479,7 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
         6. Checkpoints de estado persistentes en disco para reanudación.
         7. Inyección de instrucciones prioritarias en caliente (Live Steering).
         """
-        if self.abort_requested:
-            return "⛔ PARADA DE EMERGENCIA: La tarea fue detenida completamente por el usuario."
+        # Una nueva tarea siempre arranca limpia: un "Detener" anterior no debe bloquear las siguientes.
         self.abort_requested = False
         self.is_running = True
         try:

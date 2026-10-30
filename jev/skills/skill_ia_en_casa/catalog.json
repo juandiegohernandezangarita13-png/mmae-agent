@@ -1,0 +1,86 @@
+{
+  "serie": "IA EN CASA",
+  "parte": 7,
+  "titulo": "5 IAs sin tarjeta de video potente",
+  "autor": "@IAdeGuardia (TikTok)",
+  "fuentes": "READMEs de GitHub, 24 oct 2026 (según el video; cifras no contrastadas contra GitHub)",
+  "origen": "Responde al comentario 'Algo para 4gb na mas'",
+  "cierre": "Tu compu vieja da para mucho",
+  "aviso": "OJO: BitNet oficial = 2 400 millones de parámetros (BitNet-b1.58-2B-4T), no 100 mil millones.",
+  "limitaciones": [
+    "Extraído del texto en pantalla; el audio no está transcrito.",
+    "El video no muestra comandos de instalación: hay que seguir el README oficial de cada repo.",
+    "Nombres de repos y cifras tal como aparecen en pantalla."
+  ],
+  "herramientas": [
+    {
+      "rank": 5,
+      "id": "piper",
+      "repo": "OHF-Voice/piper1-gpl",
+      "url": "https://github.com/OHF-Voice/piper1-gpl",
+      "categoria": "voz",
+      "para_que": "Texto a voz (TTS) local y rápido",
+      "necesita": ["Python (pip)"],
+      "ram_min_gb": 1,
+      "gpu": false,
+      "licencia": "GPL-3.0",
+      "notas": ["Muchos idiomas", "Voz es_MX (también es_ES, es_AR)", "El proyecto busca mantenedor"]
+    },
+    {
+      "rank": 4,
+      "id": "llamafile",
+      "repo": "mozilla-ai/llamafile",
+      "url": "https://github.com/mozilla-ai/llamafile",
+      "categoria": "chat",
+      "para_que": "Chat IA: un modelo LLM empaquetado en un solo archivo ejecutable",
+      "necesita": ["Nada que instalar"],
+      "ram_min_gb": 4,
+      "gpu": false,
+      "notas": [
+        "Corre en casi cualquier sistema",
+        "Windows: el archivo debe pesar menos de 4 GB (probable límite de ejecutables en Windows; confirmar en el README). Para modelos mayores se usan pesos externos."
+      ]
+    },
+    {
+      "rank": 3,
+      "id": "sdcpp",
+      "repo": "leejet/stable-diffusion.cpp",
+      "url": "https://github.com/leejet/stable-diffusion.cpp",
+      "categoria": "imagenes",
+      "para_que": "Generar imágenes (SD, Flux, Wan, Qwen Image, Z-Image) en C/C++ puro",
+      "necesita": ["CPU (o GPU)"],
+      "ram_min_gb": 4,
+      "gpu": "opcional",
+      "notas": ["C/C++ puro", "Si hay tarjeta de video también la aprovecha"]
+    },
+    {
+      "rank": 2,
+      "id": "fastsdcpu",
+      "repo": "rupeshs/fastsdcpu",
+      "url": "https://github.com/rupeshs/fastsdcpu",
+      "categoria": "imagenes",
+      "para_que": "Stable Diffusion rápido en CPU con interfaz web",
+      "necesita": ["2 GB RAM (modo LCM)"],
+      "ram_min_gb": 2,
+      "gpu": false,
+      "notas": ["512x512 en 0.82 s en un Core i7-12700 (según su README)", "Corre hasta en una Raspberry Pi 4"]
+    },
+    {
+      "rank": 1,
+      "id": "bitnet",
+      "repo": "microsoft/BitNet",
+      "url": "https://github.com/microsoft/BitNet",
+      "categoria": "chat",
+      "para_que": "Modelos de IA de 1 bit (bitnet.cpp)",
+      "necesita": ["Python", "CMake", "Clang"],
+      "ram_min_gb": 2,
+      "gpu": false,
+      "notas": [
+        "Hasta 6x más rápido en x86 (README: 2.37x a 6.17x)",
+        "Ahorro de energía 71.9% a 82.2%",
+        "El README afirma que un modelo 100B corre en una sola CPU a 5-7 tokens/s (velocidad de lectura humana)",
+        "Modelo oficial: BitNet-b1.58-2B-4T, 2.4B parámetros, entrenado con 4T tokens"
+      ]
+    }
+  ]
+}

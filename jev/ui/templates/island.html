@@ -156,14 +156,13 @@
     position: relative;
     width: 474px;
     height: 340px;
-    border-radius: 0 0 24px 24px;
+    border-radius: 24px;
     background: #0b0c10;
     display: none;
     flex-direction: column;
     padding: 8px 12px 12px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-top: none;
+    box-shadow: none;
+    border: none;
     opacity: 0;
     transform: translateY(-8px) scale(0.985);
     transform-origin: top center;
@@ -439,6 +438,7 @@
     border-radius: 12px;
     max-width: 90%;
     word-break: break-word;
+    white-space: pre-wrap;
     user-select: text;
   }
 
@@ -1498,7 +1498,7 @@
 
         // Solo reconstruir si hay cambios reales para evitar flicker
         var currentBubbles = log.querySelectorAll(".chat-bubble:not(.thinking)");
-        if (res.messages.length !== currentBubbles.length || thinking) {
+        if (res.messages.length !== currentBubbles.length) {
           if (thinking) thinking.remove();
           log.innerHTML = "";
           res.messages.forEach(function (m) {
@@ -1507,6 +1507,10 @@
             b.textContent = m.content;
             log.appendChild(b);
           });
+          var lastMsg = res.messages[res.messages.length - 1];
+          if (isChatPending && thinking && lastMsg && lastMsg.role === "user") {
+            log.appendChild(thinking);
+          }
           log.scrollTop = log.scrollHeight;
         }
         if (typeof onSuccess === "function") {
@@ -1516,19 +1520,19 @@
     });
   }
 
-  function startChatWatcher() {
+  function startChatWatcher(baselineCount) {
     if (chatWatcherTimer) clearInterval(chatWatcherTimer);
     var startTime = Date.now();
     chatWatcherTimer = setInterval(function () {
       callApi("get_status").then(function (snapshot) {
         if (snapshot) render(snapshot);
-        var isWorking = snapshot && (snapshot.state === "thinking" || snapshot.state === "tool" || snapshot.tool_in_progress);
+        var isWorking = snapshot && (snapshot.running || snapshot.state === "thinking" || snapshot.state === "tool" || snapshot.tool_in_progress);
 
         pollChatHistory(function (messages) {
-          if (messages && messages.length > 0) {
+          if (messages && messages.length > baselineCount) {
             var last = messages[messages.length - 1];
             if (last && last.role === "assistant") {
-              // Respuesta completa recibida
+              // Respuesta NUEVA recibida (posterior al mensaje enviado)
               clearInterval(chatWatcherTimer);
               chatWatcherTimer = null;
               isChatPending = false;
@@ -1541,8 +1545,8 @@
           }
         });
 
-        // Timeout preventivo si el agente ya volvió a idle y pasaron más de 3s
-        if (!isWorking && (Date.now() - startTime > 3500)) {
+        // Red de seguridad: nunca dejar el chat bloqueado más de 4 min ni si el agente quedó inactivo
+        if ((!isWorking && (Date.now() - startTime > 6000)) || (Date.now() - startTime > 240000)) {
           pollChatHistory();
           clearInterval(chatWatcherTimer);
           chatWatcherTimer = null;
@@ -1551,22 +1555,26 @@
           pillBot.badge = null;
         }
       });
-    }, 350);
+    }, 500);
   }
 
   function sendChatInput() {
     var input = document.getElementById("chatInput");
     var text = input.value.trim();
-    if (!text || isChatPending) return;
+    // El chat NUNCA se bloquea: si JEV está ocupado, el mensaje se inyecta en caliente.
+    if (!text) return;
     input.value = "";
     playSound("send");
 
     var log = document.getElementById("chatLog");
+    var baselineCount = log.querySelectorAll(".chat-bubble:not(.thinking)").length + 1;
     var userBubble = document.createElement("div");
     userBubble.className = "chat-bubble user";
     userBubble.textContent = text;
     log.appendChild(userBubble);
 
+    var oldThinking = document.getElementById("thinkingBubble");
+    if (oldThinking) oldThinking.remove();
     // Burbuja animada de pensamiento
     var thinking = document.createElement("div");
     thinking.id = "thinkingBubble";
@@ -1581,10 +1589,11 @@
 
     callApi("send_chat", text).then(function () {
       refresh();
-      startChatWatcher();
+      startChatWatcher(baselineCount);
     }).catch(function () {
       isChatPending = false;
     });
+    setTimeout(function () { input.focus(); }, 30);
   }
 
   document.getElementById("chatSendBtn").addEventListener("click", sendChatInput);

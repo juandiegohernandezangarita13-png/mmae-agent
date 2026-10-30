@@ -135,7 +135,90 @@ Sé analítico, preciso y estructurado."""
         except Exception as e:
             return f"(Pensamiento estratégico local): Planificando ejecución para '{user_goal}'."
 
+    # ------------------------------------------------------------------
+    # Pool Flash con rotación round-robin + cooldowns por cuota (compartido)
+    # ------------------------------------------------------------------
+    _rr_index: int = 0
+    _cooldowns: Dict[str, float] = {}
+
+    @classmethod
+    def _set_cooldown(cls, model: str, seconds: float) -> None:
+        cls._cooldowns[model] = time.time() + max(1.0, float(seconds))
+
+    @classmethod
+    def _cooldown_left(cls, model: str) -> float:
+        return max(0.0, cls._cooldowns.get(model, 0.0) - time.time())
+
+    @staticmethod
+    def _parse_retry_delay(text: str, default: float = 30.0) -> float:
+        """Extrae el 'retryDelay' (p.ej. '17s') que devuelve Gemini en un 429."""
+        m = re.search(r'retry(?:Delay)?\W+(\d+(?:\.\d+)?)s', text or "", re.IGNORECASE)
+        if m:
+            try:
+                return min(90.0, float(m.group(1)) + 1.0)
+            except ValueError:
+                pass
+        return default
+
+    def _gemini_rotation(self) -> List[str]:
+        """Orden de modelos Gemini: rotado (reparte RPM entre todos) y sin los que están en cooldown."""
+        pool = list(getattr(self.config, "gemini_flash_pool", None) or [
+            "gemini-flash-lite-latest",
+            "gemini-3.5-flash-lite",
+            "gemini-3.1-flash-lite",
+            "gemini-3-flash-preview",
+            "gemini-2.5-flash",
+        ])
+        n = len(pool)
+        start = LocalLLMClient._rr_index % n
+        LocalLLMClient._rr_index += 1
+        rotated = pool[start:] + pool[:start]
+        ready = [m for m in rotated if self._cooldown_left(m) <= 0]
+        cooling = sorted([m for m in rotated if m not in ready], key=self._cooldown_left)
+        return ready + cooling
+
+    def _openrouter_tail(self) -> List[str]:
+        """Modelos gratuitos de OpenRouter como red de seguridad cuando Gemini agota cuota."""
+        if not getattr(self.config, "openrouter_api_key", ""):
+            return []
+        tail: List[str] = []
+        try:
+            tail = [c.id for c in self.free_router.get_ranked_candidates() if "/" in c.id]
+        except Exception:
+            tail = []
+        for m in getattr(self.config, "fallback_models", []):
+            if "/" in m and m not in tail:
+                tail.append(m)
+        return [m for m in tail if self._cooldown_left(m) <= 0][:4]
+
     def chat(
+        self,
+        messages: List[Dict[str, Any]],
+        tools: Optional[List[Dict[str, Any]]] = None,
+        override_model: Optional[str] = None
+    ) -> LLMResponse:
+        """
+        Envoltorio resiliente: si TODOS los modelos devuelven cuota agotada (429/503),
+        espera al primer modelo que se libere y reintenta (hasta 3 rondas) en vez de fallar.
+        """
+        rounds = int(getattr(self.config, "llm_quota_rounds", 3))
+        last_exc: Optional[Exception] = None
+        for rnd in range(rounds):
+            try:
+                return self._chat_core(messages, tools=tools, override_model=override_model)
+            except RuntimeError as exc:
+                last_exc = exc
+                msg = str(exc)
+                if not any(k in msg for k in ("429", "Rate Limit", "503", "quota")) or rnd == rounds - 1:
+                    break
+                pending = [self._cooldown_left(m) for m in self._cooldowns]
+                wait = min([p for p in pending if p > 0] or [5.0])
+                wait = max(2.0, min(wait, 25.0))
+                logger.warning(f"Cuota agotada en todo el pool. Esperando {wait:.0f}s (ronda {rnd + 1}/{rounds})...")
+                self._sleep_fn(wait)
+        raise last_exc if last_exc else RuntimeError("Fallo desconocido del LLM")
+
+    def _chat_core(
         self,
         messages: List[Dict[str, Any]],
         tools: Optional[List[Dict[str, Any]]] = None,
@@ -153,15 +236,9 @@ Sé analítico, preciso y estructurado."""
                 cascade = [c.id for c in self.free_router.get_ranked_candidates()]
                 models_to_try += [m for m in cascade if m != override_model]
         elif self.config.llm_provider == "gemini" and getattr(self.config, "gemini_api_key", ""):
-            pool = list(getattr(self.config, "gemini_flash_pool", [
-                "gemini-flash-lite-latest",
-                "gemini-3.5-flash-lite",
-                "gemini-3.1-flash-lite",
-                "gemini-3-flash-preview",
-                "gemini-2.5-flash"
-            ]))
-            primary = self.config.model_name or "gemini-flash-lite-latest"
-            models_to_try = [primary] + [m for m in pool if m != primary]
+            # Rotación round-robin del pool Flash (reparte la cuota por minuto entre 5 modelos)
+            models_to_try = self._gemini_rotation()
+            models_to_try += [m for m in self._openrouter_tail() if m not in models_to_try]
         elif self.config.llm_provider in ("ollama", "lmstudio"):
             target_model = self.config.model_name
             models_to_try = [target_model] + [m for m in self.config.fallback_models if m != target_model]
@@ -278,8 +355,21 @@ Sé analítico, preciso y estructurado."""
                     # Manejo de Rate Limit (HTTP 429) -> Cooldown y cascada inmediata
                     if response.status_code == 429:
                         self.free_router.report_rate_limit(model_candidate, cooldown_seconds=60)
+                        self._set_cooldown(model_candidate, self._parse_retry_delay(response.text))
                         last_error = f"Rate Limit (429) en {model_candidate}"
                         break  # Pasar inmediatamente al siguiente modelo de la cascada
+
+                    # Modelo retirado / inexistente: no volver a intentarlo en esta sesión
+                    if response.status_code == 404:
+                        self._set_cooldown(model_candidate, 6 * 3600)
+                        last_error = f"Modelo no disponible (404): {model_candidate}"
+                        break
+
+                    # Sobrecarga del proveedor: enfriar brevemente y saltar al siguiente
+                    if response.status_code == 503:
+                        self._set_cooldown(model_candidate, 15)
+                        last_error = f"Servidor saturado (503) en {model_candidate}"
+                        break
 
                     # Errores transitorios de servidor (502, 503, 504)
                     if response.status_code in (502, 503, 504) and attempt < max_retries:

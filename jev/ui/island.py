@@ -177,7 +177,29 @@ def _window_geometry(hwnd: int, width: int, height: int, preserve_position: bool
 
     user32.SetWindowPos(hwnd, _HWND_TOPMOST, x, y, phys_w, phys_h,
                         _SWP_NOACTIVATE | _SWP_SHOWWINDOW)
+    _apply_rounded_region(hwnd, phys_w, phys_h, scale)
     return x, y, phys_w, phys_h
+
+
+def _apply_rounded_region(hwnd: int, phys_w: int, phys_h: int, scale: float) -> None:
+    """Recorta la ventana a la silueta visible (píldora o panel redondeado).
+
+    Todo lo que quede fuera de la forma deja de existir para Windows, así que no
+    puede aparecer ningún píxel gris/blanco del formulario en las esquinas.
+    """
+    try:
+        gdi32 = ctypes.windll.gdi32
+        collapsed_h = int(round(COLLAPSED_SIZE[1] * scale))
+        if phys_h <= collapsed_h + 2:
+            diameter = phys_h  # píldora: extremos totalmente redondos
+        else:
+            diameter = int(round(48 * scale))  # panel: radio 24px
+        rgn = gdi32.CreateRoundRectRgn(0, 0, phys_w + 1, phys_h + 1, diameter, diameter)
+        if rgn:
+            # El sistema toma posesión de la región: no hay que liberarla.
+            ctypes.windll.user32.SetWindowRgn(hwnd, rgn, True)
+    except Exception:
+        pass
 
 
 def setup_startup_launcher(enable: bool = True) -> bool:
@@ -410,7 +432,7 @@ class IslandBridge:
         if self._jarvis is not None:
             if hasattr(self._jarvis, "_chat_history") and self._jarvis._chat_history:
                 for m in self._jarvis._chat_history[-30:]:
-                    msgs.append({"role": m.get("role", "user"), "content": str(m.get("content", ""))[:1200]})
+                    msgs.append({"role": m.get("role", "user"), "content": str(m.get("content", ""))[:6000]})
                 return {"ok": True, "messages": msgs}
 
             if hasattr(self._jarvis, "_agent"):

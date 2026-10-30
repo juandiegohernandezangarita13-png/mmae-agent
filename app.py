@@ -418,6 +418,11 @@ class JarvisBridge:
         if self._agent.is_running:
             self._agent.inject_user_feedback(task)
             self._on_thought(f"⚡ [Intervención del Usuario en Caliente]: {task}")
+            self._chat_history.append({
+                "role": "assistant",
+                "content": "📝 Recibido. Sigo trabajando en la tarea actual y aplico tu indicación en el siguiente paso. "
+                           "(Pulsa «Detener» en Inicio si quieres cancelarla y empezar otra.)",
+            })
             return
 
         def _runner():
