@@ -19,6 +19,9 @@ if not "%~1"=="" (
     exit /b %ERRORLEVEL%
 )
 
+:: Cerrar cualquier instancia previa huérfana de la isla para asegurar código fresco
+taskkill /F /IM pythonw.exe >nul 2>&1
+
 :: Arranque predeterminado: lanzar la Isla Flotante de escritorio directamente
 if exist "%PYW_EXE%" (
     start "" "%PYW_EXE%" "%~dp0main.py" --desktop
