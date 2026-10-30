@@ -266,10 +266,18 @@ class IslandBridge:
     # ------------------------------------------------------------------
     # Geometría / ventana
     # ------------------------------------------------------------------
-    def set_native_handle(self, hwnd: int) -> None:
+    def set_native_handle(self, hwnd: Any) -> None:
         """Registra el HWND real y aplica la geometría en píxeles físicos."""
-        self._hwnd = int(hwnd)
-        self._layout(self._expanded)
+        try:
+            if hasattr(hwnd, "ToInt64"):
+                self._hwnd = int(hwnd.ToInt64())
+            elif hasattr(hwnd, "ToInt32"):
+                self._hwnd = int(hwnd.ToInt32())
+            else:
+                self._hwnd = int(str(hwnd))
+            self._layout(self._expanded)
+        except Exception:
+            pass
 
     def _layout(self, expanded: bool) -> None:
         self._expanded = expanded

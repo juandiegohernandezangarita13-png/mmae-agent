@@ -1138,8 +1138,22 @@
   requestAnimationFrame(animLoop);
 
   // ------------------------------------------------------------------
-  // 3. CONTROL DE VISTAS (Tabs & Cards)
+  // 3. CONTROL DE VISTAS (Tabs & Cards) & SONIDOS
   // ------------------------------------------------------------------
+  var soundEnabled = true;
+  var audioCache = {};
+  function playSound(name) {
+    if (!soundEnabled) return;
+    try {
+      if (!audioCache[name]) {
+        audioCache[name] = new Audio("../../../assets/sounds/" + name + ".wav");
+      }
+      var s = audioCache[name].cloneNode();
+      s.volume = 0.55;
+      s.play().catch(function () {});
+    } catch (e) {}
+  }
+
   var currentTab = "home"; // 'home' | 'chat' | 'drop'
   var activeView = "overview"; // 'approval' | 'chat' | 'overview' | 'drop'
   var isExpanded = false;
@@ -1203,6 +1217,7 @@
 
   function expandIsland() {
     if (isExpanded) return;
+    playSound("open");
     callApi("expand").then(function () {
       setTimeout(function () { setExpandedUI(true); }, 30);
     });
@@ -1210,6 +1225,7 @@
 
   function collapseIsland() {
     if (!isExpanded) return;
+    playSound("close");
     setExpandedUI(false);
     setTimeout(function () {
       callApi("collapse");
@@ -1319,6 +1335,14 @@
   // ------------------------------------------------------------------
   // Píldora
   document.getElementById("pill").addEventListener("click", expandIsland);
+  document.getElementById("cardMochiCanvas").addEventListener("click", function (e) {
+    e.stopPropagation();
+    playSound("pop");
+    cardBot.yaw = (Math.random() - 0.5) * 0.9;
+    cardBot.pitch = (Math.random() - 0.5) * 0.5;
+    cardBot.open = 0.08;
+    setTimeout(function () { cardBot.open = 1; }, 200);
+  });
   document.getElementById("collapseBtn").addEventListener("click", function (e) {
     e.stopPropagation();
     collapseIsland();
@@ -1349,30 +1373,38 @@
     collapseIsland();
   });
   document.getElementById("soundBtn").addEventListener("click", function () {
+    soundEnabled = !soundEnabled;
+    this.classList.toggle("on", soundEnabled);
+    if (soundEnabled) playSound("blip");
     callApi("toggle_voice").then(refresh);
   });
   document.getElementById("stopAgentBtn").addEventListener("click", function () {
+    playSound("pop");
     callApi("stop_agent").then(refresh);
   });
   document.getElementById("safeModeBtn").addEventListener("click", function () {
+    playSound("tick");
     var cur = !!(lastSnapshot && lastSnapshot.confirm_risky);
     callApi("set_confirm_risky", !cur).then(refresh);
   });
 
   // Aprobación (Screenshot 1)
   document.getElementById("allowBtn").addEventListener("click", function () {
+    playSound("approve");
     callApi("resolve_approval", true).then(function () {
       switchView(currentTab === "chat" ? "chat" : "overview");
       refresh();
     });
   });
   document.getElementById("denyBtn").addEventListener("click", function () {
+    playSound("annoyed");
     callApi("resolve_approval", false).then(function () {
       switchView(currentTab === "chat" ? "chat" : "overview");
       refresh();
     });
   });
   document.getElementById("alwaysBtn").addEventListener("click", function () {
+    playSound("approve");
     callApi("resolve_approval", true).then(function () {
       switchView(currentTab === "chat" ? "chat" : "overview");
       refresh();
@@ -1385,6 +1417,7 @@
     var text = input.value.trim();
     if (!text) return;
     input.value = "";
+    playSound("send");
 
     var log = document.getElementById("chatLog");
     var userBubble = document.createElement("div");
