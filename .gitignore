@@ -21,6 +21,7 @@ workspace/
 # Archivos generados y cachés en tiempo de ejecución
 data/
 *.log
+jev/tools/custom/tool_synth_*.py
 
 # Base de datos local y estado
 vault.db

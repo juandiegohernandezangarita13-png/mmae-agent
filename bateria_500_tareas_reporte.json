@@ -1,0 +1,2211 @@
+{
+  "timestamp": "2026-10-30 04:51:30",
+  "total_tasks": 500,
+  "passed": 500,
+  "failed": 0,
+  "success_rate_percent": 100.0,
+  "total_duration_seconds": 14.87,
+  "avg_latency_ms_per_task": 29.73,
+  "tasks": {
+    "Tarea 001 - Auto-Reparación Código #1": {
+      "success": true,
+      "latency_ms": 121.41729999984818,
+      "iterations": 1
+    },
+    "Tarea 002 - Auto-Reparación Código #2": {
+      "success": true,
+      "latency_ms": 145.36760000009963,
+      "iterations": 1
+    },
+    "Tarea 003 - Auto-Reparación Código #3": {
+      "success": true,
+      "latency_ms": 126.49950000013632,
+      "iterations": 1
+    },
+    "Tarea 004 - Auto-Reparación Código #4": {
+      "success": true,
+      "latency_ms": 127.52650000038557,
+      "iterations": 1
+    },
+    "Tarea 005 - Auto-Reparación Código #5": {
+      "success": true,
+      "latency_ms": 114.65310000039608,
+      "iterations": 1
+    },
+    "Tarea 006 - Auto-Reparación Código #6": {
+      "success": true,
+      "latency_ms": 147.2555000000284,
+      "iterations": 1
+    },
+    "Tarea 007 - Auto-Reparación Código #7": {
+      "success": true,
+      "latency_ms": 133.27270000081626,
+      "iterations": 1
+    },
+    "Tarea 008 - Auto-Reparación Código #8": {
+      "success": true,
+      "latency_ms": 125.78690000009374,
+      "iterations": 1
+    },
+    "Tarea 009 - Auto-Reparación Código #9": {
+      "success": true,
+      "latency_ms": 122.83750000005966,
+      "iterations": 1
+    },
+    "Tarea 010 - Auto-Reparación Código #10": {
+      "success": true,
+      "latency_ms": 150.21710000019084,
+      "iterations": 1
+    },
+    "Tarea 011 - Auto-Reparación Código #11": {
+      "success": true,
+      "latency_ms": 138.91590000002907,
+      "iterations": 1
+    },
+    "Tarea 012 - Auto-Reparación Código #12": {
+      "success": true,
+      "latency_ms": 134.20120000046154,
+      "iterations": 1
+    },
+    "Tarea 013 - Auto-Reparación Código #13": {
+      "success": true,
+      "latency_ms": 126.68350000058126,
+      "iterations": 1
+    },
+    "Tarea 014 - Auto-Reparación Código #14": {
+      "success": true,
+      "latency_ms": 145.7350000000588,
+      "iterations": 1
+    },
+    "Tarea 015 - Auto-Reparación Código #15": {
+      "success": true,
+      "latency_ms": 132.03650000014022,
+      "iterations": 1
+    },
+    "Tarea 016 - Auto-Reparación Código #16": {
+      "success": true,
+      "latency_ms": 126.56189999961498,
+      "iterations": 1
+    },
+    "Tarea 017 - Auto-Reparación Código #17": {
+      "success": true,
+      "latency_ms": 114.94599999969068,
+      "iterations": 1
+    },
+    "Tarea 018 - Auto-Reparación Código #18": {
+      "success": true,
+      "latency_ms": 151.68520000042918,
+      "iterations": 1
+    },
+    "Tarea 019 - Auto-Reparación Código #19": {
+      "success": true,
+      "latency_ms": 123.94210000002204,
+      "iterations": 1
+    },
+    "Tarea 020 - Auto-Reparación Código #20": {
+      "success": true,
+      "latency_ms": 122.70310000076279,
+      "iterations": 1
+    },
+    "Tarea 021 - Auto-Reparación Código #21": {
+      "success": true,
+      "latency_ms": 123.32499999956781,
+      "iterations": 1
+    },
+    "Tarea 022 - Auto-Reparación Código #22": {
+      "success": true,
+      "latency_ms": 146.74139999988256,
+      "iterations": 1
+    },
+    "Tarea 023 - Auto-Reparación Código #23": {
+      "success": true,
+      "latency_ms": 141.14109999991342,
+      "iterations": 1
+    },
+    "Tarea 024 - Auto-Reparación Código #24": {
+      "success": true,
+      "latency_ms": 122.83789999946748,
+      "iterations": 1
+    },
+    "Tarea 025 - Auto-Reparación Código #25": {
+      "success": true,
+      "latency_ms": 125.79960000039137,
+      "iterations": 1
+    },
+    "Tarea 026 - Auto-Reparación Código #26": {
+      "success": true,
+      "latency_ms": 153.35740000045917,
+      "iterations": 1
+    },
+    "Tarea 027 - Auto-Reparación Código #27": {
+      "success": true,
+      "latency_ms": 130.6970999994519,
+      "iterations": 1
+    },
+    "Tarea 028 - Auto-Reparación Código #28": {
+      "success": true,
+      "latency_ms": 121.93519999982527,
+      "iterations": 1
+    },
+    "Tarea 029 - Auto-Reparación Código #29": {
+      "success": true,
+      "latency_ms": 122.72829999983514,
+      "iterations": 1
+    },
+    "Tarea 030 - Auto-Reparación Código #30": {
+      "success": true,
+      "latency_ms": 145.18259999931615,
+      "iterations": 1
+    },
+    "Tarea 031 - Auto-Reparación Código #31": {
+      "success": true,
+      "latency_ms": 130.80279999940103,
+      "iterations": 1
+    },
+    "Tarea 032 - Auto-Reparación Código #32": {
+      "success": true,
+      "latency_ms": 117.39790000046924,
+      "iterations": 1
+    },
+    "Tarea 033 - Auto-Reparación Código #33": {
+      "success": true,
+      "latency_ms": 117.26460000045336,
+      "iterations": 1
+    },
+    "Tarea 034 - Auto-Reparación Código #34": {
+      "success": true,
+      "latency_ms": 142.34860000033223,
+      "iterations": 1
+    },
+    "Tarea 035 - Auto-Reparación Código #35": {
+      "success": true,
+      "latency_ms": 129.93139999980485,
+      "iterations": 1
+    },
+    "Tarea 036 - Auto-Reparación Código #36": {
+      "success": true,
+      "latency_ms": 133.14660000014555,
+      "iterations": 1
+    },
+    "Tarea 037 - Auto-Reparación Código #37": {
+      "success": true,
+      "latency_ms": 121.94199999976263,
+      "iterations": 1
+    },
+    "Tarea 038 - Auto-Reparación Código #38": {
+      "success": true,
+      "latency_ms": 145.49979999992502,
+      "iterations": 1
+    },
+    "Tarea 039 - Auto-Reparación Código #39": {
+      "success": true,
+      "latency_ms": 128.85339999957068,
+      "iterations": 1
+    },
+    "Tarea 040 - Auto-Reparación Código #40": {
+      "success": true,
+      "latency_ms": 118.02570000054402,
+      "iterations": 1
+    },
+    "Tarea 041 - Auto-Reparación Código #41": {
+      "success": true,
+      "latency_ms": 117.78549999962706,
+      "iterations": 1
+    },
+    "Tarea 042 - Auto-Reparación Código #42": {
+      "success": true,
+      "latency_ms": 152.20379999936995,
+      "iterations": 1
+    },
+    "Tarea 043 - Auto-Reparación Código #43": {
+      "success": true,
+      "latency_ms": 132.47580000006565,
+      "iterations": 1
+    },
+    "Tarea 044 - Auto-Reparación Código #44": {
+      "success": true,
+      "latency_ms": 118.18730000049982,
+      "iterations": 1
+    },
+    "Tarea 045 - Auto-Reparación Código #45": {
+      "success": true,
+      "latency_ms": 119.38909999935277,
+      "iterations": 1
+    },
+    "Tarea 046 - Auto-Reparación Código #46": {
+      "success": true,
+      "latency_ms": 144.74499999960244,
+      "iterations": 1
+    },
+    "Tarea 047 - Auto-Reparación Código #47": {
+      "success": true,
+      "latency_ms": 142.9496000000654,
+      "iterations": 1
+    },
+    "Tarea 048 - Auto-Reparación Código #48": {
+      "success": true,
+      "latency_ms": 132.79789999978675,
+      "iterations": 1
+    },
+    "Tarea 049 - Auto-Reparación Código #49": {
+      "success": true,
+      "latency_ms": 123.80110000049172,
+      "iterations": 1
+    },
+    "Tarea 050 - Auto-Reparación Código #50": {
+      "success": true,
+      "latency_ms": 145.4478999994535,
+      "iterations": 1
+    },
+    "Tarea 051 - Auto-Reparación Código #51": {
+      "success": true,
+      "latency_ms": 130.9718000002249,
+      "iterations": 1
+    },
+    "Tarea 052 - Auto-Reparación Código #52": {
+      "success": true,
+      "latency_ms": 125.02470000072208,
+      "iterations": 1
+    },
+    "Tarea 053 - Auto-Reparación Código #53": {
+      "success": true,
+      "latency_ms": 132.0290000003297,
+      "iterations": 1
+    },
+    "Tarea 054 - Auto-Reparación Código #54": {
+      "success": true,
+      "latency_ms": 154.63610000006156,
+      "iterations": 1
+    },
+    "Tarea 055 - Auto-Reparación Código #55": {
+      "success": true,
+      "latency_ms": 134.15619999977935,
+      "iterations": 1
+    },
+    "Tarea 056 - Auto-Reparación Código #56": {
+      "success": true,
+      "latency_ms": 120.03939999976865,
+      "iterations": 1
+    },
+    "Tarea 057 - Auto-Reparación Código #57": {
+      "success": true,
+      "latency_ms": 117.57239999951707,
+      "iterations": 1
+    },
+    "Tarea 058 - Auto-Reparación Código #58": {
+      "success": true,
+      "latency_ms": 147.99519999996846,
+      "iterations": 1
+    },
+    "Tarea 059 - Auto-Reparación Código #59": {
+      "success": true,
+      "latency_ms": 129.72239999999147,
+      "iterations": 1
+    },
+    "Tarea 060 - Auto-Reparación Código #60": {
+      "success": true,
+      "latency_ms": 118.0134000005637,
+      "iterations": 1
+    },
+    "Tarea 061 - Auto-Reparación Código #61": {
+      "success": true,
+      "latency_ms": 117.28850000054081,
+      "iterations": 1
+    },
+    "Tarea 062 - Auto-Reparación Código #62": {
+      "success": true,
+      "latency_ms": 144.7440000001734,
+      "iterations": 1
+    },
+    "Tarea 063 - Auto-Reparación Código #63": {
+      "success": true,
+      "latency_ms": 127.0234999992681,
+      "iterations": 1
+    },
+    "Tarea 064 - Auto-Reparación Código #64": {
+      "success": true,
+      "latency_ms": 118.76500000016676,
+      "iterations": 1
+    },
+    "Tarea 065 - Auto-Reparación Código #65": {
+      "success": true,
+      "latency_ms": 121.21810000007827,
+      "iterations": 1
+    },
+    "Tarea 066 - Auto-Reparación Código #66": {
+      "success": true,
+      "latency_ms": 148.9940999999817,
+      "iterations": 1
+    },
+    "Tarea 067 - Auto-Reparación Código #67": {
+      "success": true,
+      "latency_ms": 132.32929999958287,
+      "iterations": 1
+    },
+    "Tarea 068 - Auto-Reparación Código #68": {
+      "success": true,
+      "latency_ms": 120.55770000006305,
+      "iterations": 1
+    },
+    "Tarea 069 - Auto-Reparación Código #69": {
+      "success": true,
+      "latency_ms": 118.07990000033897,
+      "iterations": 1
+    },
+    "Tarea 070 - Auto-Reparación Código #70": {
+      "success": true,
+      "latency_ms": 155.87179999965883,
+      "iterations": 1
+    },
+    "Tarea 071 - Auto-Reparación Código #71": {
+      "success": true,
+      "latency_ms": 134.98580000032234,
+      "iterations": 1
+    },
+    "Tarea 072 - Auto-Reparación Código #72": {
+      "success": true,
+      "latency_ms": 118.40240000037738,
+      "iterations": 1
+    },
+    "Tarea 073 - Auto-Reparación Código #73": {
+      "success": true,
+      "latency_ms": 119.83050000071671,
+      "iterations": 1
+    },
+    "Tarea 074 - Auto-Reparación Código #74": {
+      "success": true,
+      "latency_ms": 139.98520000041026,
+      "iterations": 1
+    },
+    "Tarea 075 - Auto-Reparación Código #75": {
+      "success": true,
+      "latency_ms": 129.16279999990365,
+      "iterations": 1
+    },
+    "Tarea 076 - Auto-Reparación Código #76": {
+      "success": true,
+      "latency_ms": 119.3014000000403,
+      "iterations": 1
+    },
+    "Tarea 077 - Auto-Reparación Código #77": {
+      "success": true,
+      "latency_ms": 116.36060000000725,
+      "iterations": 1
+    },
+    "Tarea 078 - Auto-Reparación Código #78": {
+      "success": true,
+      "latency_ms": 146.4986000000863,
+      "iterations": 1
+    },
+    "Tarea 079 - Auto-Reparación Código #79": {
+      "success": true,
+      "latency_ms": 131.3001999997141,
+      "iterations": 1
+    },
+    "Tarea 080 - Auto-Reparación Código #80": {
+      "success": true,
+      "latency_ms": 118.3922000000166,
+      "iterations": 1
+    },
+    "Tarea 081 - Auto-Reparación Código #81": {
+      "success": true,
+      "latency_ms": 121.4138000004823,
+      "iterations": 1
+    },
+    "Tarea 082 - Auto-Reparación Código #82": {
+      "success": true,
+      "latency_ms": 147.85639999990963,
+      "iterations": 1
+    },
+    "Tarea 083 - Auto-Reparación Código #83": {
+      "success": true,
+      "latency_ms": 138.24270000077377,
+      "iterations": 1
+    },
+    "Tarea 084 - Auto-Reparación Código #84": {
+      "success": true,
+      "latency_ms": 129.47799999983545,
+      "iterations": 1
+    },
+    "Tarea 085 - Auto-Reparación Código #85": {
+      "success": true,
+      "latency_ms": 123.8389999998617,
+      "iterations": 1
+    },
+    "Tarea 086 - Auto-Reparación Código #86": {
+      "success": true,
+      "latency_ms": 148.86010000009264,
+      "iterations": 1
+    },
+    "Tarea 087 - Auto-Reparación Código #87": {
+      "success": true,
+      "latency_ms": 134.4085000000632,
+      "iterations": 1
+    },
+    "Tarea 088 - Auto-Reparación Código #88": {
+      "success": true,
+      "latency_ms": 114.86640000020998,
+      "iterations": 1
+    },
+    "Tarea 089 - Auto-Reparación Código #89": {
+      "success": true,
+      "latency_ms": 122.27770000026794,
+      "iterations": 1
+    },
+    "Tarea 090 - Auto-Reparación Código #90": {
+      "success": true,
+      "latency_ms": 147.4231999991389,
+      "iterations": 1
+    },
+    "Tarea 091 - Auto-Reparación Código #91": {
+      "success": true,
+      "latency_ms": 145.1177999997526,
+      "iterations": 1
+    },
+    "Tarea 092 - Auto-Reparación Código #92": {
+      "success": true,
+      "latency_ms": 174.05109999981505,
+      "iterations": 1
+    },
+    "Tarea 093 - Auto-Reparación Código #93": {
+      "success": true,
+      "latency_ms": 140.90459999988525,
+      "iterations": 1
+    },
+    "Tarea 094 - Auto-Reparación Código #94": {
+      "success": true,
+      "latency_ms": 155.45419999943988,
+      "iterations": 1
+    },
+    "Tarea 095 - Auto-Reparación Código #95": {
+      "success": true,
+      "latency_ms": 125.48539999988861,
+      "iterations": 1
+    },
+    "Tarea 096 - Auto-Reparación Código #96": {
+      "success": true,
+      "latency_ms": 123.0982999995831,
+      "iterations": 1
+    },
+    "Tarea 097 - Auto-Reparación Código #97": {
+      "success": true,
+      "latency_ms": 122.60049999986222,
+      "iterations": 1
+    },
+    "Tarea 098 - Auto-Reparación Código #98": {
+      "success": true,
+      "latency_ms": 144.78150000013557,
+      "iterations": 1
+    },
+    "Tarea 099 - Auto-Reparación Código #99": {
+      "success": true,
+      "latency_ms": 137.30060000034428,
+      "iterations": 1
+    },
+    "Tarea 100 - Auto-Reparación Código #100": {
+      "success": true,
+      "latency_ms": 119.06730000009702,
+      "iterations": 1
+    },
+    "Tarea 101 - Auto-Creación Herramienta #101": {
+      "success": true,
+      "tool_name": "tool_synth_101"
+    },
+    "Tarea 102 - Auto-Creación Herramienta #102": {
+      "success": true,
+      "tool_name": "tool_synth_102"
+    },
+    "Tarea 103 - Auto-Creación Herramienta #103": {
+      "success": true,
+      "tool_name": "tool_synth_103"
+    },
+    "Tarea 104 - Auto-Creación Herramienta #104": {
+      "success": true,
+      "tool_name": "tool_synth_104"
+    },
+    "Tarea 105 - Auto-Creación Herramienta #105": {
+      "success": true,
+      "tool_name": "tool_synth_105"
+    },
+    "Tarea 106 - Auto-Creación Herramienta #106": {
+      "success": true,
+      "tool_name": "tool_synth_106"
+    },
+    "Tarea 107 - Auto-Creación Herramienta #107": {
+      "success": true,
+      "tool_name": "tool_synth_107"
+    },
+    "Tarea 108 - Auto-Creación Herramienta #108": {
+      "success": true,
+      "tool_name": "tool_synth_108"
+    },
+    "Tarea 109 - Auto-Creación Herramienta #109": {
+      "success": true,
+      "tool_name": "tool_synth_109"
+    },
+    "Tarea 110 - Auto-Creación Herramienta #110": {
+      "success": true,
+      "tool_name": "tool_synth_110"
+    },
+    "Tarea 111 - Auto-Creación Herramienta #111": {
+      "success": true,
+      "tool_name": "tool_synth_111"
+    },
+    "Tarea 112 - Auto-Creación Herramienta #112": {
+      "success": true,
+      "tool_name": "tool_synth_112"
+    },
+    "Tarea 113 - Auto-Creación Herramienta #113": {
+      "success": true,
+      "tool_name": "tool_synth_113"
+    },
+    "Tarea 114 - Auto-Creación Herramienta #114": {
+      "success": true,
+      "tool_name": "tool_synth_114"
+    },
+    "Tarea 115 - Auto-Creación Herramienta #115": {
+      "success": true,
+      "tool_name": "tool_synth_115"
+    },
+    "Tarea 116 - Auto-Creación Herramienta #116": {
+      "success": true,
+      "tool_name": "tool_synth_116"
+    },
+    "Tarea 117 - Auto-Creación Herramienta #117": {
+      "success": true,
+      "tool_name": "tool_synth_117"
+    },
+    "Tarea 118 - Auto-Creación Herramienta #118": {
+      "success": true,
+      "tool_name": "tool_synth_118"
+    },
+    "Tarea 119 - Auto-Creación Herramienta #119": {
+      "success": true,
+      "tool_name": "tool_synth_119"
+    },
+    "Tarea 120 - Auto-Creación Herramienta #120": {
+      "success": true,
+      "tool_name": "tool_synth_120"
+    },
+    "Tarea 121 - Auto-Creación Herramienta #121": {
+      "success": true,
+      "tool_name": "tool_synth_121"
+    },
+    "Tarea 122 - Auto-Creación Herramienta #122": {
+      "success": true,
+      "tool_name": "tool_synth_122"
+    },
+    "Tarea 123 - Auto-Creación Herramienta #123": {
+      "success": true,
+      "tool_name": "tool_synth_123"
+    },
+    "Tarea 124 - Auto-Creación Herramienta #124": {
+      "success": true,
+      "tool_name": "tool_synth_124"
+    },
+    "Tarea 125 - Auto-Creación Herramienta #125": {
+      "success": true,
+      "tool_name": "tool_synth_125"
+    },
+    "Tarea 126 - Auto-Creación Herramienta #126": {
+      "success": true,
+      "tool_name": "tool_synth_126"
+    },
+    "Tarea 127 - Auto-Creación Herramienta #127": {
+      "success": true,
+      "tool_name": "tool_synth_127"
+    },
+    "Tarea 128 - Auto-Creación Herramienta #128": {
+      "success": true,
+      "tool_name": "tool_synth_128"
+    },
+    "Tarea 129 - Auto-Creación Herramienta #129": {
+      "success": true,
+      "tool_name": "tool_synth_129"
+    },
+    "Tarea 130 - Auto-Creación Herramienta #130": {
+      "success": true,
+      "tool_name": "tool_synth_130"
+    },
+    "Tarea 131 - Auto-Creación Herramienta #131": {
+      "success": true,
+      "tool_name": "tool_synth_131"
+    },
+    "Tarea 132 - Auto-Creación Herramienta #132": {
+      "success": true,
+      "tool_name": "tool_synth_132"
+    },
+    "Tarea 133 - Auto-Creación Herramienta #133": {
+      "success": true,
+      "tool_name": "tool_synth_133"
+    },
+    "Tarea 134 - Auto-Creación Herramienta #134": {
+      "success": true,
+      "tool_name": "tool_synth_134"
+    },
+    "Tarea 135 - Auto-Creación Herramienta #135": {
+      "success": true,
+      "tool_name": "tool_synth_135"
+    },
+    "Tarea 136 - Auto-Creación Herramienta #136": {
+      "success": true,
+      "tool_name": "tool_synth_136"
+    },
+    "Tarea 137 - Auto-Creación Herramienta #137": {
+      "success": true,
+      "tool_name": "tool_synth_137"
+    },
+    "Tarea 138 - Auto-Creación Herramienta #138": {
+      "success": true,
+      "tool_name": "tool_synth_138"
+    },
+    "Tarea 139 - Auto-Creación Herramienta #139": {
+      "success": true,
+      "tool_name": "tool_synth_139"
+    },
+    "Tarea 140 - Auto-Creación Herramienta #140": {
+      "success": true,
+      "tool_name": "tool_synth_140"
+    },
+    "Tarea 141 - Auto-Creación Herramienta #141": {
+      "success": true,
+      "tool_name": "tool_synth_141"
+    },
+    "Tarea 142 - Auto-Creación Herramienta #142": {
+      "success": true,
+      "tool_name": "tool_synth_142"
+    },
+    "Tarea 143 - Auto-Creación Herramienta #143": {
+      "success": true,
+      "tool_name": "tool_synth_143"
+    },
+    "Tarea 144 - Auto-Creación Herramienta #144": {
+      "success": true,
+      "tool_name": "tool_synth_144"
+    },
+    "Tarea 145 - Auto-Creación Herramienta #145": {
+      "success": true,
+      "tool_name": "tool_synth_145"
+    },
+    "Tarea 146 - Auto-Creación Herramienta #146": {
+      "success": true,
+      "tool_name": "tool_synth_146"
+    },
+    "Tarea 147 - Auto-Creación Herramienta #147": {
+      "success": true,
+      "tool_name": "tool_synth_147"
+    },
+    "Tarea 148 - Auto-Creación Herramienta #148": {
+      "success": true,
+      "tool_name": "tool_synth_148"
+    },
+    "Tarea 149 - Auto-Creación Herramienta #149": {
+      "success": true,
+      "tool_name": "tool_synth_149"
+    },
+    "Tarea 150 - Auto-Creación Herramienta #150": {
+      "success": true,
+      "tool_name": "tool_synth_150"
+    },
+    "Tarea 151 - Auto-Creación Herramienta #151": {
+      "success": true,
+      "tool_name": "tool_synth_151"
+    },
+    "Tarea 152 - Auto-Creación Herramienta #152": {
+      "success": true,
+      "tool_name": "tool_synth_152"
+    },
+    "Tarea 153 - Auto-Creación Herramienta #153": {
+      "success": true,
+      "tool_name": "tool_synth_153"
+    },
+    "Tarea 154 - Auto-Creación Herramienta #154": {
+      "success": true,
+      "tool_name": "tool_synth_154"
+    },
+    "Tarea 155 - Auto-Creación Herramienta #155": {
+      "success": true,
+      "tool_name": "tool_synth_155"
+    },
+    "Tarea 156 - Auto-Creación Herramienta #156": {
+      "success": true,
+      "tool_name": "tool_synth_156"
+    },
+    "Tarea 157 - Auto-Creación Herramienta #157": {
+      "success": true,
+      "tool_name": "tool_synth_157"
+    },
+    "Tarea 158 - Auto-Creación Herramienta #158": {
+      "success": true,
+      "tool_name": "tool_synth_158"
+    },
+    "Tarea 159 - Auto-Creación Herramienta #159": {
+      "success": true,
+      "tool_name": "tool_synth_159"
+    },
+    "Tarea 160 - Auto-Creación Herramienta #160": {
+      "success": true,
+      "tool_name": "tool_synth_160"
+    },
+    "Tarea 161 - Auto-Creación Herramienta #161": {
+      "success": true,
+      "tool_name": "tool_synth_161"
+    },
+    "Tarea 162 - Auto-Creación Herramienta #162": {
+      "success": true,
+      "tool_name": "tool_synth_162"
+    },
+    "Tarea 163 - Auto-Creación Herramienta #163": {
+      "success": true,
+      "tool_name": "tool_synth_163"
+    },
+    "Tarea 164 - Auto-Creación Herramienta #164": {
+      "success": true,
+      "tool_name": "tool_synth_164"
+    },
+    "Tarea 165 - Auto-Creación Herramienta #165": {
+      "success": true,
+      "tool_name": "tool_synth_165"
+    },
+    "Tarea 166 - Auto-Creación Herramienta #166": {
+      "success": true,
+      "tool_name": "tool_synth_166"
+    },
+    "Tarea 167 - Auto-Creación Herramienta #167": {
+      "success": true,
+      "tool_name": "tool_synth_167"
+    },
+    "Tarea 168 - Auto-Creación Herramienta #168": {
+      "success": true,
+      "tool_name": "tool_synth_168"
+    },
+    "Tarea 169 - Auto-Creación Herramienta #169": {
+      "success": true,
+      "tool_name": "tool_synth_169"
+    },
+    "Tarea 170 - Auto-Creación Herramienta #170": {
+      "success": true,
+      "tool_name": "tool_synth_170"
+    },
+    "Tarea 171 - Auto-Creación Herramienta #171": {
+      "success": true,
+      "tool_name": "tool_synth_171"
+    },
+    "Tarea 172 - Auto-Creación Herramienta #172": {
+      "success": true,
+      "tool_name": "tool_synth_172"
+    },
+    "Tarea 173 - Auto-Creación Herramienta #173": {
+      "success": true,
+      "tool_name": "tool_synth_173"
+    },
+    "Tarea 174 - Auto-Creación Herramienta #174": {
+      "success": true,
+      "tool_name": "tool_synth_174"
+    },
+    "Tarea 175 - Auto-Creación Herramienta #175": {
+      "success": true,
+      "tool_name": "tool_synth_175"
+    },
+    "Tarea 176 - Auto-Creación Herramienta #176": {
+      "success": true,
+      "tool_name": "tool_synth_176"
+    },
+    "Tarea 177 - Auto-Creación Herramienta #177": {
+      "success": true,
+      "tool_name": "tool_synth_177"
+    },
+    "Tarea 178 - Auto-Creación Herramienta #178": {
+      "success": true,
+      "tool_name": "tool_synth_178"
+    },
+    "Tarea 179 - Auto-Creación Herramienta #179": {
+      "success": true,
+      "tool_name": "tool_synth_179"
+    },
+    "Tarea 180 - Auto-Creación Herramienta #180": {
+      "success": true,
+      "tool_name": "tool_synth_180"
+    },
+    "Tarea 181 - Auto-Creación Herramienta #181": {
+      "success": true,
+      "tool_name": "tool_synth_181"
+    },
+    "Tarea 182 - Auto-Creación Herramienta #182": {
+      "success": true,
+      "tool_name": "tool_synth_182"
+    },
+    "Tarea 183 - Auto-Creación Herramienta #183": {
+      "success": true,
+      "tool_name": "tool_synth_183"
+    },
+    "Tarea 184 - Auto-Creación Herramienta #184": {
+      "success": true,
+      "tool_name": "tool_synth_184"
+    },
+    "Tarea 185 - Auto-Creación Herramienta #185": {
+      "success": true,
+      "tool_name": "tool_synth_185"
+    },
+    "Tarea 186 - Auto-Creación Herramienta #186": {
+      "success": true,
+      "tool_name": "tool_synth_186"
+    },
+    "Tarea 187 - Auto-Creación Herramienta #187": {
+      "success": true,
+      "tool_name": "tool_synth_187"
+    },
+    "Tarea 188 - Auto-Creación Herramienta #188": {
+      "success": true,
+      "tool_name": "tool_synth_188"
+    },
+    "Tarea 189 - Auto-Creación Herramienta #189": {
+      "success": true,
+      "tool_name": "tool_synth_189"
+    },
+    "Tarea 190 - Auto-Creación Herramienta #190": {
+      "success": true,
+      "tool_name": "tool_synth_190"
+    },
+    "Tarea 191 - Auto-Creación Herramienta #191": {
+      "success": true,
+      "tool_name": "tool_synth_191"
+    },
+    "Tarea 192 - Auto-Creación Herramienta #192": {
+      "success": true,
+      "tool_name": "tool_synth_192"
+    },
+    "Tarea 193 - Auto-Creación Herramienta #193": {
+      "success": true,
+      "tool_name": "tool_synth_193"
+    },
+    "Tarea 194 - Auto-Creación Herramienta #194": {
+      "success": true,
+      "tool_name": "tool_synth_194"
+    },
+    "Tarea 195 - Auto-Creación Herramienta #195": {
+      "success": true,
+      "tool_name": "tool_synth_195"
+    },
+    "Tarea 196 - Auto-Creación Herramienta #196": {
+      "success": true,
+      "tool_name": "tool_synth_196"
+    },
+    "Tarea 197 - Auto-Creación Herramienta #197": {
+      "success": true,
+      "tool_name": "tool_synth_197"
+    },
+    "Tarea 198 - Auto-Creación Herramienta #198": {
+      "success": true,
+      "tool_name": "tool_synth_198"
+    },
+    "Tarea 199 - Auto-Creación Herramienta #199": {
+      "success": true,
+      "tool_name": "tool_synth_199"
+    },
+    "Tarea 200 - Auto-Creación Herramienta #200": {
+      "success": true,
+      "tool_name": "tool_synth_200"
+    },
+    "Tarea 201 - Pantalla & Métricas (notepad)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 202 - Inspección UI Controls (calc)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 203 - Protocolo App (Explorador de archivos)": {
+      "success": true,
+      "details": "Protocolo 'explorer' validado"
+    },
+    "Tarea 204 - Pantalla & Métricas (powershell)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 205 - Inspección UI Controls (cmd)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 206 - Protocolo App (Configuración de Windows)": {
+      "success": true,
+      "details": "Protocolo 'ms-settings' validado"
+    },
+    "Tarea 207 - Pantalla & Métricas (taskmgr)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 208 - Inspección UI Controls (whatsapp)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 209 - Protocolo App (Navegador Microsoft Edge)": {
+      "success": true,
+      "details": "Protocolo 'edge' validado"
+    },
+    "Tarea 210 - Pantalla & Métricas (terminal)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 211 - Inspección UI Controls (notepad)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 212 - Protocolo App (Calculadora)": {
+      "success": true,
+      "details": "Protocolo 'calc' validado"
+    },
+    "Tarea 213 - Pantalla & Métricas (explorer)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 214 - Inspección UI Controls (powershell)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 215 - Protocolo App (Símbolo del sistema)": {
+      "success": true,
+      "details": "Protocolo 'cmd' validado"
+    },
+    "Tarea 216 - Pantalla & Métricas (ms-settings)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 217 - Inspección UI Controls (taskmgr)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 218 - Protocolo App (WhatsApp Desktop Gateway)": {
+      "success": true,
+      "details": "Protocolo 'whatsapp' validado"
+    },
+    "Tarea 219 - Pantalla & Métricas (edge)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 220 - Inspección UI Controls (terminal)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 221 - Protocolo App (Bloc de notas)": {
+      "success": true,
+      "details": "Protocolo 'notepad' validado"
+    },
+    "Tarea 222 - Pantalla & Métricas (calc)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 223 - Inspección UI Controls (explorer)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 224 - Protocolo App (PowerShell)": {
+      "success": true,
+      "details": "Protocolo 'powershell' validado"
+    },
+    "Tarea 225 - Pantalla & Métricas (cmd)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 226 - Inspección UI Controls (ms-settings)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 227 - Protocolo App (Administrador de tareas)": {
+      "success": true,
+      "details": "Protocolo 'taskmgr' validado"
+    },
+    "Tarea 228 - Pantalla & Métricas (whatsapp)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 229 - Inspección UI Controls (edge)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 230 - Protocolo App (Windows Terminal)": {
+      "success": true,
+      "details": "Protocolo 'terminal' validado"
+    },
+    "Tarea 231 - Pantalla & Métricas (notepad)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 232 - Inspección UI Controls (calc)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 233 - Protocolo App (Explorador de archivos)": {
+      "success": true,
+      "details": "Protocolo 'explorer' validado"
+    },
+    "Tarea 234 - Pantalla & Métricas (powershell)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 235 - Inspección UI Controls (cmd)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 236 - Protocolo App (Configuración de Windows)": {
+      "success": true,
+      "details": "Protocolo 'ms-settings' validado"
+    },
+    "Tarea 237 - Pantalla & Métricas (taskmgr)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 238 - Inspección UI Controls (whatsapp)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 239 - Protocolo App (Navegador Microsoft Edge)": {
+      "success": true,
+      "details": "Protocolo 'edge' validado"
+    },
+    "Tarea 240 - Pantalla & Métricas (terminal)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 241 - Inspección UI Controls (notepad)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 242 - Protocolo App (Calculadora)": {
+      "success": true,
+      "details": "Protocolo 'calc' validado"
+    },
+    "Tarea 243 - Pantalla & Métricas (explorer)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 244 - Inspección UI Controls (powershell)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 245 - Protocolo App (Símbolo del sistema)": {
+      "success": true,
+      "details": "Protocolo 'cmd' validado"
+    },
+    "Tarea 246 - Pantalla & Métricas (ms-settings)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 247 - Inspección UI Controls (taskmgr)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 248 - Protocolo App (WhatsApp Desktop Gateway)": {
+      "success": true,
+      "details": "Protocolo 'whatsapp' validado"
+    },
+    "Tarea 249 - Pantalla & Métricas (edge)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 250 - Inspección UI Controls (terminal)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 251 - Protocolo App (Bloc de notas)": {
+      "success": true,
+      "details": "Protocolo 'notepad' validado"
+    },
+    "Tarea 252 - Pantalla & Métricas (calc)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 253 - Inspección UI Controls (explorer)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 254 - Protocolo App (PowerShell)": {
+      "success": true,
+      "details": "Protocolo 'powershell' validado"
+    },
+    "Tarea 255 - Pantalla & Métricas (cmd)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 256 - Inspección UI Controls (ms-settings)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 257 - Protocolo App (Administrador de tareas)": {
+      "success": true,
+      "details": "Protocolo 'taskmgr' validado"
+    },
+    "Tarea 258 - Pantalla & Métricas (whatsapp)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 259 - Inspección UI Controls (edge)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 260 - Protocolo App (Windows Terminal)": {
+      "success": true,
+      "details": "Protocolo 'terminal' validado"
+    },
+    "Tarea 261 - Pantalla & Métricas (notepad)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 262 - Inspección UI Controls (calc)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 263 - Protocolo App (Explorador de archivos)": {
+      "success": true,
+      "details": "Protocolo 'explorer' validado"
+    },
+    "Tarea 264 - Pantalla & Métricas (powershell)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 265 - Inspección UI Controls (cmd)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 266 - Protocolo App (Configuración de Windows)": {
+      "success": true,
+      "details": "Protocolo 'ms-settings' validado"
+    },
+    "Tarea 267 - Pantalla & Métricas (taskmgr)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 268 - Inspección UI Controls (whatsapp)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 269 - Protocolo App (Navegador Microsoft Edge)": {
+      "success": true,
+      "details": "Protocolo 'edge' validado"
+    },
+    "Tarea 270 - Pantalla & Métricas (terminal)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 271 - Inspección UI Controls (notepad)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 272 - Protocolo App (Calculadora)": {
+      "success": true,
+      "details": "Protocolo 'calc' validado"
+    },
+    "Tarea 273 - Pantalla & Métricas (explorer)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 274 - Inspección UI Controls (powershell)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 275 - Protocolo App (Símbolo del sistema)": {
+      "success": true,
+      "details": "Protocolo 'cmd' validado"
+    },
+    "Tarea 276 - Pantalla & Métricas (ms-settings)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 277 - Inspección UI Controls (taskmgr)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 278 - Protocolo App (WhatsApp Desktop Gateway)": {
+      "success": true,
+      "details": "Protocolo 'whatsapp' validado"
+    },
+    "Tarea 279 - Pantalla & Métricas (edge)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 280 - Inspección UI Controls (terminal)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 281 - Protocolo App (Bloc de notas)": {
+      "success": true,
+      "details": "Protocolo 'notepad' validado"
+    },
+    "Tarea 282 - Pantalla & Métricas (calc)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 283 - Inspección UI Controls (explorer)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 284 - Protocolo App (PowerShell)": {
+      "success": true,
+      "details": "Protocolo 'powershell' validado"
+    },
+    "Tarea 285 - Pantalla & Métricas (cmd)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 286 - Inspección UI Controls (ms-settings)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 287 - Protocolo App (Administrador de tareas)": {
+      "success": true,
+      "details": "Protocolo 'taskmgr' validado"
+    },
+    "Tarea 288 - Pantalla & Métricas (whatsapp)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 289 - Inspección UI Controls (edge)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 290 - Protocolo App (Windows Terminal)": {
+      "success": true,
+      "details": "Protocolo 'terminal' validado"
+    },
+    "Tarea 291 - Pantalla & Métricas (notepad)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 292 - Inspección UI Controls (calc)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 293 - Protocolo App (Explorador de archivos)": {
+      "success": true,
+      "details": "Protocolo 'explorer' validado"
+    },
+    "Tarea 294 - Pantalla & Métricas (powershell)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 295 - Inspección UI Controls (cmd)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 296 - Protocolo App (Configuración de Windows)": {
+      "success": true,
+      "details": "Protocolo 'ms-settings' validado"
+    },
+    "Tarea 297 - Pantalla & Métricas (taskmgr)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 298 - Inspección UI Controls (whatsapp)": {
+      "success": true,
+      "details": "Árbol UI Automation consultado"
+    },
+    "Tarea 299 - Protocolo App (Navegador Microsoft Edge)": {
+      "success": true,
+      "details": "Protocolo 'edge' validado"
+    },
+    "Tarea 300 - Pantalla & Métricas (terminal)": {
+      "success": true,
+      "details": "Resolución verificada"
+    },
+    "Tarea 301 - Jev Choice #301": {
+      "success": true,
+      "selected": "conversational_chat",
+      "latency_ms": 0.06589999975403771
+    },
+    "Tarea 302 - Jev Score #302": {
+      "success": true,
+      "score": 0.67,
+      "latency_ms": 0.03319999996165279
+    },
+    "Tarea 303 - Jev Noul #303": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 1.2366999999358086
+    },
+    "Tarea 304 - Jev Choice #304": {
+      "success": true,
+      "selected": "search_web",
+      "latency_ms": 0.03500000002532033
+    },
+    "Tarea 305 - Jev Score #305": {
+      "success": true,
+      "score": 0.1,
+      "latency_ms": 0.009599999430065509
+    },
+    "Tarea 306 - Jev Noul #306": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.16010000035748817
+    },
+    "Tarea 307 - Jev Choice #307": {
+      "success": true,
+      "selected": "read_file",
+      "latency_ms": 0.021299999389157165
+    },
+    "Tarea 308 - Jev Score #308": {
+      "success": true,
+      "score": 0.85,
+      "latency_ms": 0.009800000043469481
+    },
+    "Tarea 309 - Jev Noul #309": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.02479999966453761
+    },
+    "Tarea 310 - Jev Choice #310": {
+      "success": true,
+      "selected": "run_terminal",
+      "latency_ms": 0.011099999937869143
+    },
+    "Tarea 311 - Jev Score #311": {
+      "success": true,
+      "score": 0.51,
+      "latency_ms": 0.004200000148557592
+    },
+    "Tarea 312 - Jev Noul #312": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.1247000000148546
+    },
+    "Tarea 313 - Jev Choice #313": {
+      "success": true,
+      "selected": "conversational_chat",
+      "latency_ms": 0.034300000152143184
+    },
+    "Tarea 314 - Jev Score #314": {
+      "success": true,
+      "score": 0.85,
+      "latency_ms": 0.012399999832268804
+    },
+    "Tarea 315 - Jev Noul #315": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.041000000237545464
+    },
+    "Tarea 316 - Jev Choice #316": {
+      "success": true,
+      "selected": "search_web",
+      "latency_ms": 0.018900000213761814
+    },
+    "Tarea 317 - Jev Score #317": {
+      "success": true,
+      "score": 0.67,
+      "latency_ms": 0.00670000008540228
+    },
+    "Tarea 318 - Jev Noul #318": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.11030000041500898
+    },
+    "Tarea 319 - Jev Choice #319": {
+      "success": true,
+      "selected": "read_file",
+      "latency_ms": 0.017600000319362152
+    },
+    "Tarea 320 - Jev Score #320": {
+      "success": true,
+      "score": 0.1,
+      "latency_ms": 0.0057999995988211595
+    },
+    "Tarea 321 - Jev Noul #321": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.022700000045006163
+    },
+    "Tarea 322 - Jev Choice #322": {
+      "success": true,
+      "selected": "run_terminal",
+      "latency_ms": 0.011499999345687684
+    },
+    "Tarea 323 - Jev Score #323": {
+      "success": true,
+      "score": 0.85,
+      "latency_ms": 0.0057999995988211595
+    },
+    "Tarea 324 - Jev Noul #324": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.05669999973179074
+    },
+    "Tarea 325 - Jev Choice #325": {
+      "success": true,
+      "selected": "conversational_chat",
+      "latency_ms": 0.014099999134487007
+    },
+    "Tarea 326 - Jev Score #326": {
+      "success": true,
+      "score": 0.51,
+      "latency_ms": 0.004200000148557592
+    },
+    "Tarea 327 - Jev Noul #327": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.049000000217347406
+    },
+    "Tarea 328 - Jev Choice #328": {
+      "success": true,
+      "selected": "search_web",
+      "latency_ms": 0.01120000069931848
+    },
+    "Tarea 329 - Jev Score #329": {
+      "success": true,
+      "score": 0.85,
+      "latency_ms": 0.003499999365885742
+    },
+    "Tarea 330 - Jev Noul #330": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.04669999998441199
+    },
+    "Tarea 331 - Jev Choice #331": {
+      "success": true,
+      "selected": "read_file",
+      "latency_ms": 0.010600000678095967
+    },
+    "Tarea 332 - Jev Score #332": {
+      "success": true,
+      "score": 0.67,
+      "latency_ms": 0.0032999996619764715
+    },
+    "Tarea 333 - Jev Noul #333": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.021800000467919745
+    },
+    "Tarea 334 - Jev Choice #334": {
+      "success": true,
+      "selected": "run_terminal",
+      "latency_ms": 0.00889999955688836
+    },
+    "Tarea 335 - Jev Score #335": {
+      "success": true,
+      "score": 0.1,
+      "latency_ms": 0.002600000698294025
+    },
+    "Tarea 336 - Jev Noul #336": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.0351999997292296
+    },
+    "Tarea 337 - Jev Choice #337": {
+      "success": true,
+      "selected": "conversational_chat",
+      "latency_ms": 0.008600000001024455
+    },
+    "Tarea 338 - Jev Score #338": {
+      "success": true,
+      "score": 0.85,
+      "latency_ms": 0.0028000004022032954
+    },
+    "Tarea 339 - Jev Noul #339": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.017800000023271423
+    },
+    "Tarea 340 - Jev Choice #340": {
+      "success": true,
+      "selected": "search_web",
+      "latency_ms": 0.008900000466383062
+    },
+    "Tarea 341 - Jev Score #341": {
+      "success": true,
+      "score": 0.51,
+      "latency_ms": 0.002599999788799323
+    },
+    "Tarea 342 - Jev Noul #342": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.031600000511389226
+    },
+    "Tarea 343 - Jev Choice #343": {
+      "success": true,
+      "selected": "read_file",
+      "latency_ms": 0.009499999578110874
+    },
+    "Tarea 344 - Jev Score #344": {
+      "success": true,
+      "score": 0.85,
+      "latency_ms": 0.0029000002541579306
+    },
+    "Tarea 345 - Jev Noul #345": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.017899999875226058
+    },
+    "Tarea 346 - Jev Choice #346": {
+      "success": true,
+      "selected": "run_terminal",
+      "latency_ms": 0.008399999387620483
+    },
+    "Tarea 347 - Jev Score #347": {
+      "success": true,
+      "score": 0.67,
+      "latency_ms": 0.0024000000848900527
+    },
+    "Tarea 348 - Jev Noul #348": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.05030000011174707
+    },
+    "Tarea 349 - Jev Choice #349": {
+      "success": true,
+      "selected": "conversational_chat",
+      "latency_ms": 0.009399999726156238
+    },
+    "Tarea 350 - Jev Score #350": {
+      "success": true,
+      "score": 0.1,
+      "latency_ms": 0.002499999936844688
+    },
+    "Tarea 351 - Jev Noul #351": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.02479999966453761
+    },
+    "Tarea 352 - Jev Choice #352": {
+      "success": true,
+      "selected": "search_web",
+      "latency_ms": 0.008999999408842996
+    },
+    "Tarea 353 - Jev Score #353": {
+      "success": true,
+      "score": 0.85,
+      "latency_ms": 0.0023000002329354174
+    },
+    "Tarea 354 - Jev Noul #354": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.02970000059576705
+    },
+    "Tarea 355 - Jev Choice #355": {
+      "success": true,
+      "selected": "read_file",
+      "latency_ms": 0.008400000297115184
+    },
+    "Tarea 356 - Jev Score #356": {
+      "success": true,
+      "score": 0.51,
+      "latency_ms": 0.0029000002541579306
+    },
+    "Tarea 357 - Jev Noul #357": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.013100000614940654
+    },
+    "Tarea 358 - Jev Choice #358": {
+      "success": true,
+      "selected": "run_terminal",
+      "latency_ms": 0.011199999789823778
+    },
+    "Tarea 359 - Jev Score #359": {
+      "success": true,
+      "score": 0.85,
+      "latency_ms": 0.0038999996831989847
+    },
+    "Tarea 360 - Jev Noul #360": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.0304000004689442
+    },
+    "Tarea 361 - Jev Choice #361": {
+      "success": true,
+      "selected": "conversational_chat",
+      "latency_ms": 0.008199999683711212
+    },
+    "Tarea 362 - Jev Score #362": {
+      "success": true,
+      "score": 0.67,
+      "latency_ms": 0.0029000002541579306
+    },
+    "Tarea 363 - Jev Noul #363": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.013399999261309858
+    },
+    "Tarea 364 - Jev Choice #364": {
+      "success": true,
+      "selected": "search_web",
+      "latency_ms": 0.00869999985297909
+    },
+    "Tarea 365 - Jev Score #365": {
+      "success": true,
+      "score": 0.1,
+      "latency_ms": 0.0023000002329354174
+    },
+    "Tarea 366 - Jev Noul #366": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.027300000510877
+    },
+    "Tarea 367 - Jev Choice #367": {
+      "success": true,
+      "selected": "read_file",
+      "latency_ms": 0.00869999985297909
+    },
+    "Tarea 368 - Jev Score #368": {
+      "success": true,
+      "score": 0.85,
+      "latency_ms": 0.002600000698294025
+    },
+    "Tarea 369 - Jev Noul #369": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.013799999578623101
+    },
+    "Tarea 370 - Jev Choice #370": {
+      "success": true,
+      "selected": "run_terminal",
+      "latency_ms": 0.007700000423938036
+    },
+    "Tarea 371 - Jev Score #371": {
+      "success": true,
+      "score": 0.51,
+      "latency_ms": 0.002600000698294025
+    },
+    "Tarea 372 - Jev Noul #372": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.024699999812582973
+    },
+    "Tarea 373 - Jev Choice #373": {
+      "success": true,
+      "selected": "conversational_chat",
+      "latency_ms": 0.007800000275892671
+    },
+    "Tarea 374 - Jev Score #374": {
+      "success": true,
+      "score": 0.85,
+      "latency_ms": 0.002599999788799323
+    },
+    "Tarea 375 - Jev Noul #375": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.012900000001536682
+    },
+    "Tarea 376 - Jev Choice #376": {
+      "success": true,
+      "selected": "search_web",
+      "latency_ms": 0.007999999979801942
+    },
+    "Tarea 377 - Jev Score #377": {
+      "success": true,
+      "score": 0.67,
+      "latency_ms": 0.0023000002329354174
+    },
+    "Tarea 378 - Jev Noul #378": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.026300000172341242
+    },
+    "Tarea 379 - Jev Choice #379": {
+      "success": true,
+      "selected": "read_file",
+      "latency_ms": 0.009000000318337698
+    },
+    "Tarea 380 - Jev Score #380": {
+      "success": true,
+      "score": 0.1,
+      "latency_ms": 0.0024000000848900527
+    },
+    "Tarea 381 - Jev Noul #381": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.01249999968422344
+    },
+    "Tarea 382 - Jev Choice #382": {
+      "success": true,
+      "selected": "run_terminal",
+      "latency_ms": 0.008199999683711212
+    },
+    "Tarea 383 - Jev Score #383": {
+      "success": true,
+      "score": 0.85,
+      "latency_ms": 0.0021999994714860804
+    },
+    "Tarea 384 - Jev Noul #384": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.022399999579647556
+    },
+    "Tarea 385 - Jev Choice #385": {
+      "success": true,
+      "selected": "conversational_chat",
+      "latency_ms": 0.007699999514443334
+    },
+    "Tarea 386 - Jev Score #386": {
+      "success": true,
+      "score": 0.51,
+      "latency_ms": 0.0028000004022032954
+    },
+    "Tarea 387 - Jev Noul #387": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.01269999938813271
+    },
+    "Tarea 388 - Jev Choice #388": {
+      "success": true,
+      "selected": "search_web",
+      "latency_ms": 0.00869999985297909
+    },
+    "Tarea 389 - Jev Score #389": {
+      "success": true,
+      "score": 0.85,
+      "latency_ms": 0.002499999936844688
+    },
+    "Tarea 390 - Jev Noul #390": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.02789999962260481
+    },
+    "Tarea 391 - Jev Choice #391": {
+      "success": true,
+      "selected": "read_file",
+      "latency_ms": 0.00889999955688836
+    },
+    "Tarea 392 - Jev Score #392": {
+      "success": true,
+      "score": 0.67,
+      "latency_ms": 0.003000000106112566
+    },
+    "Tarea 393 - Jev Noul #393": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.012799999240087345
+    },
+    "Tarea 394 - Jev Choice #394": {
+      "success": true,
+      "selected": "run_terminal",
+      "latency_ms": 0.00830000044516055
+    },
+    "Tarea 395 - Jev Score #395": {
+      "success": true,
+      "score": 0.1,
+      "latency_ms": 0.00199999976757681
+    },
+    "Tarea 396 - Jev Noul #396": {
+      "success": true,
+      "allowed": false,
+      "latency_ms": 0.026599999728205148
+    },
+    "Tarea 397 - Jev Choice #397": {
+      "success": true,
+      "selected": "conversational_chat",
+      "latency_ms": 0.008200000593205914
+    },
+    "Tarea 398 - Jev Score #398": {
+      "success": true,
+      "score": 0.85,
+      "latency_ms": 0.002600000698294025
+    },
+    "Tarea 399 - Jev Noul #399": {
+      "success": true,
+      "allowed": true,
+      "latency_ms": 0.012900000001536682
+    },
+    "Tarea 400 - Jev Choice #400": {
+      "success": true,
+      "selected": "search_web",
+      "latency_ms": 0.008099999831756577
+    },
+    "Tarea 401 - SQLite Procedimental #401": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 402 - Checkpoint Save/Load #402": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 403 - Deduplicación Loop #403": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 404 - Reflection Verifier #404": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 405 - SQLite Procedimental #405": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 406 - Checkpoint Save/Load #406": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 407 - Deduplicación Loop #407": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 408 - Reflection Verifier #408": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 409 - SQLite Procedimental #409": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 410 - Checkpoint Save/Load #410": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 411 - Deduplicación Loop #411": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 412 - Reflection Verifier #412": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 413 - SQLite Procedimental #413": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 414 - Checkpoint Save/Load #414": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 415 - Deduplicación Loop #415": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 416 - Reflection Verifier #416": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 417 - SQLite Procedimental #417": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 418 - Checkpoint Save/Load #418": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 419 - Deduplicación Loop #419": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 420 - Reflection Verifier #420": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 421 - SQLite Procedimental #421": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 422 - Checkpoint Save/Load #422": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 423 - Deduplicación Loop #423": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 424 - Reflection Verifier #424": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 425 - SQLite Procedimental #425": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 426 - Checkpoint Save/Load #426": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 427 - Deduplicación Loop #427": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 428 - Reflection Verifier #428": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 429 - SQLite Procedimental #429": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 430 - Checkpoint Save/Load #430": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 431 - Deduplicación Loop #431": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 432 - Reflection Verifier #432": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 433 - SQLite Procedimental #433": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 434 - Checkpoint Save/Load #434": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 435 - Deduplicación Loop #435": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 436 - Reflection Verifier #436": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 437 - SQLite Procedimental #437": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 438 - Checkpoint Save/Load #438": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 439 - Deduplicación Loop #439": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 440 - Reflection Verifier #440": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 441 - SQLite Procedimental #441": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 442 - Checkpoint Save/Load #442": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 443 - Deduplicación Loop #443": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 444 - Reflection Verifier #444": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 445 - SQLite Procedimental #445": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 446 - Checkpoint Save/Load #446": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 447 - Deduplicación Loop #447": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 448 - Reflection Verifier #448": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 449 - SQLite Procedimental #449": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 450 - Checkpoint Save/Load #450": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 451 - Deduplicación Loop #451": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 452 - Reflection Verifier #452": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 453 - SQLite Procedimental #453": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 454 - Checkpoint Save/Load #454": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 455 - Deduplicación Loop #455": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 456 - Reflection Verifier #456": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 457 - SQLite Procedimental #457": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 458 - Checkpoint Save/Load #458": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 459 - Deduplicación Loop #459": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 460 - Reflection Verifier #460": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 461 - SQLite Procedimental #461": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 462 - Checkpoint Save/Load #462": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 463 - Deduplicación Loop #463": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 464 - Reflection Verifier #464": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 465 - SQLite Procedimental #465": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 466 - Checkpoint Save/Load #466": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 467 - Deduplicación Loop #467": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 468 - Reflection Verifier #468": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 469 - SQLite Procedimental #469": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 470 - Checkpoint Save/Load #470": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 471 - Deduplicación Loop #471": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 472 - Reflection Verifier #472": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 473 - SQLite Procedimental #473": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 474 - Checkpoint Save/Load #474": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 475 - Deduplicación Loop #475": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 476 - Reflection Verifier #476": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 477 - SQLite Procedimental #477": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 478 - Checkpoint Save/Load #478": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 479 - Deduplicación Loop #479": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 480 - Reflection Verifier #480": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 481 - SQLite Procedimental #481": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 482 - Checkpoint Save/Load #482": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 483 - Deduplicación Loop #483": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 484 - Reflection Verifier #484": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 485 - SQLite Procedimental #485": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 486 - Checkpoint Save/Load #486": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 487 - Deduplicación Loop #487": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 488 - Reflection Verifier #488": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 489 - SQLite Procedimental #489": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 490 - Checkpoint Save/Load #490": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 491 - Deduplicación Loop #491": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 492 - Reflection Verifier #492": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 493 - SQLite Procedimental #493": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 494 - Checkpoint Save/Load #494": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 495 - Deduplicación Loop #495": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 496 - Reflection Verifier #496": {
+      "success": true,
+      "details": "Verificación física superada"
+    },
+    "Tarea 497 - SQLite Procedimental #497": {
+      "success": true,
+      "details": "Insert & search OK"
+    },
+    "Tarea 498 - Checkpoint Save/Load #498": {
+      "success": true,
+      "details": "Persistencia atómica OK"
+    },
+    "Tarea 499 - Deduplicación Loop #499": {
+      "success": true,
+      "details": "Detección de duplicado confirmada"
+    },
+    "Tarea 500 - Reflection Verifier #500": {
+      "success": true,
+      "details": "Verificación física superada"
+    }
+  }
+}

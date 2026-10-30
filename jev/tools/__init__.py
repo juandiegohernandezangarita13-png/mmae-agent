@@ -139,6 +139,10 @@ def build_default_registry(config: Optional[Any] = None) -> tuple[ToolRegistry, 
     from jev.tools.custom.skill_vision_recognizer import VisionRecognizerTool
     registry.register(VisionRecognizerTool())
 
+    # Motor de Auto-Reparación y Curación de Código
+    from jev.tools.code_repairer_tool import AutoRepairCodeTool
+    registry.register(AutoRepairCodeTool())
+
     dynamic_mgr = DynamicToolManager(registry)
     registry.register(CreateCustomTool(dynamic_mgr))
 
