@@ -24,6 +24,18 @@ BASE = Path(__file__).resolve().parent
 
 
 def main() -> int:
+    # Mutex de instancia única en Windows para evitar duplicados en pantalla
+    _single_instance_mutex = None
+    if sys.platform == "win32":
+        try:
+            kernel32 = ctypes.windll.kernel32
+            _single_instance_mutex = kernel32.CreateMutexW(None, True, "Local\\MMAE_JEV_Island_SingleInstance")
+            if kernel32.GetLastError() == 183:  # ERROR_ALREADY_EXISTS
+                print("[INFO] La Isla flotante MMAE ya está abierta en otra ventana.")
+                return 0
+        except Exception:
+            pass
+
     enable_dpi_awareness()
     config = AgentConfig()
     bridge = JarvisBridge(config)

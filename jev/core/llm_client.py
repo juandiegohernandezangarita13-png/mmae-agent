@@ -20,11 +20,13 @@ class LLMResponse:
         self,
         content: str,
         tool_calls: Optional[List[Dict[str, Any]]] = None,
-        raw_response: Optional[Dict[str, Any]] = None
+        raw_response: Optional[Dict[str, Any]] = None,
+        raw_message: Optional[Dict[str, Any]] = None
     ):
         self.content = content or ""
         self.tool_calls = tool_calls or []
         self.raw_response = raw_response or {}
+        self.raw_message = raw_message or {}
 
     @property
     def has_tool_calls(self) -> bool:
@@ -351,7 +353,10 @@ Sé analítico, preciso y estructurado."""
                                     args = json.loads(args_str) if isinstance(args_str, str) else args_str
                                 except Exception:
                                     args = {}
-                                parsed_tool_calls.append({"name": name, "arguments": args, "id": tc.get("id")})
+                                tc_item = {"name": name, "arguments": args, "id": tc.get("id"), "function": func}
+                                if "extra_content" in tc:
+                                    tc_item["extra_content"] = tc["extra_content"]
+                                parsed_tool_calls.append(tc_item)
 
                         if not parsed_tool_calls and content:
                             fallback_calls = self._extract_tool_calls_from_text(content)
@@ -362,7 +367,8 @@ Sé analítico, preciso y estructurado."""
                         return LLMResponse(
                             content=content,
                             tool_calls=parsed_tool_calls,
-                            raw_response=data
+                            raw_response=data,
+                            raw_message=message
                         )
 
                     # Manejo de Rate Limit (HTTP 429) -> Cooldown y cascada inmediata

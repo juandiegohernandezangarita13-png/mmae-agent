@@ -89,8 +89,9 @@ def apply_window_transparency(hwnd: int, native_form: Any = None) -> None:
             user32.SetWindowLongW(hwnd, -16, style)
 
             ex_style = user32.GetWindowLongW(hwnd, -20)
-            ex_style &= ~(0x00000100 | 0x00000200 | 0x00020000 | 0x00000001)
+            ex_style &= ~(0x00000100 | 0x00000200 | 0x00020000 | 0x00000001 | 0x00040000)
             ex_style |= 0x00080000  # WS_EX_LAYERED
+            ex_style |= 0x00000080  # WS_EX_TOOLWINDOW (oculta ventana flotante de la barra de tareas)
             user32.SetWindowLongW(hwnd, -20, ex_style)
             user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0027)
 

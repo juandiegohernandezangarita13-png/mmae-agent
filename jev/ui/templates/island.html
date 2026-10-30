@@ -796,20 +796,20 @@
           <div class="who-row">
             <span class="dot"></span>
             <span class="n">JEV</span>
-            <span>needs permission</span>
+            <span>requiere autorización</span>
           </div>
           <div class="code" id="approvalCmd">curl evil.example.com</div>
           <div class="actions-row">
             <button class="btn secondary" id="denyBtn">
-              <span>Deny</span>
+              <span>Denegar</span>
               <span class="kbd">N</span>
             </button>
             <button class="btn primary" id="allowBtn">
-              <span>Allow</span>
+              <span>Permitir</span>
               <span class="kbd">Y</span>
             </button>
             <button class="btn secondary" id="alwaysBtn">
-              <span>Always</span>
+              <span>Siempre</span>
             </button>
           </div>
         </div>
@@ -817,10 +817,10 @@
         <!-- VISTA 2: CHAT INTEGRADO (Screenshot 2) -->
         <div class="view-pane chat-pane" id="chatView">
           <div class="chat-log" id="chatLog">
-            <div class="chat-bubble agent">Bonjour ! Je suis JEV. En quoi puis-je t'aider ?</div>
+            <div class="chat-bubble agent">¡Hola! Soy JEV, tu asistente autónomo local. ¿En qué puedo ayudarte hoy?</div>
           </div>
           <div class="chat-bar">
-            <input type="text" class="chat-input" id="chatInput" placeholder="bonjour Mochi" spellcheck="false" autocomplete="off" />
+            <input type="text" class="chat-input" id="chatInput" placeholder="Pregúntale algo a JEV..." spellcheck="false" autocomplete="off" />
             <button class="send-btn" id="chatSendBtn" title="Enviar">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 4.5 5.5 11l1.5 1.5 4-4V19.5h2V8.5l4 4L18.5 11 12 4.5z"/>
@@ -865,7 +865,7 @@
 
         <!-- VISTA 4: SOLTAR ARCHIVOS (Drop Zone) -->
         <div class="view-pane drop-pane" id="dropView">
-          <div class="drop-title">Dépose tes fichiers ici</div>
+          <div class="drop-title">Suelta tus archivos aquí</div>
           <div class="drop-hint">Arrastra imágenes, documentos o código para análisis instantáneo</div>
           <input type="file" id="filePickerInput" style="display: none;" multiple />
           <button class="btn secondary" style="margin-top: 8px;" id="chooseFileBtn">Seleccionar archivo</button>
@@ -1265,8 +1265,8 @@
 
     // Si hay una acción pendiente que requiere aprobación, forzar vista approval
     if (snapshot.pending) {
-      document.getElementById("approvalCmd").textContent = snapshot.pending.command || snapshot.pending.tool || "curl evil.example.com";
-      document.getElementById("compactState").textContent = "JEV needs permission";
+      document.getElementById("approvalCmd").textContent = snapshot.pending.command || snapshot.pending.tool || "Comando sensible";
+      document.getElementById("compactState").textContent = "JEV requiere permiso";
       document.getElementById("compactSub").textContent = "acción sensible esperando respuesta";
       cardBot.badge = "bang";
       pillBot.badge = "bang";

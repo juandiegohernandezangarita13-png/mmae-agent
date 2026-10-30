@@ -93,19 +93,19 @@ class TestCoucouMochiParity(unittest.TestCase):
         self.assertIn('id="denyBtn"', html)
         self.assertIn('id="allowBtn"', html)
         self.assertIn('id="alwaysBtn"', html)
-        self.assertIn('>Deny<', html)
-        self.assertIn('>Allow<', html)
-        self.assertIn('>Always<', html)
+        self.assertIn('>Denegar<', html)
+        self.assertIn('>Permitir<', html)
+        self.assertIn('>Siempre<', html)
 
         # Chat Integrado (Screenshot 2)
         self.assertIn('id="chatView"', html)
         self.assertIn('id="chatInput"', html)
         self.assertIn('id="chatSendBtn"', html)
-        self.assertIn('placeholder="bonjour Mochi"', html)
+        self.assertIn('placeholder="Pregúntale algo a JEV..."', html)
 
         # Drop Zone
         self.assertIn('id="dropView"', html)
-        self.assertIn("Dépose tes fichiers ici", html)
+        self.assertIn("Suelta tus archivos aquí", html)
 
 
 if __name__ == "__main__":

@@ -157,6 +157,11 @@ class AgentCore:
 
         prompt = f"""Eres JEV (JARVIS Evolutionary Virtual-agent), una Inteligencia Artificial Autónoma que opera localmente en la máquina del usuario.
 
+IDIOMA OBLIGATORIO (ESPAÑOL ESTRICTO):
+- Tu idioma de comunicación es EXCLUSIVAMENTE ESPAÑOL.
+- Queda TERMINANTEMENTE PROHIBIDO responder, saludar o redactar en francés, inglés u otro idioma (salvo nombres técnicos de código o bibliotecas).
+- Todo saludo, explicación, análisis y reporte debe estar 100% en español impecable, natural y profesional.
+
 MODO EJECUTOR DE BAJA LATENCIA (CONCISIÓN EXTREMA Y ACCIÓN INMEDIATA):
 - Regla de oro: "Sé un ejecutor de baja latencia. Minimiza las explicaciones a máximo 1 o 2 líneas breves. Si sabes la siguiente acción, no la expliques: invoca la herramienta inmediatamente."
 - Pensamientos breves: La sección PENSAMIENTO no debe superar las 20 palabras. Debe responder únicamente a: "¿Qué necesito hacer ahora?" y disparar la llamada JSON/función de inmediato.
@@ -635,24 +640,32 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
 
             # 5. Ejecutar herramientas con verificación y reflection loop
             if response.has_tool_calls:
-                formatted_tool_calls = []
-                for i, tc in enumerate(response.tool_calls):
-                    tc_id = tc.get("id") or f"call_{step_count}_{i}"
-                    tc["id"] = tc_id
-                    formatted_tool_calls.append({
-                        "id": tc_id,
-                        "type": "function",
-                        "function": {
-                            "name": tc.get("name", ""),
-                            "arguments": json.dumps(tc.get("arguments", {})) if isinstance(tc.get("arguments"), dict) else str(tc.get("arguments", "{}"))
+                # Preservar el raw_message íntegro (incluyendo thought_signature/extra_content de Gemini)
+                # para evitar el error 400 en multi-turn tool calling
+                if getattr(response, "raw_message", None) and response.raw_message.get("tool_calls"):
+                    asst_msg = dict(response.raw_message)
+                else:
+                    formatted_tool_calls = []
+                    for i, tc in enumerate(response.tool_calls):
+                        tc_id = tc.get("id") or f"call_{step_count}_{i}"
+                        tc["id"] = tc_id
+                        call_item: Dict[str, Any] = {
+                            "id": tc_id,
+                            "type": "function",
+                            "function": {
+                                "name": tc.get("name", ""),
+                                "arguments": json.dumps(tc.get("arguments", {})) if isinstance(tc.get("arguments"), dict) else str(tc.get("arguments", "{}"))
+                            }
                         }
-                    })
+                        if "extra_content" in tc:
+                            call_item["extra_content"] = tc["extra_content"]
+                        formatted_tool_calls.append(call_item)
 
-                asst_msg: Dict[str, Any] = {
-                    "role": "assistant",
-                    "content": content or None,
-                    "tool_calls": formatted_tool_calls
-                }
+                    asst_msg = {
+                        "role": "assistant",
+                        "content": content or None,
+                        "tool_calls": formatted_tool_calls
+                    }
                 self.messages.append(asst_msg)
 
                 loop_aborted = False
