@@ -36,7 +36,7 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    background: transparent;
+    background: transparent !important;
     overflow: hidden;
     font-family: var(--font);
     color: var(--ink);
@@ -49,11 +49,14 @@
   #stage {
     position: fixed;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start;
+    background: transparent !important;
   }
 
   /* ------------------------------------------------------------------ */
@@ -63,22 +66,22 @@
     position: relative;
     width: 232px;
     height: 54px;
-    background: #000000;
+    background: #0b0c10;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 12px;
     cursor: pointer;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85);
     transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.25, 1), box-shadow 0.2s ease, border-color 0.2s ease;
   }
 
   .pill:hover {
     transform: translateY(1px);
-    border-color: rgba(255, 255, 255, 0.16);
-    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.95);
   }
 
   .pill .pill-left {
@@ -154,12 +157,12 @@
     width: 474px;
     height: 340px;
     border-radius: 0 0 24px 24px;
-    background: #000000;
+    background: #0b0c10;
     display: none;
     flex-direction: column;
     padding: 8px 12px 12px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-top: none;
     opacity: 0;
     transform: translateY(-8px) scale(0.985);
@@ -451,6 +454,28 @@
     background: rgba(139, 92, 246, 0.16);
     border: 1px solid rgba(139, 92, 246, 0.25);
     color: #ede9fe;
+  }
+
+  .chat-bubble.thinking {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+  }
+
+  .typing-dot {
+    width: 5px;
+    height: 5px;
+    background: #c4b5fd;
+    border-radius: 50%;
+    animation: typingPulse 1.2s infinite ease-in-out;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typingPulse {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1.15); opacity: 1; }
   }
 
   .chat-bar {
@@ -1411,11 +1436,80 @@
     });
   });
 
-  // Chat Integrado (Screenshot 2)
+  // ------------------------------------------------------------------
+  // Chat Integrado con Respuesta Rápida y Polling Reactivo
+  // ------------------------------------------------------------------
+  var isChatPending = false;
+  var chatWatcherTimer = null;
+
+  function pollChatHistory(onSuccess) {
+    return callApi("get_chat_history").then(function (res) {
+      if (res && res.messages && res.messages.length > 0) {
+        var log = document.getElementById("chatLog");
+        var thinking = document.getElementById("thinkingBubble");
+
+        // Solo reconstruir si hay cambios reales para evitar flicker
+        var currentBubbles = log.querySelectorAll(".chat-bubble:not(.thinking)");
+        if (res.messages.length !== currentBubbles.length || thinking) {
+          if (thinking) thinking.remove();
+          log.innerHTML = "";
+          res.messages.forEach(function (m) {
+            var b = document.createElement("div");
+            b.className = "chat-bubble " + (m.role === "user" ? "user" : "agent");
+            b.textContent = m.content;
+            log.appendChild(b);
+          });
+          log.scrollTop = log.scrollHeight;
+        }
+        if (typeof onSuccess === "function") {
+          onSuccess(res.messages);
+        }
+      }
+    });
+  }
+
+  function startChatWatcher() {
+    if (chatWatcherTimer) clearInterval(chatWatcherTimer);
+    var startTime = Date.now();
+    chatWatcherTimer = setInterval(function () {
+      callApi("get_status").then(function (snapshot) {
+        if (snapshot) render(snapshot);
+        var isWorking = snapshot && (snapshot.state === "thinking" || snapshot.state === "tool" || snapshot.tool_in_progress);
+
+        pollChatHistory(function (messages) {
+          if (messages && messages.length > 0) {
+            var last = messages[messages.length - 1];
+            if (last && last.role === "assistant") {
+              // Respuesta completa recibida
+              clearInterval(chatWatcherTimer);
+              chatWatcherTimer = null;
+              isChatPending = false;
+              playSound("blip");
+              cardBot.badge = null;
+              pillBot.badge = null;
+              cardBot.open = 0.08;
+              setTimeout(function () { cardBot.open = 1; }, 220);
+            }
+          }
+        });
+
+        // Timeout preventivo si el agente ya volvió a idle y pasaron más de 3s
+        if (!isWorking && (Date.now() - startTime > 3500)) {
+          pollChatHistory();
+          clearInterval(chatWatcherTimer);
+          chatWatcherTimer = null;
+          isChatPending = false;
+          cardBot.badge = null;
+          pillBot.badge = null;
+        }
+      });
+    }, 350);
+  }
+
   function sendChatInput() {
     var input = document.getElementById("chatInput");
     var text = input.value.trim();
-    if (!text) return;
+    if (!text || isChatPending) return;
     input.value = "";
     playSound("send");
 
@@ -1424,12 +1518,24 @@
     userBubble.className = "chat-bubble user";
     userBubble.textContent = text;
     log.appendChild(userBubble);
+
+    // Burbuja animada de pensamiento
+    var thinking = document.createElement("div");
+    thinking.id = "thinkingBubble";
+    thinking.className = "chat-bubble agent thinking";
+    thinking.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+    log.appendChild(thinking);
     log.scrollTop = log.scrollHeight;
 
+    isChatPending = true;
     cardBot.badge = "dots";
+    pillBot.badge = "dots";
+
     callApi("send_chat", text).then(function () {
       refresh();
-      setTimeout(pollChatHistory, 1500);
+      startChatWatcher();
+    }).catch(function () {
+      isChatPending = false;
     });
   }
 
@@ -1461,7 +1567,6 @@
     reader.onload = function (evt) {
       var dataUrl = evt.target.result;
       callApi("send_file_drop", file.name, dataUrl, "Analiza este archivo");
-      // Mostrar en chat y pasar a la vista chat
       currentTab = "chat";
       switchView("chat");
       var log = document.getElementById("chatLog");
@@ -1470,6 +1575,7 @@
       ub.textContent = "📎 [Archivo subido: " + file.name + "]";
       log.appendChild(ub);
       log.scrollTop = log.scrollHeight;
+      startChatWatcher();
     };
     if (file.type.indexOf("image") >= 0) {
       reader.readAsDataURL(file);
@@ -1481,7 +1587,7 @@
   window.addEventListener("dragover", function (e) {
     e.preventDefault();
     dropZone.classList.add("dragover");
-    cardBot.mouth = 0.42; // Mochi abre la boca esperando el archivo
+    cardBot.mouth = 0.42;
   });
   window.addEventListener("dragleave", function (e) {
     e.preventDefault();
@@ -1523,17 +1629,57 @@
     }
   });
 
-  // Seguimiento de Movimiento del Ratón para los Ojos de Mochi
+  // ------------------------------------------------------------------
+  // Seguimiento Global 360° del Ratón en Toda la Pantalla (Coucou Style)
+  // ------------------------------------------------------------------
+  var pollCursorActive = false;
+  var lastCursorTime = Date.now();
+
+  function updateGlobalCursor() {
+    if (pollCursorActive) return;
+    pollCursorActive = true;
+    callApi("get_cursor").then(function (info) {
+      pollCursorActive = false;
+      if (!info || (!info.cx && !info.cy)) return;
+
+      var cx = info.cx;
+      var cy = info.cy;
+      var wx = info.wx || 0;
+      var wy = info.wy || 0;
+
+      // Calcular el centro visual de Mochi en coordenadas globales de escritorio
+      var mochiScreenX, mochiScreenY;
+      if (isExpanded) {
+        mochiScreenX = wx + 54;
+        mochiScreenY = wy + 160;
+      } else {
+        mochiScreenX = wx + 30;
+        mochiScreenY = wy + 27;
+      }
+
+      var dx = cx - mochiScreenX;
+      var dy = cy - mochiScreenY;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+
+      // Mapeo no lineal preciso con amortiguación natural hacia el cursor
+      var factor = Math.max(240, dist * 0.80);
+      var ty = Math.max(-0.52, Math.min(0.52, dx / factor));
+      var tp = Math.max(-0.40, Math.min(0.40, dy / factor));
+
+      mouseTarget.yaw = ty;
+      mouseTarget.pitch = tp;
+      hasHover = true;
+      lastCursorTime = Date.now();
+    }).catch(function () {
+      pollCursorActive = false;
+    });
+  }
+
+  setInterval(updateGlobalCursor, 35);
+
   document.addEventListener("mousemove", function (e) {
     hasHover = true;
-    var cx = window.innerWidth / 2;
-    var cy = isExpanded ? 160 : 27;
-    mouseTarget.yaw = Math.max(-0.45, Math.min(0.45, (e.clientX - cx) / 200));
-    mouseTarget.pitch = Math.max(-0.35, Math.min(0.35, (e.clientY - cy) / 180));
-  });
-
-  document.addEventListener("mouseleave", function () {
-    hasHover = false;
+    lastCursorTime = Date.now();
   });
 
   // Inicialización y Polling

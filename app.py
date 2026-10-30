@@ -70,6 +70,7 @@ class JarvisBridge:
         self._island_mode: bool = False
         self._confirm_risky: bool = False
         self._pending_approval: Optional[Dict[str, Any]] = None
+        self._chat_history: List[Dict[str, str]] = []
 
     def set_window(self, window):
         self._window = window
@@ -396,6 +397,10 @@ class JarvisBridge:
 
     def execute_task(self, task: str, image_base64: Optional[str] = None):
         """Ejecuta la tarea en un hilo independiente, soportando imágenes pegadas/adjuntas."""
+        clean_prompt = (task or "").strip()
+        if clean_prompt:
+            self._chat_history.append({"role": "user", "content": clean_prompt})
+
         if self._agent.is_running:
             self._agent.inject_user_feedback(task)
             self._on_thought(f"⚡ [Intervención del Usuario en Caliente]: {task}")
@@ -435,6 +440,8 @@ class JarvisBridge:
                     )
                     final_answer = self._qa_auditor.sanitize_or_correct(final_answer, qa_report)
 
+                self._chat_history.append({"role": "assistant", "content": final_answer})
+
                 safe_final = json.dumps(final_answer)
                 self._eval_js(f"window.onAgentFinish && window.onAgentFinish({safe_final});")
 
@@ -454,7 +461,9 @@ class JarvisBridge:
                     success=True
                 )
             except Exception as e:
-                err_json = json.dumps(f"Error ejecutando tarea: {e}")
+                err_text = f"Error ejecutando tarea: {e}"
+                self._chat_history.append({"role": "assistant", "content": err_text})
+                err_json = json.dumps(err_text)
                 self._eval_js(f"window.onAgentFinish && window.onAgentFinish({err_json});")
             finally:
                 self._current_task = ""

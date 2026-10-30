@@ -132,6 +132,24 @@ class TestIslandBridgeAPI(unittest.TestCase):
         self.assertTrue(state["quitting"])
         self.assertEqual(fake.shown, -999)
 
+    def test_get_cursor_returns_valid_dict(self):
+        cursor = self.bridge.get_cursor()
+        self.assertIsInstance(cursor, dict)
+        for key in ("cx", "cy", "wx", "wy", "ww", "wh"):
+            self.assertIn(key, cursor)
+            self.assertIsInstance(cursor[key], int)
+
+    def test_get_chat_history_from_jarvis_history(self):
+        self.jarvis._chat_history = [
+            {"role": "user", "content": "hola mochi"},
+            {"role": "assistant", "content": "¡Hola! ¿Cómo estás?"}
+        ]
+        history = self.bridge.get_chat_history()
+        self.assertTrue(history["ok"])
+        self.assertEqual(len(history["messages"]), 2)
+        self.assertEqual(history["messages"][0]["role"], "user")
+        self.assertEqual(history["messages"][1]["content"], "¡Hola! ¿Cómo estás?")
+
 
 class TestIslandGeometry(unittest.TestCase):
     def test_collapsed_and_expanded_are_consistent(self):
@@ -218,6 +236,7 @@ class TestIslandAssets(unittest.TestCase):
         html = (BASE / "jev" / "ui" / "templates" / "island.html").read_text(encoding="utf-8")
         for hook in ('id="pill"', 'id="activityText"', 'id="approvalCard"',
                      'id="allowBtn"', 'id="denyBtn"', 'get_status',
+                     'get_cursor', 'startChatWatcher', 'typing-dot',
                      'data-state', 'compactState'):
             with self.subTest(hook=hook):
                 self.assertIn(hook, html)

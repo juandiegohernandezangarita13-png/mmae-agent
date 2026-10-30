@@ -80,7 +80,10 @@ class TestAdvancedAutonomy(unittest.TestCase):
         self.assertIsInstance(job_id, str)
 
         # Esperar a que el daemon ejecute el job
-        time.sleep(0.3)
+        for _ in range(15):
+            if "test_periodic_cleanup" in executed:
+                break
+            time.sleep(0.1)
         self.assertIn("test_periodic_cleanup", executed)
 
         # Herramientas del registro

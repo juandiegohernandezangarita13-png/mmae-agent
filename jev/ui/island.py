@@ -16,8 +16,8 @@ from typing import Any, Dict, Optional
 import webview
 
 #: Tamaño lógico de la ventana en modo píldora y en modo panel.
-COLLAPSED_SIZE = (232, 66)
-EXPANDED_SIZE = (474, 386)
+COLLAPSED_SIZE = (232, 54)
+EXPANDED_SIZE = (474, 340)
 
 
 import ctypes
@@ -36,9 +36,49 @@ class _RECT(ctypes.Structure):
                 ("right", wintypes.LONG), ("bottom", wintypes.LONG)]
 
 
+class _POINT(ctypes.Structure):
+    _fields_ = [("x", wintypes.LONG), ("y", wintypes.LONG)]
+
+
+class _MARGINS(ctypes.Structure):
+    _fields_ = [
+        ("cxLeftWidth", wintypes.INT),
+        ("cxRightWidth", wintypes.INT),
+        ("cyTopHeight", wintypes.INT),
+        ("cyBottomHeight", wintypes.INT),
+    ]
+
+
 class _MONITORINFO(ctypes.Structure):
     _fields_ = [("cbSize", wintypes.DWORD), ("rcMonitor", _RECT),
                 ("rcWork", _RECT), ("dwFlags", wintypes.DWORD)]
+
+
+def apply_window_transparency(hwnd: int, native_form: Any = None) -> None:
+    """Configura transparencia de composición DWM y fondo negro en WinForms (sin bordes blancos)."""
+    if native_form is not None:
+        try:
+            import clr
+            clr.AddReference('System.Drawing')
+            from System.Drawing import Color
+            from System import Action
+
+            def _fix():
+                native_form.BackColor = Color.FromArgb(0, 0, 0)
+
+            if hasattr(native_form, "Invoke"):
+                native_form.Invoke(Action(_fix))
+            else:
+                native_form.BackColor = Color.FromArgb(0, 0, 0)
+        except Exception:
+            pass
+
+    if hwnd:
+        try:
+            margins = _MARGINS(-1, -1, -1, -1)
+            ctypes.windll.dwmapi.DwmExtendFrameIntoClientArea(hwnd, ctypes.byref(margins))
+        except Exception:
+            pass
 
 
 def enable_dpi_awareness() -> None:
@@ -231,20 +271,52 @@ class IslandBridge:
         except Exception as exc:
             return {"ok": False, "error": str(exc)}
 
-    def get_chat_history(self) -> Dict[str, Any]:
-        """Devuelve los mensajes recientes de la conversación activa."""
-        if self._jarvis is None or not hasattr(self._jarvis, "_agent"):
-            return {"ok": True, "messages": []}
-        msgs = []
+    def get_cursor(self) -> Dict[str, Any]:
+        """Obtiene la posición global del cursor y la geometría física de la isla para seguimiento 360°."""
+        pt = _POINT()
         try:
-            raw = getattr(self._jarvis._agent, "messages", []) or []
-            for m in raw[-20:]:
-                role = m.get("role", "")
-                content = m.get("content", "")
-                if role in ("user", "assistant") and content:
-                    msgs.append({"role": role, "content": str(content)[:600]})
+            ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
         except Exception:
             pass
+        win_x, win_y, win_w, win_h = 0, 0, 0, 0
+        if self._hwnd:
+            try:
+                rect = _RECT()
+                if ctypes.windll.user32.GetWindowRect(self._hwnd, ctypes.byref(rect)):
+                    win_x = int(rect.left)
+                    win_y = int(rect.top)
+                    win_w = int(rect.right - rect.left)
+                    win_h = int(rect.bottom - rect.top)
+            except Exception:
+                pass
+        return {
+            "cx": int(pt.x),
+            "cy": int(pt.y),
+            "wx": win_x,
+            "wy": win_y,
+            "ww": win_w,
+            "wh": win_h,
+        }
+
+    def get_chat_history(self) -> Dict[str, Any]:
+        """Devuelve los mensajes recientes de la conversación activa."""
+        msgs = []
+        if self._jarvis is not None:
+            if hasattr(self._jarvis, "_chat_history") and self._jarvis._chat_history:
+                for m in self._jarvis._chat_history[-30:]:
+                    msgs.append({"role": m.get("role", "user"), "content": str(m.get("content", ""))[:1200]})
+                return {"ok": True, "messages": msgs}
+
+            if hasattr(self._jarvis, "_agent"):
+                try:
+                    raw = getattr(self._jarvis._agent, "messages", []) or []
+                    for m in raw[-30:]:
+                        role = m.get("role", "")
+                        content = m.get("content", "")
+                        if role in ("user", "assistant") and content:
+                            msgs.append({"role": role, "content": str(content)[:1200]})
+                except Exception:
+                    pass
         return {"ok": True, "messages": msgs}
 
     def quit_app(self) -> Dict[str, Any]:
@@ -266,8 +338,8 @@ class IslandBridge:
     # ------------------------------------------------------------------
     # Geometría / ventana
     # ------------------------------------------------------------------
-    def set_native_handle(self, hwnd: Any) -> None:
-        """Registra el HWND real y aplica la geometría en píxeles físicos."""
+    def set_native_handle(self, hwnd: Any, native_form: Any = None) -> None:
+        """Registra el HWND real y aplica la geometría y transparencia DWM."""
         try:
             if hasattr(hwnd, "ToInt64"):
                 self._hwnd = int(hwnd.ToInt64())
@@ -275,6 +347,7 @@ class IslandBridge:
                 self._hwnd = int(hwnd.ToInt32())
             else:
                 self._hwnd = int(str(hwnd))
+            apply_window_transparency(self._hwnd, native_form)
             self._layout(self._expanded)
         except Exception:
             pass

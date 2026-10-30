@@ -487,6 +487,9 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
             except Exception:
                 answer = "¡Hola! Soy JEV, tu asistente autónomo local. ¿En qué puedo colaborarte hoy?"
 
+            self.messages.append({"role": "user", "content": user_goal})
+            self.messages.append({"role": "assistant", "content": answer})
+
             self.memory.record_episode(
                 task=user_goal,
                 success=True,
@@ -917,6 +920,9 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
                 working_snippet=gap_report.code_snippet or "",
                 phase="execution"
             )
+
+        if final_answer:
+            self.messages.append({"role": "assistant", "content": final_answer})
 
         # Registrar episodio en memoria
         self.memory.record_episode(

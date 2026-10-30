@@ -152,6 +152,9 @@ Sé analítico, preciso y estructurado."""
             if getattr(self.config, "use_free_model_cascade", True):
                 cascade = [c.id for c in self.free_router.get_ranked_candidates()]
                 models_to_try += [m for m in cascade if m != override_model]
+        elif self.config.llm_provider == "gemini" and getattr(self.config, "gemini_api_key", ""):
+            target_model = self.config.model_name or "gemini-2.5-flash"
+            models_to_try = [target_model, "gemini-flash-latest"]
         elif self.config.llm_provider in ("ollama", "lmstudio"):
             target_model = self.config.model_name
             models_to_try = [target_model] + [m for m in self.config.fallback_models if m != target_model]
@@ -185,7 +188,7 @@ Sé analítico, preciso y estructurado."""
                     messages=chat_msgs,
                     system=sys_content,
                     model=model_candidate if "/" in model_candidate else None,
-                    max_tokens=self.config.max_tokens,
+                    max_tokens=getattr(self.config, "max_tokens", 2048),
                     temperature=self.config.temperature,
                     tools=tools
                 )
@@ -214,7 +217,7 @@ Sé analítico, preciso y estructurado."""
                 "model": clean_model,
                 "messages": effective_messages,
                 "temperature": self.config.temperature,
-                "max_tokens": self.config.max_tokens,
+                "max_tokens": getattr(self.config, "max_tokens", 2048),
                 "stream": False
             }
 

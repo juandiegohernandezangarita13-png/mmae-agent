@@ -72,7 +72,7 @@ def main() -> int:
                 handle = getattr(native, "Handle", None)
                 if handle is not None:
                     hwnd = int(handle.ToInt64()) if hasattr(handle, "ToInt64") else int(str(handle))
-                    island_bridge.set_native_handle(hwnd)
+                    island_bridge.set_native_handle(hwnd, native)
         except Exception:
             pass
 

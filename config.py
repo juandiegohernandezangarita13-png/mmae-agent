@@ -37,20 +37,33 @@ if env_file.exists():
 @dataclass
 class AgentConfig:
     # --- Parámetros de Inferencia MMAE (Macro-Micro) ---
-    api_base_url: str = os.getenv("MMAE_API_URL", os.getenv("LMSTUDIO_BASE_URL", "http://localhost:8000/v1"))
+    api_base_url: str = os.getenv(
+        "MMAE_API_URL",
+        os.getenv(
+            "LMSTUDIO_BASE_URL",
+            "https://generativelanguage.googleapis.com/v1beta/openai"
+            if os.getenv("GEMINI_API_KEY")
+            else "http://localhost:8000/v1"
+        )
+    )
     model_name: str = os.getenv(
         "MMAE_MODEL",
         os.getenv(
             "JEV_MODEL",
-            "meta-llama/llama-3.3-70b-instruct:free"
-            if os.getenv("OPENROUTER_API_KEY")
-            else ("gemini-3.8-flash" if os.getenv("GEMINI_API_KEY") else "local-model")
+            "gemini-2.5-flash"
+            if os.getenv("GEMINI_API_KEY")
+            else (
+                "meta-llama/llama-3.3-70b-instruct:free"
+                if os.getenv("OPENROUTER_API_KEY") and not os.getenv("OPENROUTER_API_KEY", "").startswith("sk-or-v1-dummy")
+                else "local-model"
+            )
         )
     )
     macro_temperature: float = float(os.getenv("MMAE_MACRO_TEMP", "0.1"))
     micro_temperature: float = float(os.getenv("MMAE_MICRO_TEMP", "0.2"))
     max_macro_tokens: int = int(os.getenv("MMAE_MAX_MACRO_TOKENS", "512"))
     max_micro_tokens: int = int(os.getenv("MMAE_MAX_MICRO_TOKENS", "1024"))
+    max_tokens: int = int(os.getenv("JEV_MAX_TOKENS", "2048"))
     terminal_timeout_seconds: int = int(os.getenv("MMAE_TERMINAL_TIMEOUT", "30"))
     safe_working_directory: str = os.getenv("MMAE_WORKSPACE", str(WORKSPACE_DIR))
 
@@ -59,7 +72,7 @@ class AgentConfig:
     max_retries_per_step: int = int(os.getenv("MMAE_MAX_RETRIES", "3"))
     confirm_risky_actions: bool = os.getenv("JEV_CONFIRM_RISKY", "false").lower() in ("true", "1", "yes")
     safe_mode: bool = False
-    max_iterations: int = int(os.getenv("JEV_MAX_ITERATIONS", "25"))
+    max_iterations: int = int(os.getenv("JEV_MAX_ITERATIONS", "20"))
     temperature: float = 0.2
 
     # --- Proveedores de Inferencia y Conexiones ---
@@ -71,17 +84,23 @@ class AgentConfig:
     openrouter_api_key: str = os.getenv("OPENROUTER_API_KEY", "")
 
     # --- Modelos del Pipeline Híbrido ---
-    thinker_model: str = os.getenv("JEV_THINKER_MODEL", "meta-llama/llama-3.3-70b-instruct:free")
-    executor_model: str = os.getenv("JEV_EXECUTOR_MODEL", "qwen2.5-coder:latest")
+    thinker_model: str = os.getenv(
+        "JEV_THINKER_MODEL",
+        "gemini-2.5-flash" if os.getenv("GEMINI_API_KEY") else "meta-llama/llama-3.3-70b-instruct:free"
+    )
+    executor_model: str = os.getenv(
+        "JEV_EXECUTOR_MODEL",
+        "gemini-2.5-flash" if os.getenv("GEMINI_API_KEY") else "qwen2.5-coder:latest"
+    )
     fcc_model: str = os.getenv("FCC_MODEL", "open_router/meta-llama/llama-3.3-70b-instruct:free")
     fallback_models: List[str] = field(default_factory=lambda: [
+        "gemini-2.5-flash",
+        "gemini-flash-latest",
         "meta-llama/llama-3.3-70b-instruct:free",
         "google/gemini-2.0-flash-exp:free",
         "deepseek/deepseek-r1:free",
         "deepseek/deepseek-chat:free",
         "qwen/qwen-2.5-coder-32b-instruct:free",
-        "mistralai/mistral-small-24b-instruct-2501:free",
-        "gemini-3.8-flash",
         "qwen2.5-coder:latest"
     ])
     use_free_model_cascade: bool = os.getenv("JEV_USE_FREE_CASCADE", "true").lower() in ("true", "1", "yes")
