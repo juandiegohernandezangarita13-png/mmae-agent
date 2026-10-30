@@ -1,9 +1,9 @@
+"""
+Gestor de memoria de corto plazo y reflexión para evitar bucles infinitos y redundancias.
+Registra el historial de ejecuciones dentro de la sesión activa de MMAE.
+"""
 from typing import List, Dict, Any, Optional
 
-try:
-    from jev.core.memory import HierarchicalMemory
-except Exception:
-    HierarchicalMemory = None
 
 class ExecutionMemory:
     """
@@ -13,7 +13,7 @@ class ExecutionMemory:
         self.max_history = max_history
         self.history: List[Dict[str, Any]] = []
 
-    def record_step(self, macro_action: str, result: Dict[str, Any]):
+    def record_step(self, macro_action: str, result: Dict[str, Any]) -> None:
         entry = {
             "action": macro_action,
             "success": result.get("success", True),
@@ -32,3 +32,6 @@ class ExecutionMemory:
             status = "ÉXITO" if item["success"] else "FALLO"
             summary.append(f"{idx+1}. [{status}] {item['action']} -> {item['output'][:120]}")
         return "\n".join(summary)
+
+    def clear(self) -> None:
+        self.history.clear()

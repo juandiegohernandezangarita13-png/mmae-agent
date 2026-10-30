@@ -1,510 +1,510 @@
 {
-  "timestamp": "2026-10-30 04:51:30",
+  "timestamp": "2026-10-30 12:38:25",
   "total_tasks": 500,
   "passed": 500,
   "failed": 0,
   "success_rate_percent": 100.0,
-  "total_duration_seconds": 14.87,
-  "avg_latency_ms_per_task": 29.73,
+  "total_duration_seconds": 20.93,
+  "avg_latency_ms_per_task": 41.86,
   "tasks": {
     "Tarea 001 - Auto-Reparación Código #1": {
       "success": true,
-      "latency_ms": 121.41729999984818,
+      "latency_ms": 148.83759999793256,
       "iterations": 1
     },
     "Tarea 002 - Auto-Reparación Código #2": {
       "success": true,
-      "latency_ms": 145.36760000009963,
+      "latency_ms": 270.9933000005549,
       "iterations": 1
     },
     "Tarea 003 - Auto-Reparación Código #3": {
       "success": true,
-      "latency_ms": 126.49950000013632,
+      "latency_ms": 166.67120000056457,
       "iterations": 1
     },
     "Tarea 004 - Auto-Reparación Código #4": {
       "success": true,
-      "latency_ms": 127.52650000038557,
+      "latency_ms": 157.47039999405388,
       "iterations": 1
     },
     "Tarea 005 - Auto-Reparación Código #5": {
       "success": true,
-      "latency_ms": 114.65310000039608,
+      "latency_ms": 148.75719999690773,
       "iterations": 1
     },
     "Tarea 006 - Auto-Reparación Código #6": {
       "success": true,
-      "latency_ms": 147.2555000000284,
+      "latency_ms": 177.4223999964306,
       "iterations": 1
     },
     "Tarea 007 - Auto-Reparación Código #7": {
       "success": true,
-      "latency_ms": 133.27270000081626,
+      "latency_ms": 156.20309999940218,
       "iterations": 1
     },
     "Tarea 008 - Auto-Reparación Código #8": {
       "success": true,
-      "latency_ms": 125.78690000009374,
+      "latency_ms": 157.35860000131652,
       "iterations": 1
     },
     "Tarea 009 - Auto-Reparación Código #9": {
       "success": true,
-      "latency_ms": 122.83750000005966,
+      "latency_ms": 147.15370000340044,
       "iterations": 1
     },
     "Tarea 010 - Auto-Reparación Código #10": {
       "success": true,
-      "latency_ms": 150.21710000019084,
+      "latency_ms": 185.5710999952862,
       "iterations": 1
     },
     "Tarea 011 - Auto-Reparación Código #11": {
       "success": true,
-      "latency_ms": 138.91590000002907,
+      "latency_ms": 157.7536000040709,
       "iterations": 1
     },
     "Tarea 012 - Auto-Reparación Código #12": {
       "success": true,
-      "latency_ms": 134.20120000046154,
+      "latency_ms": 145.30839999497402,
       "iterations": 1
     },
     "Tarea 013 - Auto-Reparación Código #13": {
       "success": true,
-      "latency_ms": 126.68350000058126,
+      "latency_ms": 151.18960000108927,
       "iterations": 1
     },
     "Tarea 014 - Auto-Reparación Código #14": {
       "success": true,
-      "latency_ms": 145.7350000000588,
+      "latency_ms": 189.8012000019662,
       "iterations": 1
     },
     "Tarea 015 - Auto-Reparación Código #15": {
       "success": true,
-      "latency_ms": 132.03650000014022,
+      "latency_ms": 164.82669999822974,
       "iterations": 1
     },
     "Tarea 016 - Auto-Reparación Código #16": {
       "success": true,
-      "latency_ms": 126.56189999961498,
+      "latency_ms": 146.86760000040522,
       "iterations": 1
     },
     "Tarea 017 - Auto-Reparación Código #17": {
       "success": true,
-      "latency_ms": 114.94599999969068,
+      "latency_ms": 137.71280000219122,
       "iterations": 1
     },
     "Tarea 018 - Auto-Reparación Código #18": {
       "success": true,
-      "latency_ms": 151.68520000042918,
+      "latency_ms": 176.28179999883287,
       "iterations": 1
     },
     "Tarea 019 - Auto-Reparación Código #19": {
       "success": true,
-      "latency_ms": 123.94210000002204,
+      "latency_ms": 164.31050000392133,
       "iterations": 1
     },
     "Tarea 020 - Auto-Reparación Código #20": {
       "success": true,
-      "latency_ms": 122.70310000076279,
+      "latency_ms": 148.98369999718852,
       "iterations": 1
     },
     "Tarea 021 - Auto-Reparación Código #21": {
       "success": true,
-      "latency_ms": 123.32499999956781,
+      "latency_ms": 154.0577999985544,
       "iterations": 1
     },
     "Tarea 022 - Auto-Reparación Código #22": {
       "success": true,
-      "latency_ms": 146.74139999988256,
+      "latency_ms": 188.6819000064861,
       "iterations": 1
     },
     "Tarea 023 - Auto-Reparación Código #23": {
       "success": true,
-      "latency_ms": 141.14109999991342,
+      "latency_ms": 156.42629999638302,
       "iterations": 1
     },
     "Tarea 024 - Auto-Reparación Código #24": {
       "success": true,
-      "latency_ms": 122.83789999946748,
+      "latency_ms": 162.9585999980918,
       "iterations": 1
     },
     "Tarea 025 - Auto-Reparación Código #25": {
       "success": true,
-      "latency_ms": 125.79960000039137,
+      "latency_ms": 159.87950000271667,
       "iterations": 1
     },
     "Tarea 026 - Auto-Reparación Código #26": {
       "success": true,
-      "latency_ms": 153.35740000045917,
+      "latency_ms": 184.70630000228994,
       "iterations": 1
     },
     "Tarea 027 - Auto-Reparación Código #27": {
       "success": true,
-      "latency_ms": 130.6970999994519,
+      "latency_ms": 162.3648000022513,
       "iterations": 1
     },
     "Tarea 028 - Auto-Reparación Código #28": {
       "success": true,
-      "latency_ms": 121.93519999982527,
+      "latency_ms": 143.97310000640573,
       "iterations": 1
     },
     "Tarea 029 - Auto-Reparación Código #29": {
       "success": true,
-      "latency_ms": 122.72829999983514,
+      "latency_ms": 144.13419999618782,
       "iterations": 1
     },
     "Tarea 030 - Auto-Reparación Código #30": {
       "success": true,
-      "latency_ms": 145.18259999931615,
+      "latency_ms": 175.00579999614274,
       "iterations": 1
     },
     "Tarea 031 - Auto-Reparación Código #31": {
       "success": true,
-      "latency_ms": 130.80279999940103,
+      "latency_ms": 153.61110000230838,
       "iterations": 1
     },
     "Tarea 032 - Auto-Reparación Código #32": {
       "success": true,
-      "latency_ms": 117.39790000046924,
+      "latency_ms": 144.8809999928926,
       "iterations": 1
     },
     "Tarea 033 - Auto-Reparación Código #33": {
       "success": true,
-      "latency_ms": 117.26460000045336,
+      "latency_ms": 151.43589999934193,
       "iterations": 1
     },
     "Tarea 034 - Auto-Reparación Código #34": {
       "success": true,
-      "latency_ms": 142.34860000033223,
+      "latency_ms": 183.6263000004692,
       "iterations": 1
     },
     "Tarea 035 - Auto-Reparación Código #35": {
       "success": true,
-      "latency_ms": 129.93139999980485,
+      "latency_ms": 157.038500001363,
       "iterations": 1
     },
     "Tarea 036 - Auto-Reparación Código #36": {
       "success": true,
-      "latency_ms": 133.14660000014555,
+      "latency_ms": 145.38940000056755,
       "iterations": 1
     },
     "Tarea 037 - Auto-Reparación Código #37": {
       "success": true,
-      "latency_ms": 121.94199999976263,
+      "latency_ms": 149.35200000036275,
       "iterations": 1
     },
     "Tarea 038 - Auto-Reparación Código #38": {
       "success": true,
-      "latency_ms": 145.49979999992502,
+      "latency_ms": 180.90449999726843,
       "iterations": 1
     },
     "Tarea 039 - Auto-Reparación Código #39": {
       "success": true,
-      "latency_ms": 128.85339999957068,
+      "latency_ms": 166.63899999548448,
       "iterations": 1
     },
     "Tarea 040 - Auto-Reparación Código #40": {
       "success": true,
-      "latency_ms": 118.02570000054402,
+      "latency_ms": 171.1353999999119,
       "iterations": 1
     },
     "Tarea 041 - Auto-Reparación Código #41": {
       "success": true,
-      "latency_ms": 117.78549999962706,
+      "latency_ms": 150.78169999469537,
       "iterations": 1
     },
     "Tarea 042 - Auto-Reparación Código #42": {
       "success": true,
-      "latency_ms": 152.20379999936995,
+      "latency_ms": 175.82209999818588,
       "iterations": 1
     },
     "Tarea 043 - Auto-Reparación Código #43": {
       "success": true,
-      "latency_ms": 132.47580000006565,
+      "latency_ms": 157.71379999932833,
       "iterations": 1
     },
     "Tarea 044 - Auto-Reparación Código #44": {
       "success": true,
-      "latency_ms": 118.18730000049982,
+      "latency_ms": 144.69819999794709,
       "iterations": 1
     },
     "Tarea 045 - Auto-Reparación Código #45": {
       "success": true,
-      "latency_ms": 119.38909999935277,
+      "latency_ms": 138.3750000022701,
       "iterations": 1
     },
     "Tarea 046 - Auto-Reparación Código #46": {
       "success": true,
-      "latency_ms": 144.74499999960244,
+      "latency_ms": 182.27560000377707,
       "iterations": 1
     },
     "Tarea 047 - Auto-Reparación Código #47": {
       "success": true,
-      "latency_ms": 142.9496000000654,
+      "latency_ms": 159.02790000109235,
       "iterations": 1
     },
     "Tarea 048 - Auto-Reparación Código #48": {
       "success": true,
-      "latency_ms": 132.79789999978675,
+      "latency_ms": 146.4348000008613,
       "iterations": 1
     },
     "Tarea 049 - Auto-Reparación Código #49": {
       "success": true,
-      "latency_ms": 123.80110000049172,
+      "latency_ms": 150.32330000394722,
       "iterations": 1
     },
     "Tarea 050 - Auto-Reparación Código #50": {
       "success": true,
-      "latency_ms": 145.4478999994535,
+      "latency_ms": 178.742100004456,
       "iterations": 1
     },
     "Tarea 051 - Auto-Reparación Código #51": {
       "success": true,
-      "latency_ms": 130.9718000002249,
+      "latency_ms": 154.86089999467367,
       "iterations": 1
     },
     "Tarea 052 - Auto-Reparación Código #52": {
       "success": true,
-      "latency_ms": 125.02470000072208,
+      "latency_ms": 144.704800004547,
       "iterations": 1
     },
     "Tarea 053 - Auto-Reparación Código #53": {
       "success": true,
-      "latency_ms": 132.0290000003297,
+      "latency_ms": 141.4377000037348,
       "iterations": 1
     },
     "Tarea 054 - Auto-Reparación Código #54": {
       "success": true,
-      "latency_ms": 154.63610000006156,
+      "latency_ms": 179.69520000042394,
       "iterations": 1
     },
     "Tarea 055 - Auto-Reparación Código #55": {
       "success": true,
-      "latency_ms": 134.15619999977935,
+      "latency_ms": 158.82439999404596,
       "iterations": 1
     },
     "Tarea 056 - Auto-Reparación Código #56": {
       "success": true,
-      "latency_ms": 120.03939999976865,
+      "latency_ms": 151.6711000003852,
       "iterations": 1
     },
     "Tarea 057 - Auto-Reparación Código #57": {
       "success": true,
-      "latency_ms": 117.57239999951707,
+      "latency_ms": 155.9756000060588,
       "iterations": 1
     },
     "Tarea 058 - Auto-Reparación Código #58": {
       "success": true,
-      "latency_ms": 147.99519999996846,
+      "latency_ms": 191.14129999798024,
       "iterations": 1
     },
     "Tarea 059 - Auto-Reparación Código #59": {
       "success": true,
-      "latency_ms": 129.72239999999147,
+      "latency_ms": 162.566600003629,
       "iterations": 1
     },
     "Tarea 060 - Auto-Reparación Código #60": {
       "success": true,
-      "latency_ms": 118.0134000005637,
+      "latency_ms": 145.79450000019278,
       "iterations": 1
     },
     "Tarea 061 - Auto-Reparación Código #61": {
       "success": true,
-      "latency_ms": 117.28850000054081,
+      "latency_ms": 149.76790000218898,
       "iterations": 1
     },
     "Tarea 062 - Auto-Reparación Código #62": {
       "success": true,
-      "latency_ms": 144.7440000001734,
+      "latency_ms": 186.1083999974653,
       "iterations": 1
     },
     "Tarea 063 - Auto-Reparación Código #63": {
       "success": true,
-      "latency_ms": 127.0234999992681,
+      "latency_ms": 154.5990000013262,
       "iterations": 1
     },
     "Tarea 064 - Auto-Reparación Código #64": {
       "success": true,
-      "latency_ms": 118.76500000016676,
+      "latency_ms": 145.83370000036666,
       "iterations": 1
     },
     "Tarea 065 - Auto-Reparación Código #65": {
       "success": true,
-      "latency_ms": 121.21810000007827,
+      "latency_ms": 156.65839999564923,
       "iterations": 1
     },
     "Tarea 066 - Auto-Reparación Código #66": {
       "success": true,
-      "latency_ms": 148.9940999999817,
+      "latency_ms": 190.32719999813708,
       "iterations": 1
     },
     "Tarea 067 - Auto-Reparación Código #67": {
       "success": true,
-      "latency_ms": 132.32929999958287,
+      "latency_ms": 156.7192000002251,
       "iterations": 1
     },
     "Tarea 068 - Auto-Reparación Código #68": {
       "success": true,
-      "latency_ms": 120.55770000006305,
+      "latency_ms": 149.5156000019051,
       "iterations": 1
     },
     "Tarea 069 - Auto-Reparación Código #69": {
       "success": true,
-      "latency_ms": 118.07990000033897,
+      "latency_ms": 146.18459999473998,
       "iterations": 1
     },
     "Tarea 070 - Auto-Reparación Código #70": {
       "success": true,
-      "latency_ms": 155.87179999965883,
+      "latency_ms": 186.2611000033212,
       "iterations": 1
     },
     "Tarea 071 - Auto-Reparación Código #71": {
       "success": true,
-      "latency_ms": 134.98580000032234,
+      "latency_ms": 166.82199999922886,
       "iterations": 1
     },
     "Tarea 072 - Auto-Reparación Código #72": {
       "success": true,
-      "latency_ms": 118.40240000037738,
+      "latency_ms": 165.191699998104,
       "iterations": 1
     },
     "Tarea 073 - Auto-Reparación Código #73": {
       "success": true,
-      "latency_ms": 119.83050000071671,
+      "latency_ms": 165.58660000009695,
       "iterations": 1
     },
     "Tarea 074 - Auto-Reparación Código #74": {
       "success": true,
-      "latency_ms": 139.98520000041026,
+      "latency_ms": 202.91939999879105,
       "iterations": 1
     },
     "Tarea 075 - Auto-Reparación Código #75": {
       "success": true,
-      "latency_ms": 129.16279999990365,
+      "latency_ms": 160.57069999806117,
       "iterations": 1
     },
     "Tarea 076 - Auto-Reparación Código #76": {
       "success": true,
-      "latency_ms": 119.3014000000403,
+      "latency_ms": 148.3557999963523,
       "iterations": 1
     },
     "Tarea 077 - Auto-Reparación Código #77": {
       "success": true,
-      "latency_ms": 116.36060000000725,
+      "latency_ms": 143.10280000063358,
       "iterations": 1
     },
     "Tarea 078 - Auto-Reparación Código #78": {
       "success": true,
-      "latency_ms": 146.4986000000863,
+      "latency_ms": 180.31839999457588,
       "iterations": 1
     },
     "Tarea 079 - Auto-Reparación Código #79": {
       "success": true,
-      "latency_ms": 131.3001999997141,
+      "latency_ms": 153.27289999549976,
       "iterations": 1
     },
     "Tarea 080 - Auto-Reparación Código #80": {
       "success": true,
-      "latency_ms": 118.3922000000166,
+      "latency_ms": 147.3335999980918,
       "iterations": 1
     },
     "Tarea 081 - Auto-Reparación Código #81": {
       "success": true,
-      "latency_ms": 121.4138000004823,
+      "latency_ms": 149.75659999618074,
       "iterations": 1
     },
     "Tarea 082 - Auto-Reparación Código #82": {
       "success": true,
-      "latency_ms": 147.85639999990963,
+      "latency_ms": 177.54599999898346,
       "iterations": 1
     },
     "Tarea 083 - Auto-Reparación Código #83": {
       "success": true,
-      "latency_ms": 138.24270000077377,
+      "latency_ms": 157.92059999512276,
       "iterations": 1
     },
     "Tarea 084 - Auto-Reparación Código #84": {
       "success": true,
-      "latency_ms": 129.47799999983545,
+      "latency_ms": 145.4451000026893,
       "iterations": 1
     },
     "Tarea 085 - Auto-Reparación Código #85": {
       "success": true,
-      "latency_ms": 123.8389999998617,
+      "latency_ms": 152.88429999782238,
       "iterations": 1
     },
     "Tarea 086 - Auto-Reparación Código #86": {
       "success": true,
-      "latency_ms": 148.86010000009264,
+      "latency_ms": 180.47200000000885,
       "iterations": 1
     },
     "Tarea 087 - Auto-Reparación Código #87": {
       "success": true,
-      "latency_ms": 134.4085000000632,
+      "latency_ms": 160.4155000022729,
       "iterations": 1
     },
     "Tarea 088 - Auto-Reparación Código #88": {
       "success": true,
-      "latency_ms": 114.86640000020998,
+      "latency_ms": 150.6292999983998,
       "iterations": 1
     },
     "Tarea 089 - Auto-Reparación Código #89": {
       "success": true,
-      "latency_ms": 122.27770000026794,
+      "latency_ms": 152.89150000171503,
       "iterations": 1
     },
     "Tarea 090 - Auto-Reparación Código #90": {
       "success": true,
-      "latency_ms": 147.4231999991389,
+      "latency_ms": 191.34429999394342,
       "iterations": 1
     },
     "Tarea 091 - Auto-Reparación Código #91": {
       "success": true,
-      "latency_ms": 145.1177999997526,
+      "latency_ms": 182.2801000016625,
       "iterations": 1
     },
     "Tarea 092 - Auto-Reparación Código #92": {
       "success": true,
-      "latency_ms": 174.05109999981505,
+      "latency_ms": 151.63350000511855,
       "iterations": 1
     },
     "Tarea 093 - Auto-Reparación Código #93": {
       "success": true,
-      "latency_ms": 140.90459999988525,
+      "latency_ms": 150.215699999535,
       "iterations": 1
     },
     "Tarea 094 - Auto-Reparación Código #94": {
       "success": true,
-      "latency_ms": 155.45419999943988,
+      "latency_ms": 192.12819999665953,
       "iterations": 1
     },
     "Tarea 095 - Auto-Reparación Código #95": {
       "success": true,
-      "latency_ms": 125.48539999988861,
+      "latency_ms": 165.98220000014408,
       "iterations": 1
     },
     "Tarea 096 - Auto-Reparación Código #96": {
       "success": true,
-      "latency_ms": 123.0982999995831,
+      "latency_ms": 150.61900000000605,
       "iterations": 1
     },
     "Tarea 097 - Auto-Reparación Código #97": {
       "success": true,
-      "latency_ms": 122.60049999986222,
+      "latency_ms": 148.62149999680696,
       "iterations": 1
     },
     "Tarea 098 - Auto-Reparación Código #98": {
       "success": true,
-      "latency_ms": 144.78150000013557,
+      "latency_ms": 181.75650000193855,
       "iterations": 1
     },
     "Tarea 099 - Auto-Reparación Código #99": {
       "success": true,
-      "latency_ms": 137.30060000034428,
+      "latency_ms": 152.65829999407288,
       "iterations": 1
     },
     "Tarea 100 - Auto-Reparación Código #100": {
       "success": true,
-      "latency_ms": 119.06730000009702,
+      "latency_ms": 145.69139999366598,
       "iterations": 1
     },
     "Tarea 101 - Auto-Creación Herramienta #101": {
@@ -1310,502 +1310,502 @@
     "Tarea 301 - Jev Choice #301": {
       "success": true,
       "selected": "conversational_chat",
-      "latency_ms": 0.06589999975403771
+      "latency_ms": 0.07190000178525224
     },
     "Tarea 302 - Jev Score #302": {
       "success": true,
       "score": 0.67,
-      "latency_ms": 0.03319999996165279
+      "latency_ms": 0.020200001017656177
     },
     "Tarea 303 - Jev Noul #303": {
       "success": true,
       "allowed": true,
-      "latency_ms": 1.2366999999358086
+      "latency_ms": 1.1798999985330738
     },
     "Tarea 304 - Jev Choice #304": {
       "success": true,
       "selected": "search_web",
-      "latency_ms": 0.03500000002532033
+      "latency_ms": 0.04389999958220869
     },
     "Tarea 305 - Jev Score #305": {
       "success": true,
       "score": 0.1,
-      "latency_ms": 0.009599999430065509
+      "latency_ms": 0.010399999155197293
     },
     "Tarea 306 - Jev Noul #306": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.16010000035748817
+      "latency_ms": 0.20390000281622633
     },
     "Tarea 307 - Jev Choice #307": {
       "success": true,
       "selected": "read_file",
-      "latency_ms": 0.021299999389157165
+      "latency_ms": 0.021200001356191933
     },
     "Tarea 308 - Jev Score #308": {
       "success": true,
       "score": 0.85,
-      "latency_ms": 0.009800000043469481
+      "latency_ms": 0.00960000033956021
     },
     "Tarea 309 - Jev Noul #309": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.02479999966453761
+      "latency_ms": 0.040099999750964344
     },
     "Tarea 310 - Jev Choice #310": {
       "success": true,
       "selected": "run_terminal",
-      "latency_ms": 0.011099999937869143
+      "latency_ms": 0.013700002455152571
     },
     "Tarea 311 - Jev Score #311": {
       "success": true,
       "score": 0.51,
-      "latency_ms": 0.004200000148557592
+      "latency_ms": 0.005100002454128116
     },
     "Tarea 312 - Jev Noul #312": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.1247000000148546
+      "latency_ms": 0.053300005674827844
     },
     "Tarea 313 - Jev Choice #313": {
       "success": true,
       "selected": "conversational_chat",
-      "latency_ms": 0.034300000152143184
+      "latency_ms": 0.012099997547920793
     },
     "Tarea 314 - Jev Score #314": {
       "success": true,
       "score": 0.85,
-      "latency_ms": 0.012399999832268804
+      "latency_ms": 0.004599998646881431
     },
     "Tarea 315 - Jev Noul #315": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.041000000237545464
+      "latency_ms": 0.021100000594742596
     },
     "Tarea 316 - Jev Choice #316": {
       "success": true,
       "selected": "search_web",
-      "latency_ms": 0.018900000213761814
+      "latency_ms": 0.013299999409355223
     },
     "Tarea 317 - Jev Score #317": {
       "success": true,
       "score": 0.67,
-      "latency_ms": 0.00670000008540228
+      "latency_ms": 0.0041000021155923605
     },
     "Tarea 318 - Jev Noul #318": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.11030000041500898
+      "latency_ms": 0.04920000355923548
     },
     "Tarea 319 - Jev Choice #319": {
       "success": true,
       "selected": "read_file",
-      "latency_ms": 0.017600000319362152
+      "latency_ms": 0.014099998224992305
     },
     "Tarea 320 - Jev Score #320": {
       "success": true,
       "score": 0.1,
-      "latency_ms": 0.0057999995988211595
+      "latency_ms": 0.0037999998312443495
     },
     "Tarea 321 - Jev Noul #321": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.022700000045006163
+      "latency_ms": 0.02390000008745119
     },
     "Tarea 322 - Jev Choice #322": {
       "success": true,
       "selected": "run_terminal",
-      "latency_ms": 0.011499999345687684
+      "latency_ms": 0.013800003216601908
     },
     "Tarea 323 - Jev Score #323": {
       "success": true,
       "score": 0.85,
-      "latency_ms": 0.0057999995988211595
+      "latency_ms": 0.010199997632298619
     },
     "Tarea 324 - Jev Noul #324": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.05669999973179074
+      "latency_ms": 0.04539999645203352
     },
     "Tarea 325 - Jev Choice #325": {
       "success": true,
       "selected": "conversational_chat",
-      "latency_ms": 0.014099999134487007
+      "latency_ms": 0.01069999416358769
     },
     "Tarea 326 - Jev Score #326": {
       "success": true,
       "score": 0.51,
-      "latency_ms": 0.004200000148557592
+      "latency_ms": 0.004599998646881431
     },
     "Tarea 327 - Jev Noul #327": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.049000000217347406
+      "latency_ms": 0.019500002963468432
     },
     "Tarea 328 - Jev Choice #328": {
       "success": true,
       "selected": "search_web",
-      "latency_ms": 0.01120000069931848
+      "latency_ms": 0.011799995263572782
     },
     "Tarea 329 - Jev Score #329": {
       "success": true,
       "score": 0.85,
-      "latency_ms": 0.003499999365885742
+      "latency_ms": 0.0039000005926936865
     },
     "Tarea 330 - Jev Noul #330": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.04669999998441199
+      "latency_ms": 0.039200000173877925
     },
     "Tarea 331 - Jev Choice #331": {
       "success": true,
       "selected": "read_file",
-      "latency_ms": 0.010600000678095967
+      "latency_ms": 0.012099997547920793
     },
     "Tarea 332 - Jev Score #332": {
       "success": true,
       "score": 0.67,
-      "latency_ms": 0.0032999996619764715
+      "latency_ms": 0.004499997885432094
     },
     "Tarea 333 - Jev Noul #333": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.021800000467919745
+      "latency_ms": 0.020200001017656177
     },
     "Tarea 334 - Jev Choice #334": {
       "success": true,
       "selected": "run_terminal",
-      "latency_ms": 0.00889999955688836
+      "latency_ms": 0.011299998732283711
     },
     "Tarea 335 - Jev Score #335": {
       "success": true,
       "score": 0.1,
-      "latency_ms": 0.002600000698294025
+      "latency_ms": 0.0029999937396496534
     },
     "Tarea 336 - Jev Noul #336": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.0351999997292296
+      "latency_ms": 0.05080000119050965
     },
     "Tarea 337 - Jev Choice #337": {
       "success": true,
       "selected": "conversational_chat",
-      "latency_ms": 0.008600000001024455
+      "latency_ms": 0.011099997209385037
     },
     "Tarea 338 - Jev Score #338": {
       "success": true,
       "score": 0.85,
-      "latency_ms": 0.0028000004022032954
+      "latency_ms": 0.0031000017770566046
     },
     "Tarea 339 - Jev Noul #339": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.017800000023271423
+      "latency_ms": 0.018600003386382014
     },
     "Tarea 340 - Jev Choice #340": {
       "success": true,
       "selected": "search_web",
-      "latency_ms": 0.008900000466383062
+      "latency_ms": 0.012600001355167478
     },
     "Tarea 341 - Jev Score #341": {
       "success": true,
       "score": 0.51,
-      "latency_ms": 0.002599999788799323
+      "latency_ms": 0.0031000017770566046
     },
     "Tarea 342 - Jev Noul #342": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.031600000511389226
+      "latency_ms": 0.0501000031363219
     },
     "Tarea 343 - Jev Choice #343": {
       "success": true,
       "selected": "read_file",
-      "latency_ms": 0.009499999578110874
+      "latency_ms": 0.01309999788645655
     },
     "Tarea 344 - Jev Score #344": {
       "success": true,
       "score": 0.85,
-      "latency_ms": 0.0029000002541579306
+      "latency_ms": 0.0037999998312443495
     },
     "Tarea 345 - Jev Noul #345": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.017899999875226058
+      "latency_ms": 0.022299995180219412
     },
     "Tarea 346 - Jev Choice #346": {
       "success": true,
       "selected": "run_terminal",
-      "latency_ms": 0.008399999387620483
+      "latency_ms": 0.011600001016631722
     },
     "Tarea 347 - Jev Score #347": {
       "success": true,
       "score": 0.67,
-      "latency_ms": 0.0024000000848900527
+      "latency_ms": 0.0030000010156072676
     },
     "Tarea 348 - Jev Noul #348": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.05030000011174707
+      "latency_ms": 0.06160000339150429
     },
     "Tarea 349 - Jev Choice #349": {
       "success": true,
       "selected": "conversational_chat",
-      "latency_ms": 0.009399999726156238
+      "latency_ms": 0.013000004400964826
     },
     "Tarea 350 - Jev Score #350": {
       "success": true,
       "score": 0.1,
-      "latency_ms": 0.002499999936844688
+      "latency_ms": 0.0035999983083456755
     },
     "Tarea 351 - Jev Noul #351": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.02479999966453761
+      "latency_ms": 0.017400001524947584
     },
     "Tarea 352 - Jev Choice #352": {
       "success": true,
       "selected": "search_web",
-      "latency_ms": 0.008999999408842996
+      "latency_ms": 0.011099997209385037
     },
     "Tarea 353 - Jev Score #353": {
       "success": true,
       "score": 0.85,
-      "latency_ms": 0.0023000002329354174
+      "latency_ms": 0.0027999994927085936
     },
     "Tarea 354 - Jev Noul #354": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.02970000059576705
+      "latency_ms": 0.03999999898951501
     },
     "Tarea 355 - Jev Choice #355": {
       "success": true,
       "selected": "read_file",
-      "latency_ms": 0.008400000297115184
+      "latency_ms": 0.01479999627918005
     },
     "Tarea 356 - Jev Score #356": {
       "success": true,
       "score": 0.51,
-      "latency_ms": 0.0029000002541579306
+      "latency_ms": 0.0042000028770416975
     },
     "Tarea 357 - Jev Noul #357": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.013100000614940654
+      "latency_ms": 0.016599995433352888
     },
     "Tarea 358 - Jev Choice #358": {
       "success": true,
       "selected": "run_terminal",
-      "latency_ms": 0.011199999789823778
+      "latency_ms": 0.012299999070819467
     },
     "Tarea 359 - Jev Score #359": {
       "success": true,
       "score": 0.85,
-      "latency_ms": 0.0038999996831989847
+      "latency_ms": 0.0030999945010989904
     },
     "Tarea 360 - Jev Noul #360": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.0304000004689442
+      "latency_ms": 0.03339999966556206
     },
     "Tarea 361 - Jev Choice #361": {
       "success": true,
       "selected": "conversational_chat",
-      "latency_ms": 0.008199999683711212
+      "latency_ms": 0.010700001439545304
     },
     "Tarea 362 - Jev Score #362": {
       "success": true,
       "score": 0.67,
-      "latency_ms": 0.0029000002541579306
+      "latency_ms": 0.0033999967854470015
     },
     "Tarea 363 - Jev Noul #363": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.013399999261309858
+      "latency_ms": 0.0168999977177009
     },
     "Tarea 364 - Jev Choice #364": {
       "success": true,
       "selected": "search_web",
-      "latency_ms": 0.00869999985297909
+      "latency_ms": 0.01170000177808106
     },
     "Tarea 365 - Jev Score #365": {
       "success": true,
       "score": 0.1,
-      "latency_ms": 0.0023000002329354174
+      "latency_ms": 0.0031000017770566046
     },
     "Tarea 366 - Jev Noul #366": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.027300000510877
+      "latency_ms": 0.04049999552080408
     },
     "Tarea 367 - Jev Choice #367": {
       "success": true,
       "selected": "read_file",
-      "latency_ms": 0.00869999985297909
+      "latency_ms": 0.011000003723893315
     },
     "Tarea 368 - Jev Score #368": {
       "success": true,
       "score": 0.85,
-      "latency_ms": 0.002600000698294025
+      "latency_ms": 0.0033999967854470015
     },
     "Tarea 369 - Jev Noul #369": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.013799999578623101
+      "latency_ms": 0.01649999467190355
     },
     "Tarea 370 - Jev Choice #370": {
       "success": true,
       "selected": "run_terminal",
-      "latency_ms": 0.007700000423938036
+      "latency_ms": 0.010799994925037026
     },
     "Tarea 371 - Jev Score #371": {
       "success": true,
       "score": 0.51,
-      "latency_ms": 0.002600000698294025
+      "latency_ms": 0.0030000010156072676
     },
     "Tarea 372 - Jev Noul #372": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.024699999812582973
+      "latency_ms": 0.03190000279573724
     },
     "Tarea 373 - Jev Choice #373": {
       "success": true,
       "selected": "conversational_chat",
-      "latency_ms": 0.007800000275892671
+      "latency_ms": 0.009399998816661537
     },
     "Tarea 374 - Jev Score #374": {
       "success": true,
       "score": 0.85,
-      "latency_ms": 0.002599999788799323
+      "latency_ms": 0.0031000017770566046
     },
     "Tarea 375 - Jev Noul #375": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.012900000001536682
+      "latency_ms": 0.015300000086426735
     },
     "Tarea 376 - Jev Choice #376": {
       "success": true,
       "selected": "search_web",
-      "latency_ms": 0.007999999979801942
+      "latency_ms": 0.010899995686486363
     },
     "Tarea 377 - Jev Score #377": {
       "success": true,
       "score": 0.67,
-      "latency_ms": 0.0023000002329354174
+      "latency_ms": 0.0033000032999552786
     },
     "Tarea 378 - Jev Noul #378": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.026300000172341242
+      "latency_ms": 0.0320999970426783
     },
     "Tarea 379 - Jev Choice #379": {
       "success": true,
       "selected": "read_file",
-      "latency_ms": 0.009000000318337698
+      "latency_ms": 0.0109999964479357
     },
     "Tarea 380 - Jev Score #380": {
       "success": true,
       "score": 0.1,
-      "latency_ms": 0.0024000000848900527
+      "latency_ms": 0.0026999987312592566
     },
     "Tarea 381 - Jev Noul #381": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.01249999968422344
+      "latency_ms": 0.014400000509340316
     },
     "Tarea 382 - Jev Choice #382": {
       "success": true,
       "selected": "run_terminal",
-      "latency_ms": 0.008199999683711212
+      "latency_ms": 0.010399999155197293
     },
     "Tarea 383 - Jev Score #383": {
       "success": true,
       "score": 0.85,
-      "latency_ms": 0.0021999994714860804
+      "latency_ms": 0.0029999937396496534
     },
     "Tarea 384 - Jev Noul #384": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.022399999579647556
+      "latency_ms": 0.03500000457279384
     },
     "Tarea 385 - Jev Choice #385": {
       "success": true,
       "selected": "conversational_chat",
-      "latency_ms": 0.007699999514443334
+      "latency_ms": 0.01049999991664663
     },
     "Tarea 386 - Jev Score #386": {
       "success": true,
       "score": 0.51,
-      "latency_ms": 0.0028000004022032954
+      "latency_ms": 0.0034999975468963385
     },
     "Tarea 387 - Jev Noul #387": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.01269999938813271
+      "latency_ms": 0.016500001947861165
     },
     "Tarea 388 - Jev Choice #388": {
       "success": true,
       "selected": "search_web",
-      "latency_ms": 0.00869999985297909
+      "latency_ms": 0.01219999830937013
     },
     "Tarea 389 - Jev Score #389": {
       "success": true,
       "score": 0.85,
-      "latency_ms": 0.002499999936844688
+      "latency_ms": 0.0037999998312443495
     },
     "Tarea 390 - Jev Noul #390": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.02789999962260481
+      "latency_ms": 0.03310000465717167
     },
     "Tarea 391 - Jev Choice #391": {
       "success": true,
       "selected": "read_file",
-      "latency_ms": 0.00889999955688836
+      "latency_ms": 0.012300006346777081
     },
     "Tarea 392 - Jev Score #392": {
       "success": true,
       "score": 0.67,
-      "latency_ms": 0.003000000106112566
+      "latency_ms": 0.0037999998312443495
     },
     "Tarea 393 - Jev Noul #393": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.012799999240087345
+      "latency_ms": 0.030700000934302807
     },
     "Tarea 394 - Jev Choice #394": {
       "success": true,
       "selected": "run_terminal",
-      "latency_ms": 0.00830000044516055
+      "latency_ms": 0.013199998647905886
     },
     "Tarea 395 - Jev Score #395": {
       "success": true,
       "score": 0.1,
-      "latency_ms": 0.00199999976757681
+      "latency_ms": 0.0026999987312592566
     },
     "Tarea 396 - Jev Noul #396": {
       "success": true,
       "allowed": false,
-      "latency_ms": 0.026599999728205148
+      "latency_ms": 0.03650000144261867
     },
     "Tarea 397 - Jev Choice #397": {
       "success": true,
       "selected": "conversational_chat",
-      "latency_ms": 0.008200000593205914
+      "latency_ms": 0.010200004908256233
     },
     "Tarea 398 - Jev Score #398": {
       "success": true,
       "score": 0.85,
-      "latency_ms": 0.002600000698294025
+      "latency_ms": 0.0030000010156072676
     },
     "Tarea 399 - Jev Noul #399": {
       "success": true,
       "allowed": true,
-      "latency_ms": 0.012900000001536682
+      "latency_ms": 0.015400000847876072
     },
     "Tarea 400 - Jev Choice #400": {
       "success": true,
       "selected": "search_web",
-      "latency_ms": 0.008099999831756577
+      "latency_ms": 0.010100004146806896
     },
     "Tarea 401 - SQLite Procedimental #401": {
       "success": true,

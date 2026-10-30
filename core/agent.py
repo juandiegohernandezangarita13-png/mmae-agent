@@ -12,7 +12,15 @@ from utils.logger import log
 from utils.env_manager import EnvironmentManager
 from core.macro_engine import MacroEngine
 from core.micro_engine import MicroEngine
-from core.memory import ExecutionMemory, HierarchicalMemory
+from core.memory import (
+    ExecutionMemory,
+    HierarchicalMemory,
+    UnifiedMemorySystem,
+    UserPersistentMemory,
+    TemporalKnowledgeGraph,
+    HeterogeneousKnowledgeHub,
+    MMAEMemorySystem
+)
 from core.reflection_loop import ReflectionLoop
 from core.planner import TaskPlanner
 from core.persistence import StatePersistence
@@ -51,6 +59,15 @@ class MMAEAutonomousAgent:
         # 2. Memoria y Reflexión
         self.memory = ExecutionMemory(max_history=self.config.max_history_turns)
         self.hierarchical_memory = HierarchicalMemory() if HierarchicalMemory else None
+        
+        # Sistema de Memoria Avanzada Unificada (Mem0 + Graffiti + Coach + LangMem + Leta)
+        self.unified_memory = UnifiedMemorySystem(
+            memory_dir=getattr(self.config, "memory_dir", None),
+            execution_memory=self.memory,
+            hierarchical_memory=self.hierarchical_memory,
+            auto_start_worker=False
+        )
+        
         self.reflection = ReflectionLoop(memory=self.memory, max_retries=self.config.max_retries_per_step)
         self.planner = TaskPlanner()
         self.evaluator = OutputEvaluator()
@@ -98,6 +115,32 @@ class MMAEAutonomousAgent:
         sys_monitor = SystemMonitorSkill()
         self.registry.register("system_stats", "Obtiene métricas de CPU, disco y SO.")(sys_monitor.get_system_stats)
 
+        # Habilidades de Memoria Persistente Avanzada (Mem0 + Graffiti + Coach)
+        self.registry.register(
+            "memory_search_user",
+            "Busca en las preferencias y hechos persistentes del usuario (Mem0)."
+        )(lambda query, category=None: self.unified_memory.user.search(query=query, category=category))
+
+        self.registry.register(
+            "memory_add_preference",
+            "Añade o actualiza una preferencia o directiva de usuario (Mem0)."
+        )(lambda key, value, category="preference": self.unified_memory.user.add(key=key, value=value, category=category))
+
+        self.registry.register(
+            "memory_temporal_query",
+            "Consulta hechos temporales vigentes o históricos en el grafo de conocimiento (Graffiti)."
+        )(lambda source="User", relation=None: self.unified_memory.temporal.get_current_facts(source=source, relation=relation))
+
+        self.registry.register(
+            "knowledge_search_docs",
+            "Busca información relevante en documentos locales ingestados y fuentes externas (Coach Hub)."
+        )(lambda query, top_k=3: self.unified_memory.knowledge.query(query_text=query, top_k=top_k))
+
+        self.registry.register(
+            "knowledge_ingest_file",
+            "Ingesta e indexa un archivo local (PDF, Markdown, TXT, código) en el Knowledge Hub (Coach)."
+        )(lambda file_path: {"chunks_indexed": self.unified_memory.knowledge.ingest_file(file_path)})
+
         # Conectar herramientas del núcleo avanzado si existen
         if self.agent_core and hasattr(self.agent_core, "registry"):
             for tool_name in self.agent_core.registry.list_tools():
@@ -130,9 +173,15 @@ class MMAEAutonomousAgent:
                 "results": [{"task": "Pre-flight Noul Check", "result": {"success": False, "error": reason}}]
             }
 
+        # Recuperación de Memoria Unificada (Mem0 + Graffiti + Coach + Leta)
+        memory_context = self.unified_memory.build_unified_context(query=user_goal)
+        if memory_context:
+            log.info(f"🧠 [Memoria Unificada]: Contexto activo recuperado ({len(memory_context)} caracteres).")
+
         # Fase 1: Esqueleto Macro y Desglose en Tareas
         log.info("📋 Generando esqueleto macro...")
-        macro_output = self.macro.generate_skeleton(user_goal)
+        macro_prompt = f"{user_goal}\n\n{memory_context}" if memory_context else user_goal
+        macro_output = self.macro.generate_skeleton(macro_prompt)
         tasks = self.planner.parse_tasks_from_skeleton(macro_output["skeleton"])
 
         results = []
@@ -180,6 +229,18 @@ class MMAEAutonomousAgent:
             "history": self.memory.history,
             "env_snapshot": EnvironmentManager.snapshot()
         })
+
+        # Destilación y aprendizaje adaptativo continuo (LangMem + Leta)
+        tools_used = [r.get("task", "") for r in results]
+        overall_success = all(r.get("result", {}).get("success", False) for r in results) if results else True
+        self.unified_memory.record_turn_and_learn(
+            user_input=user_goal,
+            agent_output=str(results),
+            tools_used=tools_used,
+            task_success=overall_success,
+            sync=True
+        )
+
         log.info("🏁 Objetivo completado. Estado persistido con éxito.")
         return {
             "goal": user_goal,
