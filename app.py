@@ -92,11 +92,25 @@ class JarvisBridge:
             time.sleep(3.5)
 
     def _eval_js(self, js_code: str):
-        if self._window:
-            try:
-                self._window.evaluate_js(js_code)
-            except Exception as e:
-                print(f"[Bridge JS Error]: {e}")
+        if not self._window:
+            return
+        try:
+            native = getattr(self._window, "native", None)
+            if native is not None and hasattr(native, "InvokeRequired") and native.InvokeRequired:
+                import clr
+                from System import Action
+                native.BeginInvoke(Action(lambda: self._safe_direct_eval(js_code)))
+            else:
+                self._safe_direct_eval(js_code)
+        except Exception as e:
+            # Nunca bloquear la ejecución en segundo plano por errores de UI
+            pass
+
+    def _safe_direct_eval(self, js_code: str):
+        try:
+            self._window.evaluate_js(js_code)
+        except Exception:
+            pass
 
     def _on_thought(self, text: str):
         self._last_thought = (text or "").strip()[:400]

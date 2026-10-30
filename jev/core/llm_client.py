@@ -153,8 +153,15 @@ Sé analítico, preciso y estructurado."""
                 cascade = [c.id for c in self.free_router.get_ranked_candidates()]
                 models_to_try += [m for m in cascade if m != override_model]
         elif self.config.llm_provider == "gemini" and getattr(self.config, "gemini_api_key", ""):
-            target_model = self.config.model_name or "gemini-2.5-flash"
-            models_to_try = [target_model, "gemini-flash-latest"]
+            pool = list(getattr(self.config, "gemini_flash_pool", [
+                "gemini-flash-lite-latest",
+                "gemini-3.5-flash-lite",
+                "gemini-3.1-flash-lite",
+                "gemini-3-flash-preview",
+                "gemini-2.5-flash"
+            ]))
+            primary = self.config.model_name or "gemini-flash-lite-latest"
+            models_to_try = [primary] + [m for m in pool if m != primary]
         elif self.config.llm_provider in ("ollama", "lmstudio"):
             target_model = self.config.model_name
             models_to_try = [target_model] + [m for m in self.config.fallback_models if m != target_model]

@@ -51,10 +51,10 @@ def main() -> int:
         transparent=not opaque_island,
         on_top=True,
         easy_drag=False,
-        focus=False,
+        focus=True,
         shadow=False,
         background_color="#000000",
-        text_select=False,
+        text_select=True,
     )
 
     island_bridge.attach(bridge, None, island_window, quit_state)
@@ -66,6 +66,15 @@ def main() -> int:
             if native is not None:
                 try:
                     native.ShowInTaskbar = False
+                except Exception:
+                    pass
+
+                # Auto-reducir la isla cuando el usuario interactúe con otra app (Deactivate)
+                try:
+                    def _on_deactivate(sender, args):
+                        if getattr(island_bridge, "_expanded", False):
+                            island_bridge.collapse()
+                    native.Deactivate += _on_deactivate
                 except Exception:
                     pass
 

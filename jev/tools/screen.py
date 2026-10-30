@@ -226,8 +226,18 @@ class KeyboardTypeTool(BaseTool):
             if curr_x == 0 and curr_y == 0:
                 pyautogui.moveTo(150, 150)
 
-            pyautogui.write(text, interval=0.01)
+            # Si el texto contiene caracteres no-ASCII, saltos de línea o es largo, usar pegado de portapapeles (100x más rápido y fiel)
+            has_unicode_or_multiline = any(ord(c) > 127 for c in text) or "\n" in text or len(text) > 30
+            if has_unicode_or_multiline:
+                import pyperclip
+                pyperclip.copy(text)
+                time.sleep(0.05)
+                pyautogui.hotkey("ctrl", "v")
+            else:
+                pyautogui.write(text, interval=0.01)
+
             if press_enter:
+                time.sleep(0.05)
                 pyautogui.press("enter")
             return ToolResult(
                 success=True,

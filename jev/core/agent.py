@@ -261,6 +261,10 @@ DIRECTRICES PARA DEPENDENCIAS DEL SISTEMA, INSTALACIONES Y CONTROL DE UAC:
   4. Solicitud de Elevación al Usuario: Si una acción requiere obligatoriamente privilegios de Administrador que no posees, no insistas en bucle: notifica al usuario con el comando exacto para ejecutar en PowerShell como Administrador.
 
 REGLAS PARA APPS DE WINDOWS Y CONTROL DE ESCRITORIO:
+- Apertura y escritura en Bloc de Notas / Notepad:
+  * Para abrir el Bloc de notas y escribir texto:
+    1. Si el bloc de notas ya está abierto o lo abres con `execute_command(command="Start-Process notepad")`, usa inmediatamente `keyboard_type(text=...)` para plasmar el texto o canción.
+    2. También puedes crear el archivo directamente con `write_file(path="workspace/cancion.txt", content=...)` y lanzarlo con `execute_command(command="Start-Process notepad workspace\\cancion.txt")`.
 - Apertura de WhatsApp / Apps de Windows:
   * WhatsApp de la Microsoft Store se abre directamente con su protocolo URI en terminal:
     `start whatsapp:` o en PowerShell: `Start-Process "whatsapp:"`

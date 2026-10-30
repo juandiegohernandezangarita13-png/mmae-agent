@@ -55,7 +55,7 @@ class _MONITORINFO(ctypes.Structure):
 
 
 def apply_window_transparency(hwnd: int, native_form: Any = None) -> None:
-    """Configura transparencia de composición DWM y fondo negro en WinForms (sin bordes blancos)."""
+    """Configura transparencia total a nivel WinForms, WebView2 y DWM (sin bordes ni cajas blancas)."""
     if native_form is not None:
         try:
             import clr
@@ -64,19 +64,45 @@ def apply_window_transparency(hwnd: int, native_form: Any = None) -> None:
             from System import Action
 
             def _fix():
+                native_form.AllowTransparency = True
                 native_form.BackColor = Color.FromArgb(0, 0, 0)
+                native_form.TransparencyKey = Color.FromArgb(0, 0, 0)
+                # Si WebView2 está disponible, forzar fondo 100% transparente sin halo blanco
+                if hasattr(native_form, "browser") and hasattr(native_form.browser, "webview"):
+                    native_form.browser.webview.DefaultBackgroundColor = Color.FromArgb(0, 0, 0, 0)
 
-            if hasattr(native_form, "Invoke"):
+            if hasattr(native_form, "InvokeRequired") and native_form.InvokeRequired:
                 native_form.Invoke(Action(_fix))
             else:
-                native_form.BackColor = Color.FromArgb(0, 0, 0)
+                _fix()
         except Exception:
             pass
 
     if hwnd:
         try:
+            user32 = ctypes.windll.user32
+            dwmapi = ctypes.windll.dwmapi
+
+            # 1. Quitar estilos de marco nativo (border, caption, 3d edge)
+            style = user32.GetWindowLongW(hwnd, -16)
+            style &= ~(0x00800000 | 0x00C00000 | 0x00040000)
+            user32.SetWindowLongW(hwnd, -16, style)
+
+            ex_style = user32.GetWindowLongW(hwnd, -20)
+            ex_style &= ~(0x00000100 | 0x00000200 | 0x00020000 | 0x00000001)
+            ex_style |= 0x00080000  # WS_EX_LAYERED
+            user32.SetWindowLongW(hwnd, -20, ex_style)
+            user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0027)
+
+            # 2. Desactivar bordes nativos DWM de Windows 11
+            val_corner = ctypes.c_int(1)  # DWMWCP_DONOTROUND
+            dwmapi.DwmSetWindowAttribute(hwnd, 33, ctypes.byref(val_corner), ctypes.sizeof(val_corner))
+            val_border = ctypes.c_uint(0xFFFFFFFE)  # DWMWA_COLOR_NONE
+            dwmapi.DwmSetWindowAttribute(hwnd, 34, ctypes.byref(val_border), ctypes.sizeof(val_border))
+
+            # 3. Composición DWM de cristal en toda el área
             margins = _MARGINS(-1, -1, -1, -1)
-            ctypes.windll.dwmapi.DwmExtendFrameIntoClientArea(hwnd, ctypes.byref(margins))
+            dwmapi.DwmExtendFrameIntoClientArea(hwnd, ctypes.byref(margins))
         except Exception:
             pass
 
@@ -115,8 +141,8 @@ def compute_position(width: int, height: int = 0) -> tuple[int, int]:
     return x, 0
 
 
-def _window_geometry(hwnd: int, width: int, height: int) -> tuple[int, int, int, int]:
-    """Calcula y aplica tamaño/posición físicos, centrados en el monitor."""
+def _window_geometry(hwnd: int, width: int, height: int, preserve_position: bool = True) -> tuple[int, int, int, int]:
+    """Calcula y aplica tamaño/posición físicos, preservando la posición arrastrada por el usuario."""
     user32 = ctypes.windll.user32
     try:
         dpi = float(user32.GetDpiForWindow(hwnd))
@@ -126,14 +152,25 @@ def _window_geometry(hwnd: int, width: int, height: int) -> tuple[int, int, int,
     phys_w = max(1, int(round(width * scale)))
     phys_h = max(1, int(round(height * scale)))
 
+    # Consultar posición física actual
+    rect = _RECT()
+    has_pos = bool(user32.GetWindowRect(hwnd, ctypes.byref(rect)))
+
     monitor = user32.MonitorFromWindow(hwnd, _MONITOR_DEFAULTTONEAREST)
     info = _MONITORINFO()
     info.cbSize = ctypes.sizeof(_MONITORINFO)
     if monitor and user32.GetMonitorInfoW(monitor, ctypes.byref(info)):
         work = info.rcWork
         work_w = work.right - work.left
-        x = work.left + max(0, (work_w - phys_w) // 2)
-        y = work.top
+        work_h = work.bottom - work.top
+        # Si el usuario ya arrastró la ventana (no está en 0,0 por defecto), mantener su centro X y su Y
+        if preserve_position and has_pos and (rect.right > rect.left) and (rect.bottom > rect.top) and (rect.left != 0 or rect.top != 0):
+            curr_center_x = (rect.left + rect.right) // 2
+            x = max(work.left, min(work.right - phys_w, curr_center_x - (phys_w // 2)))
+            y = max(work.top, min(work.bottom - phys_h, rect.top))
+        else:
+            x = work.left + max(0, (work_w - phys_w) // 2)
+            y = work.top
     else:
         x = max(0, (user32.GetSystemMetrics(0) - phys_w) // 2)
         y = 0
@@ -141,6 +178,54 @@ def _window_geometry(hwnd: int, width: int, height: int) -> tuple[int, int, int,
     user32.SetWindowPos(hwnd, _HWND_TOPMOST, x, y, phys_w, phys_h,
                         _SWP_NOACTIVATE | _SWP_SHOWWINDOW)
     return x, y, phys_w, phys_h
+
+
+def setup_startup_launcher(enable: bool = True) -> bool:
+    """Configura el inicio automático silencioso de JEV Island al encender la laptop."""
+    try:
+        import os
+        from pathlib import Path
+
+        appdata = os.environ.get("APPDATA")
+        if not appdata:
+            return False
+        startup_dir = Path(appdata) / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Startup"
+        if not startup_dir.exists():
+            return False
+
+        vbs_path = startup_dir / "iniciar_jev_isla.vbs"
+        if not enable:
+            if vbs_path.exists():
+                vbs_path.unlink()
+            return True
+
+        repo_dir = Path(__file__).resolve().parent.parent.parent
+        bat_path = repo_dir / "iniciar.bat"
+        if not bat_path.exists():
+            return False
+
+        vbs_content = (
+            'Set WshShell = CreateObject("WScript.Shell")\r\n'
+            f'WshShell.CurrentDirectory = "{repo_dir}"\r\n'
+            f'WshShell.Run """{bat_path}""", 0, False\r\n'
+        )
+        vbs_path.write_text(vbs_content, encoding="utf-8")
+        return True
+    except Exception:
+        return False
+
+
+def is_autostart_enabled() -> bool:
+    try:
+        import os
+        from pathlib import Path
+        appdata = os.environ.get("APPDATA")
+        if not appdata:
+            return False
+        vbs_path = Path(appdata) / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Startup" / "iniciar_jev_isla.vbs"
+        return vbs_path.exists()
+    except Exception:
+        return False
 
 
 class IslandBridge:
@@ -194,7 +279,28 @@ class IslandBridge:
 
     def collapse(self) -> Dict[str, Any]:
         self._layout(expanded=False)
+        self._safe_eval_js("if(typeof setExpandedUI==='function') setExpandedUI(false);")
         return {"ok": True, "expanded": False}
+
+    def drag_window(self) -> Dict[str, Any]:
+        """Permite mover y arrastrar la ventana sin bordes por toda la pantalla usando Win32."""
+        if not self._hwnd:
+            return {"ok": False}
+        try:
+            ctypes.windll.user32.ReleaseCapture()
+            # WM_SYSCOMMAND (0x0112), SC_MOVE + HTCAPTION (0xF012)
+            ctypes.windll.user32.SendMessageW(self._hwnd, 0x0112, 0xF012, 0)
+            return {"ok": True}
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+
+    def is_autostart(self) -> Dict[str, Any]:
+        return {"ok": True, "enabled": is_autostart_enabled()}
+
+    def toggle_autostart(self) -> Dict[str, Any]:
+        new_val = not is_autostart_enabled()
+        res = setup_startup_launcher(new_val)
+        return {"ok": res, "enabled": is_autostart_enabled()}
 
     def open_main(self) -> Dict[str, Any]:
         """Muestra y enfoca la ventana completa de JARVIS."""
@@ -349,6 +455,32 @@ class IslandBridge:
                 self._hwnd = int(str(hwnd))
             apply_window_transparency(self._hwnd, native_form)
             self._layout(self._expanded)
+            # Asegurar inicio automático en arranque de Windows
+            try:
+                setup_startup_launcher(True)
+            except Exception:
+                pass
+        except Exception:
+            pass
+
+    def _safe_eval_js(self, js_code: str) -> None:
+        """Evalúa JavaScript asegurando que se ejecute en el hilo de interfaz (UI thread)."""
+        if not self._island_window:
+            return
+        try:
+            native = getattr(self._island_window, "native", None)
+            if native is not None and hasattr(native, "InvokeRequired") and native.InvokeRequired:
+                import clr
+                from System import Action
+                native.BeginInvoke(Action(lambda: self._direct_eval(js_code)))
+            else:
+                self._direct_eval(js_code)
+        except Exception:
+            pass
+
+    def _direct_eval(self, js_code: str) -> None:
+        try:
+            self._island_window.evaluate_js(js_code)
         except Exception:
             pass
 
