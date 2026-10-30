@@ -128,8 +128,13 @@ Sé analítico, preciso y estructurado."""
         ]
 
         try:
-            candidates = self.free_router.get_ranked_candidates()
-            top_model = candidates[0].id if candidates else self.config.thinker_model
+            if self.config.llm_provider == "gemini":
+                top_model = self.config.thinker_model or "gemini-flash-lite-latest"
+            elif self._has_valid_openrouter_key():
+                candidates = self.free_router.get_ranked_candidates()
+                top_model = candidates[0].id if candidates else self.config.thinker_model
+            else:
+                top_model = self.config.thinker_model
             res = self.chat(messages=messages, override_model=top_model)
             return res.content
         except Exception as e:
@@ -140,6 +145,11 @@ Sé analítico, preciso y estructurado."""
     # ------------------------------------------------------------------
     _rr_index: int = 0
     _cooldowns: Dict[str, float] = {}
+
+    def _has_valid_openrouter_key(self) -> bool:
+        """Verifica si existe una clave real de OpenRouter (no mock ni vacía)."""
+        k = getattr(self.config, "openrouter_api_key", "") or ""
+        return bool(k and not k.startswith("sk-or-v1-mock") and len(k) > 30)
 
     @classmethod
     def _set_cooldown(cls, model: str, seconds: float) -> None:
@@ -178,8 +188,8 @@ Sé analítico, preciso y estructurado."""
         return ready + cooling
 
     def _openrouter_tail(self) -> List[str]:
-        """Modelos gratuitos de OpenRouter como red de seguridad cuando Gemini agota cuota."""
-        if not getattr(self.config, "openrouter_api_key", ""):
+        """Modelos gratuitos de OpenRouter como red de seguridad SOLO si existe clave válida."""
+        if not self._has_valid_openrouter_key():
             return []
         tail: List[str] = []
         try:
@@ -232,9 +242,12 @@ Sé analítico, preciso y estructurado."""
         # Determinar la lista jerárquica de modelos a probar
         if override_model:
             models_to_try = [override_model]
-            if getattr(self.config, "use_free_model_cascade", True):
+            if self.config.llm_provider == "gemini":
+                # Si el override falla, usar la rotación de Gemini Flash como respaldo
+                models_to_try += [m for m in self._gemini_rotation() if m != override_model]
+            if getattr(self.config, "use_free_model_cascade", True) and self._has_valid_openrouter_key():
                 cascade = [c.id for c in self.free_router.get_ranked_candidates()]
-                models_to_try += [m for m in cascade if m != override_model]
+                models_to_try += [m for m in cascade if m not in models_to_try]
         elif self.config.llm_provider == "gemini" and getattr(self.config, "gemini_api_key", ""):
             # Rotación round-robin del pool Flash (reparte la cuota por minuto entre 5 modelos)
             models_to_try = self._gemini_rotation()
