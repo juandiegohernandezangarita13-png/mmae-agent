@@ -4,6 +4,7 @@ Integra la inferencia de dos fases (Macro-Estructura y Micro-Relleno) con
 el bucle cognitivo ReAct, validación de sintaxis, canal determinista y suite de herramientas.
 """
 import sys
+import os
 from typing import Dict, Any, Optional
 
 from config import config, AgentConfig
@@ -29,6 +30,8 @@ try:
     from jev.core.agent import AgentCore
 except Exception:
     AgentCore = None
+
+from jev_router import JevRouter, PreFlightDecision, ChoiceResult, ScoreResult, NoulResult
 
 
 class MMAEAutonomousAgent:
@@ -61,6 +64,13 @@ class MMAEAutonomousAgent:
         self.macro = MacroEngine(api_base_url=self.config.api_base_url)
         self.micro = MicroEngine(api_base_url=self.config.api_base_url)
         self.executor = AgentExecutor(registry=self.registry)
+
+        # 5. Enrutador System-1 Jev (TypeSafe AI) para decisiones sub-200ms
+        self.jev_router = JevRouter(
+            api_key=getattr(self.config, "typesafe_api_key", os.getenv("TYPESAFE_API_KEY", "")),
+            api_url=getattr(self.config, "typesafe_api_url", os.getenv("TYPESAFE_API_URL", "https://api.typesafe.ai/v1/systemone")),
+            timeout_seconds=getattr(self.config, "typesafe_timeout_seconds", 0.200)
+        )
         
         log.info("MMAE inicializado y listo para operar.")
 
@@ -97,9 +107,28 @@ class MMAEAutonomousAgent:
 
     def run(self, user_goal: str) -> Dict[str, Any]:
         """
-        Ejecuta un objetivo completo utilizando la arquitectura Macro-Micro (MMAE).
+        Ejecuta un objetivo completo utilizando la arquitectura Macro-Micro (MMAE),
+        optimizada con el enrutador System-1 Jev de TypeSafe AI (<200ms).
         """
         log.info(f"🎯 [Objetivo General]: {user_goal}")
+
+        # Pre-Flight System-1 Jev Router (<200ms)
+        preflight: PreFlightDecision = self.jev_router.pre_flight_check(user_goal)
+        log.info(
+            f"⚡ [Jev System-1 Router ({preflight.total_latency_ms:.1f}ms)]: "
+            f"Ruta={preflight.action} | Seguridad={preflight.safety.allowed} | Complejidad={preflight.complexity.score:.2f}"
+        )
+
+        # Si Noul detecta un riesgo inminente, abortar antes de gastar tokens de inferencia pesada
+        if preflight.action == "blocked_security":
+            reason = preflight.direct_response or "Acción bloqueada por seguridad System-1 (Jev Noul)"
+            log.warning(f"🚨 [Noul Bloqueo]: {reason}")
+            return {
+                "goal": user_goal,
+                "error": reason,
+                "success": False,
+                "results": [{"task": "Pre-flight Noul Check", "result": {"success": False, "error": reason}}]
+            }
 
         # Fase 1: Esqueleto Macro y Desglose en Tareas
         log.info("📋 Generando esqueleto macro...")
@@ -124,6 +153,18 @@ class MMAEAutonomousAgent:
                     "literals": macro_output.get("literals", [])
                 }
                 detailed_step = self.micro.expand_skeleton(micro_input)
+
+                # Filtro de seguridad binario Noul (<10ms) sobre la acción antes de ejecutar
+                step_repr = str(detailed_step)
+                noul_eval = self.jev_router.noul(step_repr, check_type="action_safety")
+                if not noul_eval.allowed:
+                    err_msg = noul_eval.violation_reason or "Acción bloqueada por seguridad Noul"
+                    log.warning(f"🚨 [Noul Bloqueo en Tarea]: {err_msg}")
+                    return {
+                        "success": False,
+                        "error": f"⛔ ACCIÓN CANCELADA: {err_msg}",
+                        "output": ""
+                    }
                 
                 # Ejecutar acción si existe llamada a herramienta
                 execution_result = self.executor.process_and_execute(detailed_step)

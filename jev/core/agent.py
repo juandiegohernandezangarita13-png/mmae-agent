@@ -5,6 +5,7 @@ protocolo de verificación objetiva (Reflection Loop), planificación DAG, check
 y memoria jerárquica (Short-term y Long-term SQLite).
 """
 from typing import List, Dict, Any, Optional, Callable, Tuple
+import os
 import json
 import time
 import queue
@@ -25,6 +26,7 @@ from jev.core.mythos_engine import MythosCognitiveEngine
 from jev.core.self_evolving_agent import SelfEvolvingAgent
 from jev.skills.manager import SkillRegistry
 from jev.core.post_reflection import PostExecutionAuditEngine
+from jev_router import JevRouter, PreFlightDecision, ChoiceResult, ScoreResult, NoulResult
 
 
 class AgentCore:
@@ -40,6 +42,11 @@ class AgentCore:
         on_tool_result: Optional[Callable[[str, ToolResult], None]] = None
     ):
         self.config = config or default_config
+        self.jev_router = JevRouter(
+            api_key=getattr(self.config, "typesafe_api_key", os.getenv("TYPESAFE_API_KEY", "")),
+            api_url=getattr(self.config, "typesafe_api_url", os.getenv("TYPESAFE_API_URL", "https://api.typesafe.ai/v1/systemone")),
+            timeout_seconds=getattr(self.config, "typesafe_timeout_seconds", 0.200)
+        )
         if registry:
             self.registry = registry
         else:
@@ -493,9 +500,25 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
             self.is_running = False
 
     def _run_task_loop(self, user_goal: str) -> str:
-        """Bucle interno de ejecución de la tarea."""
-        # 0. Clasificador de Intención Rápido (Chat Conversacional vs Tarea)
-        if self.is_conversational_intent(user_goal):
+        """Bucle interno de ejecución de la tarea optimizado con System-1 Jev Router."""
+        # 0. Pre-Flight System-1 Jev Router (<200ms)
+        preflight: PreFlightDecision = self.jev_router.pre_flight_check(
+            user_goal,
+            available_tools=self.registry.list_tools() if hasattr(self.registry, "list_tools") else None
+        )
+        self.on_thought(
+            f"⚡ [Jev System-1 Router ({preflight.total_latency_ms:.1f}ms)]: "
+            f"Ruta={preflight.action} | Seguridad={preflight.safety.allowed} | Complejidad={preflight.complexity.score:.2f} ({preflight.choice.selected})"
+        )
+
+        # Filtro Noul: Bloqueo inmediato de seguridad
+        if preflight.action == "blocked_security":
+            reason = preflight.direct_response or "Acción bloqueada por seguridad System-1."
+            self.on_thought(f"🚨 [Noul Bloqueo]: {reason}")
+            return reason
+
+        # Filtro Choice / Score: Resolución conversacional sin invocar DAG pesado ni herramientas
+        if preflight.action == "fast_deterministic" or self.is_conversational_intent(user_goal):
             self.on_thought("💬 [Modo Chat Directo]: Saludo o mensaje conversacional detectado. Respondiendo directamente sin herramientas...")
             chat_system = (
                 "Eres JEV (JARVIS Evolutionary Virtual-agent), un asistente virtual autónomo que opera localmente en la máquina del usuario. "
@@ -513,7 +536,7 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
                 )
                 answer = resp.content.strip() if resp.content else "¡Hola! Soy JEV, tu asistente autónomo local. ¿En qué puedo ayudarte hoy?"
             except Exception:
-                answer = "¡Hola! Soy JEV, tu asistente autónomo local. ¿En qué puedo colaborarte hoy?"
+                answer = preflight.direct_response or "¡Hola! Soy JEV, tu asistente autónomo local. ¿En qué puedo colaborarte hoy?"
 
             self.messages.append({"role": "user", "content": user_goal})
             self.messages.append({"role": "assistant", "content": answer})
@@ -781,7 +804,22 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
                     # Si la acción no fue bloqueada, reiniciar contador de bloqueos consecutivos
                     consecutive_blocked_counts.clear()
 
-                    # Notificar inicio de ejecución. La Isla (o cualquier callback)
+                    # 1. Filtro Binario de Seguridad Pre-Ejecución: Jev Noul (<10ms)
+                    action_summary = f"{tool_name}: {json.dumps(tool_args) if isinstance(tool_args, dict) else str(tool_args)}"
+                    noul_eval = self.jev_router.noul(action_summary, check_type="command_safety")
+                    if not noul_eval.allowed:
+                        violation_msg = noul_eval.violation_reason or "Comando potencialmente destructivo bloqueado por seguridad Noul"
+                        self.on_thought(f"🚨 [Jev Noul Bloqueo]: {violation_msg}")
+                        tool_msg = {
+                            "role": "tool",
+                            "tool_call_id": call_id,
+                            "name": tool_name,
+                            "content": f"⛔ ACCIÓN CANCELADA: Bloqueada por filtro de seguridad binario System-1 (Jev Noul): {violation_msg}"
+                        }
+                        self.messages.append(tool_msg)
+                        continue
+
+                    # 2. Notificar inicio de ejecución. La Isla (o cualquier callback)
                     # puede devolver False para vetar una acción sensible.
                     approved = self.on_tool_call(tool_name, tool_args)
 

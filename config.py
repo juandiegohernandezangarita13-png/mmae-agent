@@ -125,6 +125,11 @@ class AgentConfig:
     allowed_telegram_user_id: int = int(os.getenv("ALLOWED_TELEGRAM_USER_ID", "0") or "0")
     island_mode: bool = True
 
+    # --- TypeSafe AI System-1 (Jev Router) ---
+    typesafe_api_key: str = os.getenv("TYPESAFE_API_KEY", "")
+    typesafe_api_url: str = os.getenv("TYPESAFE_API_URL", "https://api.typesafe.ai/v1/systemone")
+    typesafe_timeout_seconds: float = float(os.getenv("TYPESAFE_TIMEOUT_SECONDS", "0.200"))
+
     # --- Directorios del Sistema ---
     base_dir: Path = BASE_DIR
     workspace_dir: Path = WORKSPACE_DIR
