@@ -488,15 +488,40 @@
       return Promise.resolve(null);
     }
 
-    // Arrastrar el widget por la pantalla al hacer mousedown
+    // Arrastrar el widget suavemente por la pantalla
     var pod = document.getElementById("widgetPod");
+    var isDragging = false;
+    var startScreenX = 0;
+    var startScreenY = 0;
+
     pod.addEventListener("mousedown", function (e) {
-      // Ignorar si se hace clic en botones específicos
       if (e.target.closest("button") || e.target.closest("#mochiBtn")) {
         return;
       }
+      isDragging = true;
+      startScreenX = e.screenX;
+      startScreenY = e.screenY;
+      document.addEventListener("mousemove", onMouseDrag);
+      document.addEventListener("mouseup", onMouseUp);
       callApi("drag_window");
     });
+
+    function onMouseDrag(e) {
+      if (!isDragging) return;
+      var dx = e.screenX - startScreenX;
+      var dy = e.screenY - startScreenY;
+      if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
+        startScreenX = e.screenX;
+        startScreenY = e.screenY;
+        callApi("move_delta", [dx, dy]);
+      }
+    }
+
+    function onMouseUp(e) {
+      isDragging = false;
+      document.removeEventListener("mousemove", onMouseDrag);
+      document.removeEventListener("mouseup", onMouseUp);
+    }
 
     // Doble clic en el pod: abrir la aplicación principal
     pod.addEventListener("dblclick", function (e) {
@@ -507,12 +532,14 @@
     // Botón de Abrir App
     document.getElementById("openAppBtn").addEventListener("click", function (e) {
       e.stopPropagation();
+      e.preventDefault();
       callApi("open_main");
     });
 
     // Botón de Cerrar
     document.getElementById("closeBtn").addEventListener("click", function (e) {
       e.stopPropagation();
+      e.preventDefault();
       callApi("close_widget");
     });
 

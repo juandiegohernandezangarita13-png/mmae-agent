@@ -348,6 +348,35 @@ class IslandBridge:
         except Exception:
             pass
 
+    def move_delta(self, dx: Any = 0, dy: Any = 0) -> Dict[str, Any]:
+        """Desplaza la ventana de forma suave y sin depender de captura de ratón Win32."""
+        if isinstance(dx, (list, tuple)):
+            if len(dx) >= 2:
+                dx, dy = dx[0], dx[1]
+            else:
+                dx, dy = 0, 0
+        try:
+            dx = int(dx)
+            dy = int(dy)
+        except Exception:
+            dx, dy = 0, 0
+
+        if self._hwnd:
+            try:
+                rect = _RECT()
+                if ctypes.windll.user32.GetWindowRect(self._hwnd, ctypes.byref(rect)):
+                    new_x = int(rect.left + dx)
+                    new_y = int(rect.top + dy)
+                    ctypes.windll.user32.SetWindowPos(
+                        self._hwnd, _HWND_TOPMOST, new_x, new_y, 0, 0,
+                        0x0001 | 0x0010  # SWP_NOSIZE | SWP_NOACTIVATE
+                    )
+                    self._save_current_position()
+                    return {"ok": True}
+            except Exception as e:
+                return {"ok": False, "error": str(e)}
+        return {"ok": False}
+
     def drag_window(self) -> Dict[str, Any]:
         """Permite mover y arrastrar la ventana sin bordes por toda la pantalla usando Win32."""
         if not self._hwnd:
@@ -370,7 +399,7 @@ class IslandBridge:
         return {"ok": res, "enabled": is_autostart_enabled()}
 
     def open_main(self) -> Dict[str, Any]:
-        """Muestra y enfoca la ventana completa de JARVIS (o la lanza de forma desacoplada)."""
+        """Muestra y enfoca la ventana completa de la aplicación (o la lanza de forma desacoplada)."""
         if self._main_window is not None:
             try:
                 self._main_window.show()
@@ -391,7 +420,7 @@ class IslandBridge:
             base_dir = Path(__file__).resolve().parents[2]
             app_script = base_dir / "app.py"
 
-            # 1. Comprobar si ya existe una ventana con título "JEV // Autonomous AI" y enfocarla
+            # 1. Comprobar si ya existe una ventana con título "MMAE" o "JEV" y enfocarla
             found_hwnd = None
             def _enum_win(hwnd, _):
                 nonlocal found_hwnd
@@ -400,7 +429,8 @@ class IslandBridge:
                     if length > 0:
                         buff = ctypes.create_unicode_buffer(length + 1)
                         ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
-                        if "JEV // Autonomous AI" in buff.value:
+                        title = buff.value
+                        if ("JEV" in title or "MMAE" in title or "Claude" in title) and "Widget" not in title and "Island" not in title:
                             found_hwnd = hwnd
                             return False
                 return True
@@ -414,11 +444,14 @@ class IslandBridge:
                 ctypes.windll.user32.BringWindowToTop(found_hwnd)
                 return {"ok": True, "focused": True}
 
-            # 2. Si no está abierta, lanzar app.py en un subproceso desacoplado
+            # 2. Si no está abierta, lanzar app.py en un subproceso desacoplado usando el python adecuado
             if app_script.exists():
+                py_candidate = base_dir / ".venv" / "Scripts" / "python.exe"
+                py_exe = str(py_candidate) if py_candidate.exists() else sys.executable
+
                 DETACHED = 0x00000008 | 0x00000200  # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
                 subprocess.Popen(
-                    [sys.executable, str(app_script)],
+                    [py_exe, str(app_script)],
                     shell=False,
                     cwd=str(base_dir),
                     creationflags=DETACHED if sys.platform == "win32" else 0

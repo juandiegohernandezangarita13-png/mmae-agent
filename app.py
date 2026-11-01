@@ -19,6 +19,14 @@ if sys.platform == "win32":
     except Exception:
         pass
 
+# Autodescubrimiento del entorno virtual local para máxima portabilidad
+_base_dir = Path(__file__).resolve().parent
+_venv_site = _base_dir / ".venv" / "Lib" / "site-packages"
+if _venv_site.exists() and str(_venv_site) not in sys.path:
+    sys.path.insert(0, str(_venv_site))
+if str(_base_dir) not in sys.path:
+    sys.path.insert(0, str(_base_dir))
+
 import psutil
 import webview
 
@@ -671,13 +679,13 @@ def main():
         window_width, window_height = 1380, 860
 
     window = webview.create_window(
-        title="JEV // Autonomous AI",
+        title="MMAE // Claude Edition",
         url=str(html_path.resolve()),
         js_api=bridge,
         width=window_width,
         height=window_height,
         min_size=(min(1000, window_width), min(650, window_height)),
-        background_color="#000000"
+        background_color="#131419"
     )
 
     bridge.set_window(window)

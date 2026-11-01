@@ -70,7 +70,7 @@ def main() -> int:
         frameless=True,
         transparent=not opaque_island,
         on_top=True,
-        easy_drag=False,
+        easy_drag=True,
         focus=True,
         shadow=False,
         background_color="#000000",
