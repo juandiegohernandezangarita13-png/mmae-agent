@@ -225,6 +225,10 @@ class JarvisBridge:
                     # Si el artefacto es HTML, inyectarlo automáticamente en la vista previa y conmutar pestaña
                     if p.endswith(".html") or "<!DOCTYPE html>" in c:
                         self._eval_js(f"window.onRenderWebPreview && window.onRenderWebPreview({json.dumps(c)});")
+            elif tool_name in ("desktop_app_live_type", "desktop_live_operator") and result.data:
+                app_t = result.data.get("app", "app")
+                lines_n = result.data.get("lines_count", 0)
+                self._on_thought(f"⌨️ [Live Operator]: {lines_n} líneas escritas directamente en '{app_t}' con el teclado.")
 
     def render_3d_scene(self, scene_dict: dict):
         """Permite renderizar directamente una escena 3D en el viewport."""
@@ -283,6 +287,10 @@ class JarvisBridge:
             "patch_file",
             "skill_claude_code",
             "skill_sdlc_senior",
+            "desktop_app_live_type",
+            "desktop_live_operator",
+            "keyboard_type",
+            "mouse_click",
         }
 
     def _request_approval(self, tool_name: str, arguments: Dict[str, Any], timeout: float = 180.0) -> bool:

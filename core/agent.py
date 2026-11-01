@@ -33,6 +33,7 @@ from skills.filesystem import SafeFileSystemSkill
 from skills.web import SafeWebSkill
 from skills.git_ops import GitOperationsSkill
 from skills.system_monitor import SystemMonitorSkill
+from skills.desktop_operator import DesktopLiveOperatorSkill
 
 try:
     from jev.core.agent import AgentCore
@@ -114,6 +115,17 @@ class MMAEAutonomousAgent:
         # Monitor de sistema
         sys_monitor = SystemMonitorSkill()
         self.registry.register("system_stats", "Obtiene métricas de CPU, disco y SO.")(sys_monitor.get_system_stats)
+
+        # Operador de escritorio en vivo (OpenSCAD, Notepad, VS Code, Blender, etc.)
+        desktop_op = DesktopLiveOperatorSkill()
+        self.registry.register(
+            "desktop_app_live_type",
+            "Abre cualquier app de escritorio (openscad, notepad, vscode, blender), la enfoca y escribe código/texto con el teclado en vivo."
+        )(desktop_op.live_type)
+        self.registry.register(
+            "desktop_live_operator",
+            "Alias para desktop_app_live_type."
+        )(desktop_op.live_type)
 
         # Habilidades de Memoria Persistente Avanzada (Mem0 + Graffiti + Coach)
         self.registry.register(

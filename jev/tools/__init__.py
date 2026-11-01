@@ -14,6 +14,7 @@ from jev.tools.screen import (
 from jev.tools.web import WebSearchTool, WebFetchTool
 from jev.tools.filesystem import ReadFileTool, WriteFileTool, PatchFileTool, ListDirTool
 from jev.tools.code_runner import PythonRunnerTool, ShellCommandTool, PackageManagerTool
+from jev.tools.system_apps import OpenApplicationTool
 from jev.tools.dynamic_loader import DynamicToolManager, CreateCustomTool
 from jev.tools.github import (
     GitHubSearchReposTool,
@@ -27,6 +28,7 @@ from jev.tools.video_generator import HyperFramesVideoTool
 from jev.tools.smolvm_runner import SmolvmRunnerTool, SmolfileGeneratorTool
 from jev.tools.ui_grounding import FindUIElementTool, ClickElementByTextTool
 from jev.tools.ui_inspector import UIInspectorTool
+from jev.tools.desktop_app_operator import DesktopAppLiveOperatorTool
 from jev.tools.viewport import Render3DSceneTool, ExecuteViewportScriptTool
 from jev.core.scheduler import ScheduleTaskTool, ListScheduledTasksTool
 from jev.core.subagents import DelegateSubagentTool, SubagentOrchestrator
@@ -72,6 +74,8 @@ def build_default_registry(config: Optional[Any] = None) -> tuple[ToolRegistry, 
     registry.register(PythonRunnerTool(workspace_dir=ws))
     registry.register(ShellCommandTool(workspace_dir=ws))
     registry.register(PackageManagerTool())
+    registry.register(OpenApplicationTool())
+    registry.register(DesktopAppLiveOperatorTool())
     registry.register(OpenMythosRunnerTool())
     registry.register(HyperFramesVideoTool(workspace_dir=ws) if ws else HyperFramesVideoTool())
     registry.register(SmolvmRunnerTool(workspace_dir=ws))

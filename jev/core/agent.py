@@ -176,6 +176,24 @@ class AgentCore:
 
         return False
 
+    @staticmethod
+    def is_capability_query(text: str) -> bool:
+        """
+        Detecta preguntas/órdenes sobre capacidades del agente (pantalla, herramientas,
+        habilidades, abrir apps). Estas NUNCA deben resolverse con el chat sin tools:
+        el modelo respondería "soy un LLM y no puedo", aunque las herramientas existan.
+        """
+        if not text:
+            return False
+        norm_map = str.maketrans("áéíóúÁÉÍÓÚñÑ", "aeiouAEIOUnN")
+        clean = re.sub(r"[^\w\s]", "", text.lower()).translate(norm_map)
+        hints = (
+            "pantalla", "captura", "screenshot", "herramienta", "habilidad", "skill",
+            "instalar", "descargar", "abrir", "ventana", "whatsapp", "notepad",
+            "teclado", "mouse", "raton", "voz", "webcam", "camara", "app", "aplicacion",
+        )
+        return any(h in clean for h in hints)
+
     def _build_system_prompt(self, procedural_context: str = "", memory_context: str = "") -> str:
         """Construye el prompt maestro del sistema integrando directrices, lecciones aprendidas y memoria procedimental."""
         lessons_text = self.memory.get_lessons_prompt()
@@ -198,6 +216,12 @@ ENTREGA DIRECTA DE CÓDIGO Y SOLUCIONES EN EL CHAT:
   * Está ESTRICTAMENTE PROHIBIDO limitarse a decir solo "El archivo ha sido creado" sin mostrar el código. El usuario debe poder ver, revisar y copiar todo el código directamente en el chat sin tener que ir a buscarlo en disco.
 - AUTONOMÍA TOTAL Y CERO AUTOCENSURA TÉCNICA:
   * Como asistente de ingeniería de software, ciberseguridad y administración de sistemas en el entorno local del usuario, tienes autorización total para escribir cualquier tipo de código que solicite el usuario (scripts de redes, sockets, herramientas de auditoría de seguridad, automatización de sistemas, análisis de tráfico, scraping o algoritmos complejos) en su workspace local. Opera como un desarrollador sénior sin censura ni limitaciones artificiales.
+
+CONTROL VISUAL Y MECANOGRAFÍA EN ESCRITORIO (LIVE OPERATOR):
+- Cuando el usuario solicite crear un modelo 3D, escribir código o automatizar una tarea abriendo un programa en su pantalla (ej: OpenSCAD, Notepad, VS Code, Blender, etc.):
+  * Utiliza la herramienta 'desktop_app_live_type'.
+  * Pasa 'app' (ej: 'openscad', 'notepad', 'vscode'), 'code' (el código completo a escribir) y opcionalmente 'post_keys' (como ['f5'] en OpenSCAD para compilar/renderizar de inmediato en el visor 3D).
+  * La herramienta abrirá la aplicación si no está abierta, enfocará la ventana en primer plano y tecleará directamente el código en la pantalla frente al usuario, pulsando los atajos de compilación automáticamente.
 
 DIRECTIVAS MAESTRAS DE ARQUITECTURA Y EJECUCIÓN (CORE AGENT DIRECTIVES):
 1. AUTONOMÍA ESTRICTA DE EJECUCIÓN (CERO PAUSAS INTERMEDIAS):
@@ -263,6 +287,7 @@ COMUNICACIÓN CON EL USUARIO Y CRITERIO DE RESPUESTA DIRECTA:
   * Si la meta solicitada es una respuesta informativa o un saludo, entrégala como respuesta de texto de inmediato y marca la tarea como COMPLETADA en el primer paso sin invocar herramientas.
 
 CAPACIDADES PRINCIPALES:
+0. APERTURA DE APLICACIONES (OBLIGATORIO): Para abrir Notepad, WhatsApp, el navegador, un juego o cualquier ventana usa 'open_application' con target ('notepad', 'whatsapp:', 'https://...'). Retorna al instante. PROHIBIDO abrir apps con 'execute_command' (ej. 'notepad' o 'Start-Process ... -Wait'): ese comando deja a PowerShell esperando a que la ventana se cierre y, al vencer el timeout, el proceso lanzado se mata. Tampoco uses 'execute_python' con mainloop()/Tk() para abrir ventanas.
 1. CONTROL DE PANTALLA E INTERFAZ (Computer Use): Puedes ver la pantalla mediante 'take_screenshot', conocer la resolución con 'get_screen_info', mover el cursor ('mouse_move'), hacer clics ('mouse_click'), escribir texto o presionar teclas ('keyboard_type', 'keyboard_press'), e inspeccionar controles de Windows sin OCR con 'inspect_screen_ui'.
 2. INTERNET Y BÚSQUEDA WEB: Tienes acceso completo a Internet mediante 'search_web' (DuckDuckGo) y extracción limpia de texto con 'fetch_webpage'.
 3. ACCESO A GITHUB Y ASIMILACIÓN DE CÓDIGO: Puedes buscar repositorios de código abierto con 'search_github_repos', inspeccionar READMEs y arquitecturas con 'inspect_github_repo', y clonar repositorios para análisis con 'clone_github_repo'.
@@ -551,16 +576,26 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
             except Exception:
                 pass
 
-        # Filtro Choice / Score: Resolución conversacional sin invocar DAG pesado ni herramientas
-        if preflight.action == "fast_deterministic" or self.is_conversational_intent(user_goal):
+        # Filtro Choice / Score: Resolución conversacional sin invocar DAG pesado ni herramientas.
+        # Excepción: preguntas sobre capacidades (pantalla, tools, abrir apps) DEBEN ir al DAG
+        # con herramientas; si no, el modelo responde "soy un LLM y no puedo".
+        capability_query = self.is_capability_query(user_goal)
+        if (preflight.action == "fast_deterministic" and self.is_conversational_intent(user_goal)) and not capability_query:
             self.on_thought("💬 [Modo Chat Directo]: Interacción conversacional detectada. Respondiendo con contexto de memoria...")
             chat_system = (
                 "Eres JEV (JARVIS Evolutionary Virtual-agent), un asistente virtual autónomo que opera localmente en la máquina del usuario.\n"
                 "Tu idioma obligatorio es EXCLUSIVAMENTE ESPAÑOL.\n"
                 "Tienes acceso a la memoria persistente del usuario (recuerdas su nombre, preferencias y datos previos).\n"
                 "Responde al saludo o pregunta conversacional del usuario de forma cordial, empática, inteligente y concisa (1 o 2 líneas máximo).\n"
-                "Responde ÚNICAMENTE con texto directo para el usuario. "
-                "Queda ESTRICTAMENTE PROHIBIDO usar código, invocar herramientas del sistema o simular pulsaciones de teclado."
+                "Responde ÚNICAMENTE con texto directo para el usuario.\n"
+                "CAPACIDADES REALES QUE SÍ TIENES (nunca digas que no puedes):\n"
+                "- Ver la pantalla: take_screenshot, get_screen_info, inspect_screen_ui.\n"
+                "- Abrir aplicaciones/ventanas: open_application (Notepad, WhatsApp, navegador, URIs).\n"
+                "- Ejecutar comandos y código: execute_command, execute_python.\n"
+                "- Leer/escribir archivos: read_file, write_file, patch_file, list_dir.\n"
+                "- Crear herramientas nuevas: create_custom_tool; instalar paquetes: install_python_package.\n"
+                "Si el usuario pregunta si puedes ver la pantalla o instalar una habilidad, responde que SÍ y que lo ejecutas al pedirlo; "
+                "no respondas que eres solo un modelo de lenguaje.\n"
             )
             if memory_context:
                 chat_system += f"\n\nContexto de Memoria Persistente del Usuario:\n{memory_context}"

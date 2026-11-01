@@ -58,7 +58,16 @@
 * **Evaluador AST (`core/evaluator.py`):** Validación previa de sintaxis de Python antes de cualquier despliegue.
 * **Memoria Jerárquica y Persistencia (`core/memory.py`, `core/persistence.py`):** Base relacional SQLite para snippets y soluciones procedimentales, junto con instantáneas de estado en disco (`.mmae_state.json`).
 
-### 4. Múltiples Interfaces de Control
+### 4. Operador Universal de Escritorio y Mecanografía en Vivo (`jev/tools/desktop_app_operator.py`, `skills/desktop_operator.py`)
+* **Control Nativo de Ventanas y Teclado:** Abre cualquier aplicación (OpenSCAD, Notepad, VS Code, Blender, etc.), trae la ventana al frente con foco absoluto de Windows vía Win32 API (`AttachThreadInput` + `SetForegroundWindow`).
+* **Mecanografía en Vivo en Pantalla:** Teclea código o texto directamente en la zona de edición simulando el teclado en tiempo real frente al usuario (con velocidad configurable).
+* **Atajos de Compilación Automáticos:** Dispara atajos al terminar (como `F5` para compilar y proyectar modelos 3D en OpenSCAD, o `Ctrl+S` para guardar).
+* **Adopción de Principios Coucou:**
+  * **Supervisión HITL:** Tarjeta de autorización inmediata en la Isla flotante (`[Y]` / `[N]`) antes de tomar el control del teclado o ratón.
+  * **Desacoplamiento Asíncrono:** La animación de Mochi en la isla nunca se congela durante la escritura.
+  * **FailSafe de Emergencia:** Mover el ratón a la esquina detiene la mecanografía al instante.
+
+### 5. Múltiples Interfaces de Control
 * **CLI Autónomo e Interactivo (`main.py`):** Modos `--goal "..."` y consola interactiva estilo REPL con tablas de herramientas.
 * **Isla Dinámica de Escritorio (`jev_desktop.py`):** Compañero flotante transparente y *topmost* basado en el diseño Coucou / Mochi:
   * Motor Canvas 2D Superellipsoid ($r(y) = (1 - |y|^{2.7})^{1/2.7}$) con seguimiento de ojos y parpadeo.
