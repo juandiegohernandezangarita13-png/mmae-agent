@@ -28,6 +28,7 @@ if str(_base_dir) not in sys.path:
 from config import config, default_config, AgentConfig
 from core.agent import MMAEAutonomousAgent, AgentCore
 from core.evaluator import OutputEvaluator
+from jev.core.status_sync import set_agent_status
 
 try:
     from jev.ui.console import (
@@ -53,8 +54,16 @@ def run_interactive_session(agent_config: AgentConfig) -> None:
         print(f"=== MMAE Agent • Claude Code CLI ({agent_config.model_name}) ===")
         print("Escribe tu objetivo o '/help' para ver comandos.\n")
 
+    def _on_thought_handler(t: str):
+        set_agent_status(state="thinking", thought=str(t)[:160], running=True)
+        if console:
+            display_thought(t)
+        else:
+            print(f"[Pensamiento] {t}")
+
     # Callback de permisos para acciones sensibles en la terminal
     def _on_tool_call_handler(name: str, args: dict):
+        set_agent_status(state="tool", tool=name, tool_args=str(args)[:140], tool_in_progress=True, running=True)
         if console:
             display_tool_call(name, args)
         else:
@@ -66,11 +75,19 @@ def run_interactive_session(agent_config: AgentConfig) -> None:
                 return ask_terminal_permission(name, args)
         return True
 
+    def _on_tool_result_handler(name: str, result):
+        ok = getattr(result, "success", True) if hasattr(result, "success") else True
+        set_agent_status(state="tool", tool=name, last_ok=ok, tool_in_progress=False, running=True)
+        if console:
+            display_tool_result(name, result)
+        else:
+            print(f"[Resultado] {name}")
+
     agent = AgentCore(
         config=agent_config,
-        on_thought=display_thought if console else (lambda t: print(f"[Pensamiento] {t}")),
+        on_thought=_on_thought_handler,
         on_tool_call=_on_tool_call_handler,
-        on_tool_result=display_tool_result if console else (lambda n, r: print(f"[Resultado] {n}"))
+        on_tool_result=_on_tool_result_handler
     ) if AgentCore else None
 
     while True:
@@ -159,21 +176,25 @@ def run_interactive_session(agent_config: AgentConfig) -> None:
 
             # Ejecutar con el agente autónomo
             start_time = time.time()
-            if agent:
-                result = agent.run_task(user_goal=user_input)
-                elapsed = time.time() - start_time
-                if console:
-                    display_final_answer(result, elapsed_seconds=elapsed)
+            set_agent_status(state="thinking", task=user_input, running=True, thought="Iniciando tarea...")
+            try:
+                if agent:
+                    result = agent.run_task(user_goal=user_input)
+                    elapsed = time.time() - start_time
+                    if console:
+                        display_final_answer(result, elapsed_seconds=elapsed)
+                    else:
+                        print(f"\n[Respuesta] ({elapsed:.2f}s):\n{result}\n")
                 else:
-                    print(f"\n[Respuesta] ({elapsed:.2f}s):\n{result}\n")
-            else:
-                mmae = MMAEAutonomousAgent(agent_config)
-                result = mmae.run(user_input)
-                elapsed = time.time() - start_time
-                if console:
-                    display_final_answer(str(result), elapsed_seconds=elapsed)
-                else:
-                    print(f"\n[Respuesta] ({elapsed:.2f}s):\n{result}\n")
+                    mmae = MMAEAutonomousAgent(agent_config)
+                    result = mmae.run(user_input)
+                    elapsed = time.time() - start_time
+                    if console:
+                        display_final_answer(str(result), elapsed_seconds=elapsed)
+                    else:
+                        print(f"\n[Respuesta] ({elapsed:.2f}s):\n{result}\n")
+            finally:
+                set_agent_status(state="idle", thought="Completado", running=False, last_ok=True)
 
         except (KeyboardInterrupt, EOFError):
             if console:
@@ -218,18 +239,36 @@ def main():
     if target_goal and not args.interactive:
         # Ejecución directa estilo Claude Code no interactivo
         start_time = time.time()
+        set_agent_status(state="thinking", task=target_goal, running=True, thought="Iniciando tarea...")
+        def _dt(t):
+            set_agent_status(state="thinking", thought=str(t)[:160], running=True)
+            if console: display_thought(t)
+            else: print(f"[Pensamiento] {t}")
+        def _dc(n, a):
+            set_agent_status(state="tool", tool=n, tool_args=str(a)[:140], tool_in_progress=True, running=True)
+            if console: display_tool_call(n, a)
+            else: print(f"[Acción] {n}: {a}")
+        def _dr(n, r):
+            ok = getattr(r, "success", True) if hasattr(r, "success") else True
+            set_agent_status(state="tool", tool=n, last_ok=ok, tool_in_progress=False, running=True)
+            if console: display_tool_result(n, r)
+            else: print(f"[Resultado] {n}")
+
         agent = AgentCore(
             config=cfg,
-            on_thought=display_thought if console else (lambda t: print(f"[Pensamiento] {t}")),
-            on_tool_call=display_tool_call if console else (lambda n, a: print(f"[Acción] {n}: {a}")),
-            on_tool_result=display_tool_result if console else (lambda n, r: print(f"[Resultado] {n}"))
+            on_thought=_dt,
+            on_tool_call=_dc,
+            on_tool_result=_dr
         )
-        res = agent.run_task(target_goal)
-        elapsed = time.time() - start_time
-        if console:
-            display_final_answer(res, elapsed_seconds=elapsed)
-        else:
-            print(f"\n{res}\n")
+        try:
+            res = agent.run_task(target_goal)
+            elapsed = time.time() - start_time
+            if console:
+                display_final_answer(res, elapsed_seconds=elapsed)
+            else:
+                print(f"\n{res}\n")
+        finally:
+            set_agent_status(state="idle", thought="Completado", running=False, last_ok=True)
     else:
         run_interactive_session(cfg)
 

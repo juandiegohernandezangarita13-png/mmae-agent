@@ -13,6 +13,14 @@ import os
 import sys
 from pathlib import Path
 
+# Autodescubrimiento del entorno virtual local para máxima portabilidad
+_base_dir = Path(__file__).resolve().parent
+_venv_site = _base_dir / ".venv" / "Lib" / "site-packages"
+if _venv_site.exists() and str(_venv_site) not in sys.path:
+    sys.path.insert(0, str(_venv_site))
+if str(_base_dir) not in sys.path:
+    sys.path.insert(0, str(_base_dir))
+
 import webview
 
 from app import JarvisBridge
@@ -50,14 +58,14 @@ def main() -> int:
     opaque_island = os.environ.get("JEV_ISLAND_OPAQUE") == "1"
 
     island_window = webview.create_window(
-        title="MMAE Island",
+        title="MMAE Companion Widget",
         url=str(island_html.resolve()),
         js_api=island_bridge,
         width=island_width,
         height=island_height,
         x=island_x,
         y=island_y,
-        min_size=(200, 50),
+        min_size=(240, 60),
         resizable=False,
         frameless=True,
         transparent=not opaque_island,
@@ -66,7 +74,7 @@ def main() -> int:
         focus=True,
         shadow=False,
         background_color="#000000",
-        text_select=True,
+        text_select=False,
     )
 
     island_bridge.attach(bridge, None, island_window, quit_state)
@@ -78,25 +86,6 @@ def main() -> int:
             if native is not None:
                 try:
                     native.ShowInTaskbar = False
-                except Exception:
-                    pass
-
-                # Auto-reducir la isla cuando el usuario interactúe con otra app (Deactivate).
-                # IMPORTANTE: NO llamar a evaluate_js de forma síncrona dentro del evento
-                # Deactivate (WebView2 puede estar suspendido/disposed y el hilo UI queda
-                # bloqueado). Se difiere al message loop con BeginInvoke.
-                try:
-                    def _on_deactivate(sender, args):
-                        if not getattr(island_bridge, "_expanded", False):
-                            return
-                        try:
-                            from System import Action
-                            native.BeginInvoke(Action(lambda: island_bridge.collapse()))
-                        except Exception:
-                            # Si la ventana ya no puede recibir mensajes, no colapsar:
-                            # mejor una isla expandida que una isla congelada.
-                            pass
-                    native.Deactivate += _on_deactivate
                 except Exception:
                     pass
 

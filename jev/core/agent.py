@@ -539,9 +539,20 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
         self.abort_requested = False
         self.is_running = True
         try:
+            from jev.core.status_sync import set_agent_status
+            set_agent_status(state="thinking", task=user_goal, running=True, thought="Iniciando tarea...")
+        except Exception:
+            pass
+
+        try:
             return self._run_task_loop(user_goal)
         finally:
             self.is_running = False
+            try:
+                from jev.core.status_sync import set_agent_status
+                set_agent_status(state="idle", running=False, thought="Completado", last_ok=True)
+            except Exception:
+                pass
 
     def _run_task_loop(self, user_goal: str) -> str:
         """Bucle interno de ejecución de la tarea optimizado con System-1 Jev Router."""

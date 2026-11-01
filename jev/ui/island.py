@@ -15,9 +15,10 @@ from typing import Any, Dict, Optional
 
 import webview
 
-#: Tamaño lógico de la ventana en modo píldora y en modo panel.
-COLLAPSED_SIZE = (232, 54)
-EXPANDED_SIZE = (474, 340)
+#: Tamaño lógico del widget flotante de escritorio (compacto, sin chat).
+COLLAPSED_SIZE = (320, 80)
+EXPANDED_SIZE = (320, 80)
+WIDGET_SIZE = (320, 80)
 
 
 import ctypes
@@ -137,10 +138,27 @@ def screen_metrics() -> tuple[float, float, float]:
 
 
 def compute_position(width: int, height: int = 0) -> tuple[int, int]:
-    """Posición lógica inicial (se corrige luego con píxeles físicos)."""
+    """Posición lógica inicial (recupera la posición arrastrada o coloca arriba a la derecha)."""
+    import json
+    from pathlib import Path
+    try:
+        pos_file = Path(__file__).resolve().parents[2] / "data" / "widget_pos.json"
+        if pos_file.exists():
+            with open(pos_file, "r", encoding="utf-8") as f:
+                d = json.load(f)
+                x = int(d.get("x", 0))
+                y = int(d.get("y", 0))
+                user32 = ctypes.windll.user32
+                screen_w = user32.GetSystemMetrics(0)
+                screen_h = user32.GetSystemMetrics(1)
+                if 0 <= x <= screen_w - 60 and 0 <= y <= screen_h - 60:
+                    return x, y
+    except Exception:
+        pass
+
     logical_w, _, _ = screen_metrics()
-    x = int(max(0, (logical_w - width) / 2))
-    return x, 0
+    x = int(max(40, logical_w - width - 40))
+    return x, 70
 
 
 def _window_geometry(hwnd: int, width: int, height: int, preserve_position: bool = True) -> tuple[int, int, int, int]:
@@ -165,17 +183,16 @@ def _window_geometry(hwnd: int, width: int, height: int, preserve_position: bool
         work = info.rcWork
         work_w = work.right - work.left
         work_h = work.bottom - work.top
-        # Si el usuario ya arrastró la ventana (no está en 0,0 por defecto), mantener su centro X y su Y
+        # Si el usuario ya arrastró la ventana (no está en 0,0 por defecto), mantener su posición exacta
         if preserve_position and has_pos and (rect.right > rect.left) and (rect.bottom > rect.top) and (rect.left != 0 or rect.top != 0):
-            curr_center_x = (rect.left + rect.right) // 2
-            x = max(work.left, min(work.right - phys_w, curr_center_x - (phys_w // 2)))
+            x = max(work.left, min(work.right - phys_w, rect.left))
             y = max(work.top, min(work.bottom - phys_h, rect.top))
         else:
-            x = work.left + max(0, (work_w - phys_w) // 2)
-            y = work.top
+            x = work.left + max(40, work_w - phys_w - 40)
+            y = work.top + 70
     else:
         x = max(0, (user32.GetSystemMetrics(0) - phys_w) // 2)
-        y = 0
+        y = 70
 
     user32.SetWindowPos(hwnd, _HWND_TOPMOST, x, y, phys_w, phys_h,
                         _SWP_NOACTIVATE | _SWP_SHOWWINDOW)
@@ -267,33 +284,69 @@ class IslandBridge:
     # API expuesta al frontend
     # ------------------------------------------------------------------
     def get_status(self) -> Dict[str, Any]:
-        if self._jarvis is None:
-            return {
-                "state": "idle",
-                "thought": "",
-                "tool": "",
-                "tool_args": "",
-                "tool_in_progress": False,
-                "last_ok": None,
-                "task": "",
-                "voice": False,
-                "confirm_risky": False,
-                "pending": None,
-                "cpu": 0,
-                "ram": 0,
-                "model": "—",
-                "island_mode": True,
-            }
-        return self._jarvis.activity_snapshot()
+        from jev.core.status_sync import get_agent_status
+        synced = get_agent_status()
+        base = {
+            "state": "idle",
+            "thought": "",
+            "tool": "",
+            "tool_args": "",
+            "tool_in_progress": False,
+            "last_ok": None,
+            "task": "",
+            "voice": False,
+            "confirm_risky": False,
+            "pending": None,
+            "cpu": 0,
+            "ram": 0,
+            "model": "—",
+            "island_mode": True,
+        }
+        if self._jarvis is not None:
+            base = self._jarvis.activity_snapshot()
+
+        # Si hay actividad sincronizada desde la terminal o proceso externo, reflejarla
+        if synced.get("running"):
+            base["state"] = synced.get("state", "thinking")
+            base["running"] = True
+            if synced.get("thought"):
+                base["thought"] = synced.get("thought", "")
+            if synced.get("tool"):
+                base["tool"] = synced.get("tool", "")
+            if synced.get("tool_args"):
+                base["tool_args"] = synced.get("tool_args", "")
+            base["tool_in_progress"] = synced.get("tool_in_progress", False)
+            if synced.get("last_ok") is not None:
+                base["last_ok"] = synced.get("last_ok")
+            if synced.get("task"):
+                base["task"] = synced.get("task", "")
+        elif not base.get("running") and synced.get("thought") == "Completado":
+            base["thought"] = "Completado"
+            base["last_ok"] = True
+
+        return base
 
     def expand(self) -> Dict[str, Any]:
-        self._layout(expanded=True)
-        return {"ok": True, "expanded": True}
+        return {"ok": True, "expanded": False}
 
     def collapse(self) -> Dict[str, Any]:
-        self._layout(expanded=False)
-        self._safe_eval_js("if(typeof setExpandedUI==='function') setExpandedUI(false);")
         return {"ok": True, "expanded": False}
+
+    def _save_current_position(self) -> None:
+        """Guarda la posición actual de la ventana tras el arrastre."""
+        if not self._hwnd:
+            return
+        try:
+            import json
+            from pathlib import Path
+            rect = _RECT()
+            if ctypes.windll.user32.GetWindowRect(self._hwnd, ctypes.byref(rect)):
+                pos_file = Path(__file__).resolve().parents[2] / "data" / "widget_pos.json"
+                pos_file.parent.mkdir(parents=True, exist_ok=True)
+                with open(pos_file, "w", encoding="utf-8") as f:
+                    json.dump({"x": int(rect.left), "y": int(rect.top)}, f)
+        except Exception:
+            pass
 
     def drag_window(self) -> Dict[str, Any]:
         """Permite mover y arrastrar la ventana sin bordes por toda la pantalla usando Win32."""
@@ -303,6 +356,7 @@ class IslandBridge:
             ctypes.windll.user32.ReleaseCapture()
             # WM_SYSCOMMAND (0x0112), SC_MOVE + HTCAPTION (0xF012)
             ctypes.windll.user32.SendMessageW(self._hwnd, 0x0112, 0xF012, 0)
+            self._save_current_position()
             return {"ok": True}
         except Exception as exc:
             return {"ok": False, "error": str(exc)}
@@ -323,23 +377,66 @@ class IslandBridge:
                 restore = getattr(self._main_window, "restore", None)
                 if callable(restore):
                     restore()
+                native = getattr(self._main_window, "native", None)
+                if native and hasattr(native, "Handle"):
+                    h = int(native.Handle.ToInt64()) if hasattr(native.Handle, "ToInt64") else int(native.Handle)
+                    ctypes.windll.user32.SetForegroundWindow(h)
                 return {"ok": True}
-            except Exception as exc:  # pragma: no cover - depende de la GUI
-                return {"ok": False, "error": str(exc)}
+            except Exception:
+                pass
 
-        # Si se inició sólo la isla, lanzar la interfaz completa de JARVIS sin bloquear
         try:
             import subprocess
             from pathlib import Path
             base_dir = Path(__file__).resolve().parents[2]
             app_script = base_dir / "app.py"
+
+            # 1. Comprobar si ya existe una ventana con título "JEV // Autonomous AI" y enfocarla
+            found_hwnd = None
+            def _enum_win(hwnd, _):
+                nonlocal found_hwnd
+                if ctypes.windll.user32.IsWindowVisible(hwnd):
+                    length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
+                    if length > 0:
+                        buff = ctypes.create_unicode_buffer(length + 1)
+                        ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
+                        if "JEV // Autonomous AI" in buff.value:
+                            found_hwnd = hwnd
+                            return False
+                return True
+
+            WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
+            ctypes.windll.user32.EnumWindows(WNDENUMPROC(_enum_win), 0)
+
+            if found_hwnd:
+                ctypes.windll.user32.ShowWindow(found_hwnd, 9)  # SW_RESTORE
+                ctypes.windll.user32.SetForegroundWindow(found_hwnd)
+                ctypes.windll.user32.BringWindowToTop(found_hwnd)
+                return {"ok": True, "focused": True}
+
+            # 2. Si no está abierta, lanzar app.py en un subproceso desacoplado
             if app_script.exists():
-                subprocess.Popen([sys.executable, str(app_script)], shell=False, cwd=str(base_dir))
+                DETACHED = 0x00000008 | 0x00000200  # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
+                subprocess.Popen(
+                    [sys.executable, str(app_script)],
+                    shell=False,
+                    cwd=str(base_dir),
+                    creationflags=DETACHED if sys.platform == "win32" else 0
+                )
                 return {"ok": True, "launched": True}
         except Exception as e:
             return {"ok": False, "error": str(e)}
 
-        return {"ok": False, "error": "La ventana principal no está disponible."}
+        return {"ok": False, "error": "No se pudo abrir la aplicación."}
+
+    def close_widget(self) -> Dict[str, Any]:
+        """Cierra el widget de escritorio."""
+        if self._island_window is not None:
+            try:
+                self._island_window.destroy()
+            except Exception:
+                pass
+        return {"ok": True}
 
     def stop_agent(self) -> Dict[str, Any]:
         if self._jarvis is None:
