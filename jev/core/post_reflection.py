@@ -232,8 +232,8 @@ class PostExecutionAuditEngine:
         if corrected_answer == final_answer:
             corrected_answer = None
 
-        # 5. Intento de autocorrección asistida por LLM si está disponible
-        if self.llm:
+        # 5. Intento de autocorrección asistida por LLM (desactivado en modo interactivo para latencia cero)
+        if False and self.llm:
             try:
                 fix_prompt = (
                     f"OBJETIVO ORIGINAL: {user_goal}\n\n"

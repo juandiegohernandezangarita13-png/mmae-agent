@@ -1016,20 +1016,20 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
                     break
 
             else:
-                # El modelo no llamó a herramientas: respuesta final o conclusión
-                if current_subtask and not plan.is_all_completed() and autonomous_nudges < 2:
+                # El modelo no llamó a herramientas: respuesta final o conclusión entregada
+                has_code = "```" in content
+                is_substantive = len(content.strip()) >= 30
+
+                # Solo insistir si la respuesta fue vacía o evasiva y hay tareas pendientes
+                if current_subtask and not plan.is_all_completed() and not has_code and not is_substantive and autonomous_nudges < 1:
                     autonomous_nudges += 1
-                    self.on_thought(f"⚡ [Autonomía Estricta]: Subtarea [{current_subtask.id}] pendiente en el plan DAG. Continuando ejecución autónoma sin transferir el turno.")
+                    self.on_thought(f"⚡ [Autonomía]: Subtarea [{current_subtask.id}] pendiente. Continuando ejecución...")
                     self.messages.append({
                         "role": "user",
-                        "content": (
-                            f"[DIRECTIVA DE AUTONOMÍA ESTRICTA]: Hay subtareas pendientes en el plan DAG. "
-                            f"Micro-tarea activa [{current_subtask.id}]: {current_subtask.title} ({current_subtask.description}). "
-                            "Queda estrictamente prohibido transferir el turno al usuario o imprimir preguntas de confirmación interna (como '¿Qué necesito hacer ahora?'). "
-                            "Continúa de forma continua y autónoma ejecutando la herramienta necesaria para completar esta micro-tarea de inmediato."
-                        )
+                        "content": f"Continúa con la siguiente acción técnica para completar: {current_subtask.title}"
                     })
                     continue
+
                 final_answer = content
                 success = True
                 break

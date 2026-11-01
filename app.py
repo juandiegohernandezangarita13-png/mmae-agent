@@ -477,16 +477,25 @@ class JarvisBridge:
                 safe_label = json.dumps(shield_info["status_label"])
                 self._eval_js(f"window.onUpdateQAShield && window.onUpdateQAShield({safe_label}, {shield_info['total_vulnerabilities']});")
 
+                # Liberar estado inmediatamente para cero latencia
+                self._current_task = ""
+                self._tool_in_progress = False
+
                 # Síntesis de voz desacoplada si el subsistema está activo
                 if self._voice_enabled and final_answer:
                     self._synthesize_voice_async(final_answer)
 
-                # Evaluación de automejora en segundo plano
-                self._evaluator.reflect_and_learn(
-                    task=task,
-                    execution_log=self._agent.messages,
-                    success=True
-                )
+                # Evaluación de automejora en segundo plano DESACOPLADA (no bloqueante)
+                def _bg_learn():
+                    try:
+                        self._evaluator.reflect_and_learn(
+                            task=task,
+                            execution_log=self._agent.messages,
+                            success=True
+                        )
+                    except Exception:
+                        pass
+                threading.Thread(target=_bg_learn, daemon=True).start()
             except Exception as e:
                 err_text = f"Error ejecutando tarea: {e}"
                 self._chat_history.append({"role": "assistant", "content": err_text})

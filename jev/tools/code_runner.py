@@ -40,8 +40,14 @@ def kill_process_tree(pid: int) -> None:
                 pass
 
 
-def safe_subprocess_run(cmd: Any, cwd: Any, env: Optional[Dict[str, str]] = None, timeout: int = 30) -> subprocess.CompletedProcess:
-    """Ejecuta un subproceso con timeout estricto y terminación forzosa de la jerarquía de procesos."""
+def safe_subprocess_run(cmd: Any, cwd: Any, env: Optional[Dict[str, str]] = None, timeout: int = 30, kill_tree: bool = True) -> subprocess.CompletedProcess:
+    """Ejecuta un subproceso con timeout estricto y terminación forzosa de la jerarquía de procesos.
+
+    ``kill_tree=False`` se usa para comandos de shell que pueden lanzar una aplicación
+    GUI: al vencer el timeout se mata solo PowerShell, NO la app hija. Así una app
+    abierta por el agente (Notepad, WhatsApp, un juego...) no se cierra sola cuando
+    el comando deja de responder.
+    """
     effective_timeout = min(max(1, timeout), MAX_EXECUTION_TIMEOUT)
     creationflags = 0
     if sys.platform == "win32":
@@ -51,6 +57,7 @@ def safe_subprocess_run(cmd: Any, cwd: Any, env: Optional[Dict[str, str]] = None
         cmd,
         cwd=str(cwd),
         env=env,
+        stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -62,11 +69,13 @@ def safe_subprocess_run(cmd: Any, cwd: Any, env: Optional[Dict[str, str]] = None
         stdout, stderr = proc.communicate(timeout=effective_timeout)
         return subprocess.CompletedProcess(cmd, proc.returncode, stdout, stderr)
     except subprocess.TimeoutExpired:
-        kill_process_tree(proc.pid)
-        try:
-            proc.kill()
-        except Exception:
-            pass
+        if kill_tree:
+            kill_process_tree(proc.pid)
+        else:
+            try:
+                proc.kill()
+            except Exception:
+                pass
         raise subprocess.TimeoutExpired(cmd, effective_timeout)
 
 
@@ -247,7 +256,8 @@ class ShellCommandTool(BaseTool):
                 proc = safe_subprocess_run(
                     shell_cmd,
                     cwd=str(self.workspace_dir),
-                    timeout=timeout
+                    timeout=timeout,
+                    kill_tree=False
                 )
             finally:
                 if tmp_ps_path and os.path.exists(tmp_ps_path):

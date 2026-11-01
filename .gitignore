@@ -17,6 +17,8 @@ temp_mmae/
 repos/
 tools/free-claude-code/
 workspace/
+tmp*/
+EBWebView/
 
 # Archivos generados y cachés en tiempo de ejecución
 data/

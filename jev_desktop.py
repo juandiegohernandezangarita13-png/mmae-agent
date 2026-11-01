@@ -81,11 +81,21 @@ def main() -> int:
                 except Exception:
                     pass
 
-                # Auto-reducir la isla cuando el usuario interactúe con otra app (Deactivate)
+                # Auto-reducir la isla cuando el usuario interactúe con otra app (Deactivate).
+                # IMPORTANTE: NO llamar a evaluate_js de forma síncrona dentro del evento
+                # Deactivate (WebView2 puede estar suspendido/disposed y el hilo UI queda
+                # bloqueado). Se difiere al message loop con BeginInvoke.
                 try:
                     def _on_deactivate(sender, args):
-                        if getattr(island_bridge, "_expanded", False):
-                            island_bridge.collapse()
+                        if not getattr(island_bridge, "_expanded", False):
+                            return
+                        try:
+                            from System import Action
+                            native.BeginInvoke(Action(lambda: island_bridge.collapse()))
+                        except Exception:
+                            # Si la ventana ya no puede recibir mensajes, no colapsar:
+                            # mejor una isla expandida que una isla congelada.
+                            pass
                     native.Deactivate += _on_deactivate
                 except Exception:
                     pass
