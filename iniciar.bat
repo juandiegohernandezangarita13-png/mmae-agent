@@ -1,27 +1,21 @@
 @echo off
 setlocal enabledelayedexpansion
-title MMAE // Isla Flotante
+title MMAE // Launcher
 cd /d "%~dp0"
 set "PYTHONIOENCODING=utf-8"
 
-:: Si existe entorno virtual local, usarlo preferentemente
-if exist "%~dp0.venv\Scripts\python.exe" (
-    set "PY_EXE=%~dp0.venv\Scripts\python.exe"
-    set "PYW_EXE=%~dp0.venv\Scripts\pythonw.exe"
-) else (
-    set "PY_EXE=python.exe"
-    set "PYW_EXE=pythonw.exe"
-)
+set "PY_EXE=python.exe"
+set "PYW_EXE=pythonw.exe"
 
 :: Si se pasa 'app', abrir directamente la aplicación de chat estilo Claude
 if /i "%~1"=="app" (
-    start "" "%PY_EXE%" "%~dp0app.py"
+    start "" python.exe "%~dp0app.py"
     exit /b 0
 )
 
 :: Si se pasan argumentos desde terminal (ej: iniciar.bat "mi tarea" o -i), ejecutar en modo consola
 if not "%~1"=="" (
-    "%PY_EXE%" "%~dp0main.py" %*
+    python.exe "%~dp0main.py" %*
     exit /b %ERRORLEVEL%
 )
 
@@ -29,9 +23,5 @@ if not "%~1"=="" (
 taskkill /F /IM pythonw.exe >nul 2>&1
 
 :: Arranque predeterminado: lanzar el Widget Flotante de escritorio directamente
-if exist "%PYW_EXE%" (
-    start "" "%PYW_EXE%" "%~dp0main.py" --desktop
-) else (
-    start "" "%PY_EXE%" "%~dp0main.py" --desktop
-)
+start "" pythonw.exe "%~dp0main.py" --desktop
 exit /b 0

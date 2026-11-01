@@ -420,7 +420,7 @@ class IslandBridge:
             base_dir = Path(__file__).resolve().parents[2]
             app_script = base_dir / "app.py"
 
-            # 1. Comprobar si ya existe una ventana con título "MMAE" o "JEV" y enfocarla
+            # 1. Comprobar si ya existe la ventana principal abierta y enfocarla
             found_hwnd = None
             def _enum_win(hwnd, _):
                 nonlocal found_hwnd
@@ -430,7 +430,7 @@ class IslandBridge:
                         buff = ctypes.create_unicode_buffer(length + 1)
                         ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
                         title = buff.value
-                        if ("JEV" in title or "MMAE" in title or "Claude" in title) and "Widget" not in title and "Island" not in title:
+                        if "MMAE // Claude Edition" in title:
                             found_hwnd = hwnd
                             return False
                 return True
@@ -444,14 +444,11 @@ class IslandBridge:
                 ctypes.windll.user32.BringWindowToTop(found_hwnd)
                 return {"ok": True, "focused": True}
 
-            # 2. Si no está abierta, lanzar app.py en un subproceso desacoplado usando el python adecuado
+            # 2. Si no está abierta, lanzar app.py directamente con python.exe
             if app_script.exists():
-                py_candidate = base_dir / ".venv" / "Scripts" / "python.exe"
-                py_exe = str(py_candidate) if py_candidate.exists() else sys.executable
-
                 DETACHED = 0x00000008 | 0x00000200  # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
                 subprocess.Popen(
-                    [py_exe, str(app_script)],
+                    ["python.exe", str(app_script)],
                     shell=False,
                     cwd=str(base_dir),
                     creationflags=DETACHED if sys.platform == "win32" else 0

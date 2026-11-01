@@ -82,43 +82,17 @@ class JarvisBridge:
 
     def set_window(self, window):
         self._window = window
-        # Iniciar hilo en segundo plano para sincronizar estado de FCC y telemetría
-        t = threading.Thread(target=self._fcc_telemetry_loop, daemon=True)
-        t.start()
-
-    def _fcc_telemetry_loop(self):
-        """Monitorea periódicamente el estado de Free Claude Code y notifica a la UI."""
-        time.sleep(1.0)
-        while True:
-            try:
-                if self._window:
-                    status = self.get_fcc_status()
-                    safe_json = json.dumps(status)
-                    self._eval_js(f"window.onUpdateFCCStatus && window.onUpdateFCCStatus({safe_json});")
-            except Exception as e:
-                print(f"[Telemetry FCC Error]: {e}")
-            time.sleep(3.5)
 
     def _eval_js(self, js_code: str):
+        """Ejecuta JavaScript de forma completamente asíncrona sin bloquear el hilo UI."""
         if not self._window:
             return
-        try:
-            native = getattr(self._window, "native", None)
-            if native is not None and hasattr(native, "InvokeRequired") and native.InvokeRequired:
-                import clr
-                from System import Action
-                native.BeginInvoke(Action(lambda: self._safe_direct_eval(js_code)))
-            else:
-                self._safe_direct_eval(js_code)
-        except Exception as e:
-            # Nunca bloquear la ejecución en segundo plano por errores de UI
-            pass
-
-    def _safe_direct_eval(self, js_code: str):
-        try:
-            self._window.evaluate_js(js_code)
-        except Exception:
-            pass
+        def _bg_worker():
+            try:
+                self._window.evaluate_js(js_code)
+            except Exception:
+                pass
+        threading.Thread(target=_bg_worker, daemon=True).start()
 
     def _on_thought(self, text: str):
         self._last_thought = (text or "").strip()[:400]
@@ -638,21 +612,20 @@ class JarvisBridge:
 
         shield_info = self._qa_auditor.get_shield_status()
         model_label = f"{self._config.thinker_model} 🧠 + {self._config.executor_model} ⚡" if self._config.hybrid_mode else self._config.model_name
-        
-        fcc_info = self.get_fcc_status()
+
         return {
             "cpu": int(cpu),
             "ram": int(ram),
             "model": model_label,
             "episodes": episodes,
             "lessons": recent_lessons,
-            "qa_status": shield_info["status_label"],
+            "qa_status": shield_info.get("status_label", "Escudo QA: Activo"),
             "qa_shield_active": True,
-            "qa_vulnerabilities": shield_info["total_vulnerabilities"],
-            "fcc_healthy": fcc_info.get("is_healthy", False),
-            "fcc_running": fcc_info.get("is_running", False),
-            "fcc_port": fcc_info.get("port", 8082),
-            "fcc_model": fcc_info.get("configured_model", "Llama-3.3-70B-Free")
+            "qa_vulnerabilities": shield_info.get("total_vulnerabilities", 0),
+            "fcc_healthy": False,
+            "fcc_running": False,
+            "fcc_port": 8082,
+            "fcc_model": model_label
         }
 
 

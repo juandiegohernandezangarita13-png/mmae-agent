@@ -488,6 +488,13 @@
       return Promise.resolve(null);
     }
 
+    // Prevenir que mousedown en botones o en Mochi active el arrastre del pod
+    document.querySelectorAll(".controls button, #mochiBtn").forEach(function (el) {
+      el.addEventListener("mousedown", function (e) {
+        e.stopPropagation();
+      });
+    });
+
     // Arrastrar el widget suavemente por la pantalla
     var pod = document.getElementById("widgetPod");
     var isDragging = false;
@@ -523,7 +530,11 @@
       document.removeEventListener("mouseup", onMouseUp);
     }
 
-    // Doble clic en el pod: abrir la aplicación principal
+    // Clic en el área de texto / estado o doble clic en el pod: abrir la app
+    document.querySelector(".info-area").addEventListener("click", function (e) {
+      callApi("open_main");
+    });
+
     pod.addEventListener("dblclick", function (e) {
       if (e.target.closest("button") || e.target.closest("#mochiBtn")) return;
       callApi("open_main");
