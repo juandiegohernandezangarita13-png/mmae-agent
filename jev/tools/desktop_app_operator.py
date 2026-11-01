@@ -3,6 +3,9 @@ Herramienta Universal de Control de Aplicaciones de Escritorio y Mecanografía e
 Permite al agente abrir cualquier aplicación (OpenSCAD, Notepad, VS Code, Blender, etc.),
 traerla al frente con foco absoluto de Windows y escribir código o texto simulando el teclado
 en tiempo real frente al usuario, finalizando con atajos de compilación/ejecución (ej. F5 en OpenSCAD).
+
+IMPLEMENTACIÓN 100% CTYPES: Cero dependencias externas de win32gui/pywin32.
+Funciona en cualquier intérprete de Python en Windows.
 """
 from __future__ import annotations
 
@@ -11,6 +14,8 @@ import sys
 import time
 import subprocess
 import shutil
+import ctypes
+from ctypes import wintypes
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
@@ -120,6 +125,7 @@ class DesktopAppLiveOperatorTool(BaseTool):
         },
         "blender": {
             "paths": [
+                r"C:\Program Files\Blender Foundation\Blender 4.3\blender.exe",
                 r"C:\Program Files\Blender Foundation\Blender 4.2\blender.exe",
                 r"C:\Program Files\Blender Foundation\Blender 4.1\blender.exe",
                 r"C:\Program Files\Blender Foundation\Blender 4.0\blender.exe",
@@ -169,58 +175,81 @@ class DesktopAppLiveOperatorTool(BaseTool):
         return None
 
     def _find_window_hwnd(self, title_keyword: str) -> Optional[int]:
-        """Localiza el HWND de una ventana visible cuyo título coincida con la palabra clave."""
+        """Localiza el HWND de una ventana visible usando ctypes (cero dependencias de win32gui)."""
         if sys.platform != "win32":
             return None
 
-        import win32gui
+        user32 = ctypes.windll.user32
         keyword = title_keyword.lower()
         found_hwnds: List[int] = []
 
-        def _enum(hwnd, _):
-            if win32gui.IsWindowVisible(hwnd):
-                txt = win32gui.GetWindowText(hwnd).lower()
-                if keyword in txt:
-                    found_hwnds.append(hwnd)
+        WNDENUMPROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
+        def _enum_proc(hwnd, _):
+            if user32.IsWindowVisible(hwnd):
+                length = user32.GetWindowTextLengthW(hwnd)
+                if length > 0:
+                    buf = ctypes.create_unicode_buffer(length + 1)
+                    user32.GetWindowTextW(hwnd, buf, length + 1)
+                    if keyword in buf.value.lower():
+                        found_hwnds.append(hwnd)
+            return True
 
         try:
-            win32gui.EnumWindows(_enum, None)
+            user32.EnumWindows(WNDENUMPROC(_enum_proc), 0)
         except Exception:
             pass
 
         return found_hwnds[0] if found_hwnds else None
 
+    def _get_window_title(self, hwnd: int) -> str:
+        """Obtiene el título de la ventana usando ctypes."""
+        if not hwnd or sys.platform != "win32":
+            return ""
+        try:
+            user32 = ctypes.windll.user32
+            length = user32.GetWindowTextLengthW(hwnd)
+            if length > 0:
+                buf = ctypes.create_unicode_buffer(length + 1)
+                user32.GetWindowTextW(hwnd, buf, length + 1)
+                return buf.value
+        except Exception:
+            pass
+        return ""
+
     def _force_foreground(self, hwnd: int) -> bool:
-        """Fuerza a Windows a traer la ventana especificada al frente y darle foco activo."""
+        """Fuerza a Windows a traer la ventana especificada al frente y darle foco activo vía ctypes."""
         if sys.platform != "win32" or not hwnd:
             return False
 
         try:
-            import win32gui
-            import win32process
-            import win32con
+            user32 = ctypes.windll.user32
+            SW_RESTORE = 9
 
             # Restaurar si estaba minimizada
-            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            user32.ShowWindow(hwnd, SW_RESTORE)
             time.sleep(0.1)
 
             # Técnica de bypass de foco de Windows mediante AttachThreadInput
-            current_fg = win32gui.GetForegroundWindow()
-            if current_fg != hwnd:
+            current_fg = user32.GetForegroundWindow()
+            if current_fg and current_fg != hwnd:
                 try:
-                    fg_thread, _ = win32process.GetWindowThreadProcessId(current_fg)
-                    target_thread, _ = win32process.GetWindowThreadProcessId(hwnd)
+                    fg_thread = user32.GetWindowThreadProcessId(current_fg, None)
+                    target_thread = user32.GetWindowThreadProcessId(hwnd, None)
                     if fg_thread != target_thread:
-                        win32process.AttachThreadInput(fg_thread, target_thread, True)
-                        win32gui.BringWindowToTop(hwnd)
-                        win32gui.SetForegroundWindow(hwnd)
-                        win32process.AttachThreadInput(fg_thread, target_thread, False)
+                        user32.AttachThreadInput(fg_thread, target_thread, True)
+                        user32.BringWindowToTop(hwnd)
+                        user32.SetForegroundWindow(hwnd)
+                        user32.AttachThreadInput(fg_thread, target_thread, False)
                     else:
-                        win32gui.BringWindowToTop(hwnd)
-                        win32gui.SetForegroundWindow(hwnd)
+                        user32.BringWindowToTop(hwnd)
+                        user32.SetForegroundWindow(hwnd)
                 except Exception:
-                    win32gui.BringWindowToTop(hwnd)
-                    win32gui.SetForegroundWindow(hwnd)
+                    user32.BringWindowToTop(hwnd)
+                    user32.SetForegroundWindow(hwnd)
+            else:
+                user32.BringWindowToTop(hwnd)
+                user32.SetForegroundWindow(hwnd)
 
             time.sleep(0.2)
             return True
@@ -254,8 +283,6 @@ class DesktopAppLiveOperatorTool(BaseTool):
                 error="El control de teclado y ventanas de escritorio en vivo solo está implementado para Windows."
             )
 
-        import win32gui
-
         app_clean = app.strip()
         exe_path = self._resolve_executable(app_clean)
         known_info = self.KNOWN_APPS.get(app_clean.lower(), {})
@@ -287,7 +314,7 @@ class DesktopAppLiveOperatorTool(BaseTool):
                     error=f"Fallo al abrir ejecutable '{exe_path}': {e}"
                 )
 
-            # Esperar a que la ventana aparezca (hasta 10 segundos)
+            # Esperar a que la ventana aparezca (hasta max_wait segundos)
             start_time = time.time()
             max_wait = max(3.0, float(wait_after_launch))
             while time.time() - start_time < max_wait:
@@ -319,8 +346,6 @@ class DesktopAppLiveOperatorTool(BaseTool):
                 time.sleep(0.1)
 
             # 4. Escribir el código en la pantalla simulando el teclado
-            # Para evitar que el auto-indent de OpenSCAD o IDEs rompa el formato,
-            # escribimos línea por línea con interval configurable.
             lines = code.splitlines()
             total_lines = len(lines)
 
@@ -330,25 +355,20 @@ class DesktopAppLiveOperatorTool(BaseTool):
                 pyautogui.moveTo(200, 200)
 
             for idx, line in enumerate(lines):
-                # Si el usuario movió el ratón intencionalmente a la esquina, FailSafe detiene
                 if typing_speed > 0:
-                    # Escritura humana carácter a carácter si la línea no es gigante
                     if len(line) <= 80:
                         pyautogui.write(line, interval=max(0.001, typing_speed))
                     else:
-                        # Si la línea es muy larga, inyectar por clipboard para no demorar
                         import pyperclip
                         pyperclip.copy(line)
                         time.sleep(0.01)
                         pyautogui.hotkey("ctrl", "v")
                 else:
-                    # Modo rápido
                     import pyperclip
                     pyperclip.copy(line)
                     time.sleep(0.01)
                     pyautogui.hotkey("ctrl", "v")
 
-                # Salto de línea
                 if idx < total_lines - 1:
                     pyautogui.press("enter")
                     time.sleep(0.01)
@@ -366,7 +386,7 @@ class DesktopAppLiveOperatorTool(BaseTool):
                         keys_executed.append(k)
                         time.sleep(0.2)
 
-            window_title = win32gui.GetWindowText(hwnd)
+            window_title = self._get_window_title(hwnd) or app
             summary_msg = (
                 f"✅ Aplicación '{app}' operada exitosamente.\n"
                 f"• Ventana: '{window_title}'\n"

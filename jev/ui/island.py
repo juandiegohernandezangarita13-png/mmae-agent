@@ -66,7 +66,8 @@ def apply_window_transparency(hwnd: int, native_form: Any = None) -> None:
             def _fix():
                 native_form.AllowTransparency = True
                 native_form.BackColor = Color.FromArgb(0, 0, 0)
-                native_form.TransparencyKey = Color.FromArgb(0, 0, 0)
+                # No usar TransparencyKey de 1-bit para evitar bordes blancos pixelados
+                native_form.TransparencyKey = Color.Empty
                 # Si WebView2 está disponible, forzar fondo 100% transparente sin halo blanco
                 if hasattr(native_form, "browser") and hasattr(native_form.browser, "webview"):
                     native_form.browser.webview.DefaultBackgroundColor = Color.FromArgb(0, 0, 0, 0)
@@ -178,27 +179,16 @@ def _window_geometry(hwnd: int, width: int, height: int, preserve_position: bool
 
     user32.SetWindowPos(hwnd, _HWND_TOPMOST, x, y, phys_w, phys_h,
                         _SWP_NOACTIVATE | _SWP_SHOWWINDOW)
+    # No aplicar recorte de 1-bit GDI: DWM 32-bit ARGB + CSS border-radius renderizan bordes suaves
     _apply_rounded_region(hwnd, phys_w, phys_h, scale)
     return x, y, phys_w, phys_h
 
 
 def _apply_rounded_region(hwnd: int, phys_w: int, phys_h: int, scale: float) -> None:
-    """Recorta la ventana a la silueta visible (píldora o panel redondeado).
-
-    Todo lo que quede fuera de la forma deja de existir para Windows, así que no
-    puede aparecer ningún píxel gris/blanco del formulario en las esquinas.
-    """
+    """Asegura que no haya regiones GDI de 1-bit activas que generen rebordes blancos."""
     try:
-        gdi32 = ctypes.windll.gdi32
-        collapsed_h = int(round(COLLAPSED_SIZE[1] * scale))
-        if phys_h <= collapsed_h + 2:
-            diameter = phys_h  # píldora: extremos totalmente redondos
-        else:
-            diameter = int(round(48 * scale))  # panel: radio 24px
-        rgn = gdi32.CreateRoundRectRgn(0, 0, phys_w + 1, phys_h + 1, diameter, diameter)
-        if rgn:
-            # El sistema toma posesión de la región: no hay que liberarla.
-            ctypes.windll.user32.SetWindowRgn(hwnd, rgn, True)
+        # Limpiar cualquier región GDI residual para permitir antialiasing nativo completo
+        ctypes.windll.user32.SetWindowRgn(hwnd, None, True)
     except Exception:
         pass
 
@@ -326,17 +316,30 @@ class IslandBridge:
         return {"ok": res, "enabled": is_autostart_enabled()}
 
     def open_main(self) -> Dict[str, Any]:
-        """Muestra y enfoca la ventana completa de JARVIS."""
-        if self._main_window is None:
-            return {"ok": False, "error": "La ventana principal no está disponible."}
+        """Muestra y enfoca la ventana completa de JARVIS (o la lanza de forma desacoplada)."""
+        if self._main_window is not None:
+            try:
+                self._main_window.show()
+                restore = getattr(self._main_window, "restore", None)
+                if callable(restore):
+                    restore()
+                return {"ok": True}
+            except Exception as exc:  # pragma: no cover - depende de la GUI
+                return {"ok": False, "error": str(exc)}
+
+        # Si se inició sólo la isla, lanzar la interfaz completa de JARVIS sin bloquear
         try:
-            self._main_window.show()
-            restore = getattr(self._main_window, "restore", None)
-            if callable(restore):
-                restore()
-            return {"ok": True}
-        except Exception as exc:  # pragma: no cover - depende de la GUI
-            return {"ok": False, "error": str(exc)}
+            import subprocess
+            from pathlib import Path
+            base_dir = Path(__file__).resolve().parents[2]
+            app_script = base_dir / "app.py"
+            if app_script.exists():
+                subprocess.Popen([sys.executable, str(app_script)], shell=False, cwd=str(base_dir))
+                return {"ok": True, "launched": True}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+        return {"ok": False, "error": "La ventana principal no está disponible."}
 
     def stop_agent(self) -> Dict[str, Any]:
         if self._jarvis is None:
@@ -487,22 +490,36 @@ class IslandBridge:
             pass
 
     def _safe_eval_js(self, js_code: str) -> None:
-        """Evalúa JavaScript asegurando que se ejecute en el hilo de interfaz (UI thread)."""
+        """Evalúa JavaScript en el hilo de interfaz sin bloquear el evento actual.
+
+        Se usa BeginInvoke SIEMPRE que sea posible (no solo cuando InvokeRequired):
+        así una llamada desde el handler ``Deactivate`` no reentra en WebView2 mientras
+        la ventana está perdiendo el foco, que es lo que congelaba la isla al abrir
+        otra aplicación. Si la ventana ya está disposed, se ignora.
+        """
         if not self._island_window:
             return
         try:
             native = getattr(self._island_window, "native", None)
-            if native is not None and hasattr(native, "InvokeRequired") and native.InvokeRequired:
-                import clr
+            if native is None:
+                self._direct_eval(js_code)
+                return
+            if hasattr(native, "IsDisposed") and native.IsDisposed:
+                return
+            if hasattr(native, "BeginInvoke"):
+                import clr  # noqa: F401  (asegura pythonnet cargado)
                 from System import Action
                 native.BeginInvoke(Action(lambda: self._direct_eval(js_code)))
-            else:
-                self._direct_eval(js_code)
+                return
+            self._direct_eval(js_code)
         except Exception:
             pass
 
     def _direct_eval(self, js_code: str) -> None:
         try:
+            native = getattr(self._island_window, "native", None)
+            if native is not None and hasattr(native, "IsDisposed") and native.IsDisposed:
+                return
             self._island_window.evaluate_js(js_code)
         except Exception:
             pass

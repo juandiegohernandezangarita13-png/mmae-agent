@@ -66,22 +66,22 @@
     position: relative;
     width: 232px;
     height: 54px;
-    background: #0b0c10;
+    background: #000000;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 12px;
     cursor: pointer;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75);
     transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.25, 1), box-shadow 0.2s ease, border-color 0.2s ease;
   }
 
   .pill:hover {
     transform: translateY(1px);
-    border-color: rgba(255, 255, 255, 0.22);
-    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.95);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.9);
   }
 
   .pill .pill-left {
@@ -156,13 +156,13 @@
     position: relative;
     width: 474px;
     height: 340px;
-    border-radius: 24px;
-    background: #0b0c10;
+    border-radius: 20px;
+    background: #000000;
     display: none;
     flex-direction: column;
     padding: 8px 12px 12px;
-    box-shadow: none;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
     opacity: 0;
     transform: translateY(-8px) scale(0.985);
     transform-origin: top center;
@@ -1733,12 +1733,17 @@
     });
   }
 
-  setInterval(updateGlobalCursor, 40);
-
   document.addEventListener("mousemove", function (e) {
     hasHover = true;
     lastCursorTime = Date.now();
+    var mx = e.clientX - (isExpanded ? 54 : 30);
+    var my = e.clientY - (isExpanded ? 160 : 27);
+    mouseTarget.yaw = Math.max(-0.48, Math.min(0.48, Math.tanh(mx / 120) * 0.44));
+    mouseTarget.pitch = Math.max(-0.38, Math.min(0.38, -Math.tanh(my / 100) * 0.35));
   });
+
+  // Sondeo global ligero cada 300ms solo si no hay foco directo para evitar saturar el canal IPC
+  setInterval(updateGlobalCursor, 300);
 
   // Inicialización y Polling
   switchView("overview");
