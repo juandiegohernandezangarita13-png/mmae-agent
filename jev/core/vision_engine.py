@@ -281,7 +281,7 @@ class VisionEngine:
         elif img_format.lower() == "webp":
             mime_type = "image/webp"
 
-        for model_name in ("gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-pro"):
+        for model_name in ("gemini-2.5-flash", "gemini-flash-lite-latest", "gemini-3.1-flash-lite", "gemini-3.5-flash-lite"):
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
             payload = {
                 "contents": [

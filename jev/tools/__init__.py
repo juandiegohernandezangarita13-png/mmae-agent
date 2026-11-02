@@ -38,6 +38,8 @@ from jev.tools.n8n_gateway import N8nGatewayTool
 from jev.tools.mem0_tool import Mem0MemoryTool
 from jev.tools.cli_anything import CLIAnythingTool
 from jev.tools.voice_notification_tool import VoiceNotificationTool
+from jev.tools.skill_finder import FindSkillTool
+from jev.tools.soup_fine_tuner_tool import SoupFineTunerTool
 from jev.tools.ui_inspector import UIInspectorTool
 from jev.tools.desktop_app_operator import DesktopAppLiveOperatorTool
 from jev.tools.viewport import Render3DSceneTool, ExecuteViewportScriptTool
@@ -137,6 +139,12 @@ def build_default_registry(config: Optional[Any] = None) -> tuple[ToolRegistry, 
 
     # Notificaciones por voz local en segundo plano (Piper TTS en CPU)
     registry.register(VoiceNotificationTool())
+
+    # Motor de búsqueda y recuperación dinámica de habilidades (Find Skill / Skill RAG con 1,230+ skills)
+    registry.register(FindSkillTool())
+
+    # Orquestador de fine-tuning local con Soup (LoRA / QLoRA 4-bit)
+    registry.register(SoupFineTunerTool())
 
     # Tareas programadas en segundo plano
     registry.register(ScheduleTaskTool())

@@ -285,7 +285,7 @@ $bmp.Dispose()
         )
 
         import urllib.request
-        for model in ("gemini-2.5-flash", "gemini-flash-latest"):
+        for model in ("gemini-2.5-flash", "gemini-flash-lite-latest", "gemini-3.1-flash-lite"):
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
             payload = {
                 "contents": [

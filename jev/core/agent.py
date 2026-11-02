@@ -105,6 +105,20 @@ class AgentCore:
         except Exception:
             self.notifier = None
 
+        # Motor de Razonamiento Profundo y Verificación Empírica
+        try:
+            from core.reasoning.deep_thinker import DeepThinker
+            self.deep_thinker = DeepThinker(workspace_dir=self.config.workspace_dir)
+        except Exception:
+            self.deep_thinker = None
+
+        # Catálogo RAG de Habilidades Curadas (1,230+ Agent Skills Oficiales)
+        try:
+            from core.skills.skill_rag import SkillRAG
+            self.skill_rag = SkillRAG()
+        except Exception:
+            self.skill_rag = None
+
         # Motor de autorreflexión y autoevolución en caliente
         self.evolving_engine = SelfEvolvingAgent(
             registry=self.registry,
@@ -717,6 +731,28 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
         if procedural_context:
             self.on_thought("📚 [Memoria Procedimental]: Soluciones y snippets previos recuperados de la base de conocimiento SQLite.")
 
+        # 1.2 Inyección Dinámica de Habilidades desde el Catálogo Curado (1,230+ skills)
+        if hasattr(self, "skill_rag") and self.skill_rag:
+            try:
+                matched_skills = self.skill_rag.search(user_goal, limit=2, resolve_conflicts=True)
+                if matched_skills:
+                    skills_block = self.skill_rag.format_skills_for_prompt(matched_skills)
+                    procedural_context = f"{procedural_context}\n{skills_block}".strip()
+                    self.on_thought(f"✨ [Skill RAG]: {len(matched_skills)} habilidades oficiales compatibles inyectadas sin contradicciones.")
+            except Exception:
+                pass
+
+        # 1.4 Razonamiento Profundo Multi-Hipótesis (Deep Thinking & Test-Time Deliberation)
+        if hasattr(self, "deep_thinker") and self.deep_thinker:
+            try:
+                selected_hyp, _ = self.deep_thinker.deliberate_strategy(user_goal)
+                self.on_thought(
+                    f"🧬 [Deep Reasoning]: Hipótesis seleccionada: '{selected_hyp.name}' "
+                    f"(Autonomía: {selected_hyp.autonomy_score*100:.0f}%, Seguridad: {(1.0-selected_hyp.risk_score)*100:.0f}%)."
+                )
+            except Exception:
+                pass
+
         # 1.5 Deliberación Cognitiva Recurrente OpenMythos (RDT + ACT Halting)
         mythos_summary, act_state = self.mythos.recurrent_thinking_loop(user_goal)
         self.on_thought(f"🔮 [OpenMythos Deliberation Loop]: {mythos_summary}")
@@ -1049,6 +1085,19 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
 
                     # Protocolo de Reflexión y Verificación Objetiva (ActionVerifier)
                     verif: VerificationResult = self.verifier.verify_action(tool_name, tool_args, result)
+
+                    # Verificación Empírica Profunda en el Sistema Operativo (DeepThinker)
+                    if hasattr(self, "deep_thinker") and self.deep_thinker:
+                        try:
+                            emp = self.deep_thinker.verify_tool_outcome(
+                                tool_name=tool_name,
+                                tool_args=tool_args if isinstance(tool_args, dict) else {},
+                                tool_output=result.output or ""
+                            )
+                            if not emp.is_valid and emp.suggested_correction:
+                                self.on_thought(f"🔍 [Deep Verifier]: {emp.evidence} (Corrección sugerida: {emp.suggested_correction})")
+                        except Exception:
+                            pass
 
                     # Actualizar estado de salvaguardas (Circuit Breakers y Presupuesto)
                     if hasattr(self, "guardrails") and self.guardrails:

@@ -249,7 +249,7 @@ Sé analítico, preciso y estructurado."""
         LocalLLMClient._rr_index += 1
         rotated = pool[start:] + pool[:start]
         ready = [m for m in rotated if self._cooldown_left(m) <= 0]
-        cooling = sorted([m for m in rotated if m not in ready], key=self._cooldown_left)
+        cooling = sorted([m for m in rotated if 0 < self._cooldown_left(m) <= 300], key=self._cooldown_left)
         return ready + cooling
 
     def _openrouter_tail(self) -> List[str]:

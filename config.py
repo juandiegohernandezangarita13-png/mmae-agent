@@ -98,18 +98,18 @@ class AgentConfig:
     )
     fcc_model: str = os.getenv("FCC_MODEL", "open_router/meta-llama/llama-3.3-70b-instruct:free")
     gemini_flash_pool: List[str] = field(default_factory=lambda: [
+        "gemini-flash-lite-latest",
+        "gemini-2.5-flash",
         "gemini-3.1-flash-lite",
         "gemini-3.5-flash-lite",
-        "gemini-flash-lite-latest",
         "gemini-3-flash-preview",
-        "gemini-2.5-flash",
     ])
     fallback_models: List[str] = field(default_factory=lambda: [
+        "gemini-flash-lite-latest",
+        "gemini-2.5-flash",
         "gemini-3.1-flash-lite",
         "gemini-3.5-flash-lite",
-        "gemini-flash-lite-latest",
         "gemini-3-flash-preview",
-        "gemini-2.5-flash",
         "meta-llama/llama-3.3-70b-instruct:free",
         "deepseek/deepseek-r1:free",
         "deepseek/deepseek-chat:free",
