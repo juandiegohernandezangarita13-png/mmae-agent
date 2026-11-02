@@ -20,7 +20,8 @@ from jev.tools.github import (
     GitHubSearchReposTool,
     GitHubRepoInspectTool,
     GitHubCloneRepoTool,
-    GitHubSkillAssimilatorTool
+    GitHubSkillAssimilatorTool,
+    GitHubCreateRepoTool
 )
 from jev.tools.system_info import SystemEnvironmentTool
 from jev.tools.mythos_runner import OpenMythosRunnerTool
@@ -68,11 +69,12 @@ def build_default_registry(config: Optional[Any] = None) -> tuple[ToolRegistry, 
     registry.register(WebSearchTool())
     registry.register(WebFetchTool())
 
-    # Herramientas de GitHub y asimilación de código abierto
+    # Herramientas de GitHub y gestión de repositorios
     registry.register(GitHubSearchReposTool())
     registry.register(GitHubRepoInspectTool())
     registry.register(GitHubCloneRepoTool(workspace_dir=ws) if ws else GitHubCloneRepoTool())
     registry.register(GitHubSkillAssimilatorTool(workspace_dir=ws) if ws else GitHubSkillAssimilatorTool())
+    registry.register(GitHubCreateRepoTool(workspace_dir=ws) if ws else GitHubCreateRepoTool())
 
     # Herramientas de archivos
     registry.register(ReadFileTool(workspace_dir=ws))

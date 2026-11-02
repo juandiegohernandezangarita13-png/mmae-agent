@@ -69,8 +69,8 @@ def run_interactive_session(agent_config: AgentConfig) -> None:
         else:
             print(f"[Acción] {name}: {args}")
 
-        # Si el modo seguro está activo o es una acción de escritorio/sistema
-        if agent_config.confirm_risky_actions or name in ("desktop_app_live_type", "desktop_live_operator", "keyboard_type", "mouse_click"):
+        # Solo solicitar confirmación interactiva si el usuario activó explícitamente --safe-mode
+        if getattr(agent_config, "confirm_risky_actions", False):
             if ask_terminal_permission:
                 return ask_terminal_permission(name, args)
         return True

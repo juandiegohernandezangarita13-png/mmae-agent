@@ -8,6 +8,7 @@ import subprocess
 import shutil
 import base64
 import sys
+import os
 from pathlib import Path
 import httpx
 
@@ -302,4 +303,134 @@ class GitHubSkillAssimilatorTool(BaseTool):
                 success=False,
                 output="",
                 error=f"Error asimilando repositorio de GitHub: {str(e)}"
+            )
+
+
+class GitHubCreateRepoTool(BaseTool):
+    """Crea e inicializa un repositorio Git local y opcionalmente en GitHub."""
+    name = "create_github_repo"
+    description = (
+        "Crea e inicializa un repositorio Git para una aplicación en disco. "
+        "Ejecuta 'git init', establece la rama 'main', genera commit inicial con los archivos "
+        "del proyecto y, si se proporciona remote_url o token de GitHub, lo vincula a GitHub."
+    )
+    parameters = {
+        "type": "object",
+        "properties": {
+            "repo_name": {
+                "type": "string",
+                "description": "Nombre de la aplicación o repositorio (ej: 'mi_app_ia', 'fastapi_service')."
+            },
+            "local_path": {
+                "type": "string",
+                "description": "Ruta del directorio donde reside el código de la app (por defecto 'workspace/<repo_name>')."
+            },
+            "description": {
+                "type": "string",
+                "description": "Descripción del repositorio o propósito de la app."
+            },
+            "remote_url": {
+                "type": "string",
+                "description": "URL remota de GitHub para conectar (opcional, ej: 'https://github.com/usuario/repo.git')."
+            },
+            "initial_commit_message": {
+                "type": "string",
+                "description": "Mensaje de confirmación del commit inicial (por defecto: 'feat: setup initial app codebase')."
+            }
+        },
+        "required": ["repo_name"]
+    }
+
+    def __init__(self, workspace_dir: Optional[Path] = None):
+        self.workspace_dir = workspace_dir or default_config.workspace_dir
+
+    def execute(
+        self,
+        repo_name: str,
+        local_path: Optional[str] = None,
+        description: Optional[str] = None,
+        remote_url: Optional[str] = None,
+        initial_commit_message: Optional[str] = None,
+        **kwargs
+    ) -> ToolResult:
+        try:
+            target_dir = Path(local_path).resolve() if local_path else (self.workspace_dir / repo_name).resolve()
+            target_dir.mkdir(parents=True, exist_ok=True)
+
+            commit_msg = initial_commit_message or "feat: setup initial app codebase"
+            summary_lines = []
+
+            # 1. Asegurar archivo README.md inicial si la carpeta está vacía
+            readme_file = target_dir / "README.md"
+            if not readme_file.exists():
+                desc_text = description or f"Repositorio de {repo_name} creado automáticamente por MMAE-Agent."
+                readme_file.write_text(f"# {repo_name}\n\n{desc_text}\n\n## Instalación y Uso\n\n```bash\npython main.py\n```\n", encoding="utf-8")
+                summary_lines.append("✓ README.md inicial creado.")
+
+            # 2. Inicializar repositorio git local
+            init_res = subprocess.run(["git", "init"], cwd=str(target_dir), capture_output=True, text=True, timeout=15)
+            if init_res.returncode != 0:
+                return ToolResult(success=False, output="", error=f"Fallo en 'git init': {init_res.stderr}")
+            summary_lines.append(f"✓ Repositorio Git inicializado en: {target_dir}")
+
+            # 3. Establecer rama main
+            subprocess.run(["git", "branch", "-M", "main"], cwd=str(target_dir), capture_output=True, text=True, timeout=10)
+
+            # 4. Stage y commit
+            subprocess.run(["git", "add", "."], cwd=str(target_dir), capture_output=True, text=True, timeout=15)
+            commit_res = subprocess.run(["git", "commit", "-m", commit_msg], cwd=str(target_dir), capture_output=True, text=True, timeout=15)
+            if commit_res.returncode == 0:
+                summary_lines.append(f"✓ Commit inicial creado: '{commit_msg}'.")
+            else:
+                summary_lines.append("• Estado de commit: No hay cambios nuevos pendientes de confirmar.")
+
+            # 5. Si se proporcionó remote_url, configurar remote
+            if remote_url:
+                clean_url = remote_url.strip()
+                subprocess.run(["git", "remote", "remove", "origin"], cwd=str(target_dir), capture_output=True, timeout=5)
+                rem_res = subprocess.run(["git", "remote", "add", "origin", clean_url], cwd=str(target_dir), capture_output=True, text=True, timeout=10)
+                if rem_res.returncode == 0:
+                    summary_lines.append(f"✓ Origen remoto 'origin' configurado hacia: {clean_url}")
+                    # Intentar push
+                    push_res = subprocess.run(["git", "push", "-u", "origin", "main"], cwd=str(target_dir), capture_output=True, text=True, timeout=30)
+                    if push_res.returncode == 0:
+                        summary_lines.append(f"🚀 Código empujado exitosamente a GitHub en la rama 'main'!")
+                    else:
+                        summary_lines.append(f"• Para completar el push remoto ejecuta: cd '{target_dir}' && git push -u origin main")
+
+            # 6. Intentar creación remota automática vía GitHub API si hay GITHUB_TOKEN en el entorno
+            gh_token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+            if gh_token and not remote_url:
+                try:
+                    api_url = "https://api.github.com/user/repos"
+                    headers = {
+                        "Authorization": f"Bearer {gh_token}",
+                        "Accept": "application/vnd.github.v3+json",
+                        "User-Agent": "MMAE-Agent"
+                    }
+                    payload = {
+                        "name": repo_name,
+                        "description": description or f"Repositorio de {repo_name} creado por MMAE-Agent",
+                        "private": False
+                    }
+                    with httpx.Client(timeout=15.0) as client:
+                        api_res = client.post(api_url, headers=headers, json=payload)
+                    if api_res.status_code in (200, 201):
+                        remote_clone = api_res.json().get("clone_url")
+                        summary_lines.append(f"✓ Repositorio remoto creado en GitHub API: {remote_clone}")
+                        subprocess.run(["git", "remote", "add", "origin", remote_clone], cwd=str(target_dir), capture_output=True, timeout=10)
+                        subprocess.run(["git", "push", "-u", "origin", "main"], cwd=str(target_dir), capture_output=True, timeout=30)
+                except Exception as e:
+                    summary_lines.append(f"• Creación remota API omitida ({e}). Repositorio local 100% listo.")
+
+            return ToolResult(
+                success=True,
+                output="\n".join(summary_lines),
+                data={"repo_name": repo_name, "local_path": str(target_dir)}
+            )
+        except Exception as e:
+            return ToolResult(
+                success=False,
+                output="",
+                error=f"Error creando repositorio Git: {str(e)}"
             )

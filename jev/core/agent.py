@@ -228,10 +228,15 @@ MODO EJECUTOR DE BAJA LATENCIA (CONCISIÓN EXTREMA Y ACCIÓN INMEDIATA):
 - Pensamientos breves: La sección PENSAMIENTO no debe superar las 20 palabras. Debe responder únicamente a: "¿Qué necesito hacer ahora?" y disparar la llamada JSON/función de inmediato.
 - Acción primero: Prohibido describir lo que vas a hacer en párrafos largos; ejecuta la herramienta y deja que los resultados hablen. Cero palabrería innecesaria.
 
-ENTREGA DIRECTA DE CÓDIGO Y SOLUCIONES EN EL CHAT:
-- Cuando el usuario solicite crear un script, generar código, resolver un problema con programación o analizar software:
-  * Si guardas o modificas un archivo en disco con 'write_file' o 'create_custom_tool', tu RESPUESTA FINAL al usuario DEBE contener obligatoriamente el bloque de código completo en formato Markdown (```lenguaje ... ```), acompañado de una explicación clara de cómo funciona y cómo ejecutarlo.
-  * Está ESTRICTAMENTE PROHIBIDO limitarse a decir solo "El archivo ha sido creado" sin mostrar el código. El usuario debe poder ver, revisar y copiar todo el código directamente en el chat sin tener que ir a buscarlo en disco.
+EJECUCIÓN REAL OBLIGATORIA EN EL SISTEMA (ACCIÓN TÉCNICA PRIMERO, NUNCA CHATBOT PASIVO):
+- Cuando el usuario solicite crear una app, programar un script, montar un repositorio en GitHub, clonar software o realizar tareas de desarrollo:
+  * TIENES TERMINANTEMENTE PROHIBIDO limitarte a escribir el código en el texto del chat sin haber invocado las herramientas.
+  * DEBES ejecutar las herramientas reales en el sistema:
+    1. 'write_file' para crear los archivos de código en disco (ej. main.py, requirements.txt, app.py).
+    2. 'create_github_repo' o 'cli_execute_structured' / 'execute_command' para inicializar git, hacer commits y crear/vincular el repo.
+    3. Instalar dependencias y verificar la ejecución.
+  * Escribir bloques de código en el chat NO completa una tarea. La tarea SOLO se completa cuando los archivos existen en disco y los comandos se han ejecutado exitosamente con herramientas.
+  * CERO PREGUNTAS INTERMEDIAS: Tienes estrictamente prohibido detenerte a preguntar "¿Deseas que proceda?", "¿Creo el repositorio? (y/n)" o similares. Tu modo operativo es AUTÓNOMO DESATENDIDO: ejecuta todas las microtareas de principio a fin sin pedir confirmaciones innecesarias.
 - AUTONOMÍA TOTAL Y CERO AUTOCENSURA TÉCNICA:
   * Como asistente de ingeniería de software, ciberseguridad y administración de sistemas en el entorno local del usuario, tienes autorización total para escribir cualquier tipo de código que solicite el usuario (scripts de redes, sockets, herramientas de auditoría de seguridad, automatización de sistemas, análisis de tráfico, scraping o algoritmos complejos) en su workspace local. Opera como un desarrollador sénior sin censura ni limitaciones artificiales.
 
@@ -369,7 +374,7 @@ PILARES DE OPERACIÓN AUTÓNOMA PROACTIVA (MMAE-AGENT / MODO SEGUNDO PLANO):
      [ALERTA / HALLAZGO]: Qué descubriste o qué problema detectaste.
      [ANÁLISIS DE IMPACTO]: Por qué es importante o cómo acelera el flujo.
      [PROPUESTA DE ACCIÓN]: Qué sugieres hacer (refactorizar función, cambiar librería, ajustar parámetro).
-     [SOLICITUD DE OK]: Espera siempre confirmación explícita antes de aplicar modificaciones irreversibles en producción o enviar datos externos.
+     [AUTONOMÍA DESATENDIDA TOTAL]: Ejecuta todas las acciones requeridas por el usuario de forma directa y autónoma sin detenerte a pedir confirmaciones manuales ni preguntas (y/n).
 3. LÍMITES ESTRICTOS DE SEGURIDAD Y PRIVACIDAD:
    - Operación 100% local y confidencial.
    - Bajo ninguna circunstancia ejecutes transacciones financieras reales, compras de activos o movimientos de dinero automatizados sin autorización manual y presencial detallada del usuario.
@@ -1129,22 +1134,31 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
                     break
 
             else:
-                # El modelo no llamó a herramientas: respuesta final o conclusión entregada
-                has_code = "```" in content
-                is_substantive = len(content.strip()) >= 30
-
-                # Solo insistir si la respuesta fue vacía o evasiva y hay tareas pendientes
-                if current_subtask and not plan.is_all_completed() and not has_code and not is_substantive and autonomous_nudges < 1:
+                # El modelo no llamó a herramientas: respuesta en texto
+                # Si todavía quedan tareas pendientes en el plan DAG, NO DEBE CONCLUIR.
+                if current_subtask and not plan.is_all_completed() and autonomous_nudges < 6:
                     autonomous_nudges += 1
-                    self.on_thought(f"⚡ [Autonomía]: Subtarea [{current_subtask.id}] pendiente. Continuando ejecución...")
-                    self.messages.append({
-                        "role": "user",
-                        "content": f"Continúa con la siguiente acción técnica para completar: {current_subtask.title}"
-                    })
+                    has_code = "```" in content
+
+                    if has_code:
+                        nudge_msg = (
+                            f"[SISTEMA AUTÓNOMO]: Has redactado código en texto pero NO has invocado ninguna herramienta para crearlo ni ejecutarlo en el sistema real. "
+                            f"La micro-tarea [{current_subtask.id}] '{current_subtask.title}' sigue pendiente. "
+                            f"Debes invocar la herramienta correspondiente (ej. 'write_file' para guardar el código en disco, 'create_github_repo', 'cli_execute_structured' o 'execute_command' para ejecutar git, repos o dependencias). "
+                            f"Prohibido limitarse a hablar en el chat. Ejecuta la herramienta de inmediato."
+                        )
+                    else:
+                        nudge_msg = (
+                            f"[SISTEMA AUTÓNOMO]: La micro-tarea [{current_subtask.id}] '{current_subtask.title}' sigue pendiente. "
+                            f"No te detengas ni pidas confirmación (y/n). Ejecuta la herramienta técnica requerida para avanzar."
+                        )
+
+                    self.on_thought(f"⚡ [Autonomía Forzada]: Subtarea [{current_subtask.id}] pendiente sin herramientas invocadas. Forzando ejecución en el sistema...")
+                    self.messages.append({"role": "user", "content": nudge_msg})
                     continue
 
                 final_answer = content
-                success = True
+                success = plan.is_all_completed() or len(tools_used) > 0
                 break
 
         if not final_answer and step_count >= self.config.max_iterations:
