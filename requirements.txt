@@ -4,6 +4,7 @@ pydantic>=2.7.0
 fastapi>=0.100.0
 requests>=2.31.0
 httpx>=0.27.0
+mem0ai>=2.0.0
 
 # Automatización y Navegación
 pyautogui>=0.9.54
@@ -31,3 +32,7 @@ gitpython>=3.1.40
 # Modelado 3D / CAD: CSG robusto y mallas
 manifold3d>=3.0
 trimesh>=4.0
+
+# Síntesis de Voz Local (Piper) y CPU Inference
+piper-tts>=1.2.0
+onnxruntime>=1.16.0

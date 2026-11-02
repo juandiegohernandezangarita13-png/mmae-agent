@@ -26,7 +26,17 @@ from jev.tools.system_info import SystemEnvironmentTool
 from jev.tools.mythos_runner import OpenMythosRunnerTool
 from jev.tools.video_generator import HyperFramesVideoTool
 from jev.tools.smolvm_runner import SmolvmRunnerTool, SmolfileGeneratorTool
-from jev.tools.ui_grounding import FindUIElementTool, ClickElementByTextTool
+from jev.tools.ui_grounding import FindUIElementTool, ClickElementByTextTool, SmartUIClickTool
+from jev.tools.visual_verifier import VisualVerifyTool
+from jev.tools.hardware_controller import HardwareControllerTool
+from jev.tools.system_elevation import SystemElevationTool
+from jev.tools.window_watchdog import WindowWatchdogTool
+from jev.learning.finetune_engine import SelfFineTuneTool
+from jev.tools.browser_operator import BrowserUseOperatorTool
+from jev.tools.n8n_gateway import N8nGatewayTool
+from jev.tools.mem0_tool import Mem0MemoryTool
+from jev.tools.cli_anything import CLIAnythingTool
+from jev.tools.voice_notification_tool import VoiceNotificationTool
 from jev.tools.ui_inspector import UIInspectorTool
 from jev.tools.desktop_app_operator import DesktopAppLiveOperatorTool
 from jev.tools.viewport import Render3DSceneTool, ExecuteViewportScriptTool
@@ -89,11 +99,42 @@ def build_default_registry(config: Optional[Any] = None) -> tuple[ToolRegistry, 
     registry.register(Render3DSceneTool())
     registry.register(ExecuteViewportScriptTool())
 
-    # Anclaje visual de UI y clics por etiqueta
+    # Anclaje visual de UI y clics por etiqueta / Smart UI Clicker
     finder = FindUIElementTool(workspace_dir=ws)
     registry.register(finder)
+    registry.register(SmartUIClickTool(finder_tool=finder))
     registry.register(ClickElementByTextTool(finder_tool=finder))
     registry.register(UIInspectorTool())
+
+    # Verificación visual en bucle cerrado
+    registry.register(VisualVerifyTool(workspace_dir=ws))
+
+    # Control de hardware físico, COM Serial y Domótica IoT / MQTT
+    registry.register(HardwareControllerTool())
+
+    # Elevación y ejecución administrativa en Windows
+    registry.register(SystemElevationTool(workspace_dir=ws))
+
+    # Supervisión y auto-recuperación de ventanas congeladas
+    registry.register(WindowWatchdogTool())
+
+    # Motor de auto-entrenamiento ligero local con Soup (Layer Streaming en GPU 4GB)
+    registry.register(SelfFineTuneTool(workspace_dir=ws))
+
+    # Navegación y automatización web autónoma (Browser-Use y Playwright Edge)
+    registry.register(BrowserUseOperatorTool(workspace_dir=ws))
+
+    # Pasarela de integraciones externas y workflows (n8n / Activepieces)
+    registry.register(N8nGatewayTool(workspace_dir=ws))
+
+    # Memoria persistente a largo plazo multicapa (Mem0 Layer)
+    registry.register(Mem0MemoryTool())
+
+    # Capa de control y ejecución estructurada del sistema operativo (CLI Anything Layer)
+    registry.register(CLIAnythingTool())
+
+    # Notificaciones por voz local en segundo plano (Piper TTS en CPU)
+    registry.register(VoiceNotificationTool())
 
     # Tareas programadas en segundo plano
     registry.register(ScheduleTaskTool())

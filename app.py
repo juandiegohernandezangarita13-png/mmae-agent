@@ -23,7 +23,7 @@ if sys.platform == "win32":
 _base_dir = Path(__file__).resolve().parent
 _venv_site = _base_dir / ".venv" / "Lib" / "site-packages"
 if _venv_site.exists() and str(_venv_site) not in sys.path:
-    sys.path.insert(0, str(_venv_site))
+    sys.path.append(str(_venv_site))
 if str(_base_dir) not in sys.path:
     sys.path.insert(0, str(_base_dir))
 
@@ -399,8 +399,10 @@ class JarvisBridge:
 
         threading.Thread(target=_worker, daemon=True).start()
 
-    def execute_task(self, task: str, image_base64: Optional[str] = None):
+    def execute_task(self, task: str = "", image_base64: Optional[str] = None, *args, **kwargs):
         """Ejecuta la tarea en un hilo independiente, soportando imágenes pegadas/adjuntas."""
+        if not task and args:
+            task = str(args[0])
         clean_prompt = (task or "").strip()
         if clean_prompt:
             self._chat_history.append({"role": "user", "content": clean_prompt})
@@ -490,7 +492,7 @@ class JarvisBridge:
         t = threading.Thread(target=_runner, daemon=True)
         t.start()
 
-    def execute_task_with_image(self, task: str, image_base64: str):
+    def execute_task_with_image(self, task: str = "", image_base64: str = "", *args, **kwargs):
         """Punto de entrada explícito para llamadas desde JS con imagen adjunta."""
         return self.execute_task(task=task, image_base64=image_base64)
 
@@ -519,17 +521,17 @@ class JarvisBridge:
             "error": res.error
         }
 
-    def inject_feedback(self, text: str):
+    def inject_feedback(self, text: str = "", *args, **kwargs):
         """Inyecta una orden o corrección del usuario en caliente durante la ejecución activa."""
         self._agent.inject_user_feedback(text)
         self._on_thought(f"⚡ [Intervención del Usuario en Caliente]: {text}")
 
-    def stop_agent(self):
+    def stop_agent(self, *args, **kwargs):
         """Detiene inmediatamente la ejecución de cualquier tarea activa."""
         self._agent.stop()
         self._eval_js("window.onAgentStopped && window.onAgentStopped();")
 
-    def close_app(self):
+    def close_app(self, *args, **kwargs):
         """Cierra la ventana y la aplicación, deteniendo servicios dependientes."""
         # En modo Isla, cerrar la ventana grande solo la oculta: el compañero
         # flotante sigue vivo y puede reabrirla.
@@ -591,7 +593,7 @@ class JarvisBridge:
         except Exception as e:
             return {"success": False, "content": "", "error": str(e), "code_snippets": []}
 
-    def get_telemetry(self) -> dict:
+    def get_telemetry(self, *args, **kwargs) -> dict:
         """Devuelve telemetría en tiempo real del hardware, memoria y servicios activos."""
         try:
             cpu = psutil.cpu_percent(interval=None)

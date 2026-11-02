@@ -17,7 +17,7 @@ from pathlib import Path
 _base_dir = Path(__file__).resolve().parent
 _venv_site = _base_dir / ".venv" / "Lib" / "site-packages"
 if _venv_site.exists() and str(_venv_site) not in sys.path:
-    sys.path.insert(0, str(_venv_site))
+    sys.path.append(str(_venv_site))
 if str(_base_dir) not in sys.path:
     sys.path.insert(0, str(_base_dir))
 

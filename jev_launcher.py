@@ -62,18 +62,17 @@ def _message_box(text: str, title: str = "JEV", flags: int = 0x10) -> None:
         print(text, file=sys.stderr)
 
 
-def _acquire_single_instance():
+def _acquire_single_instance(mutex_name: str = "Local\\MMAE_App_SingleInstance"):
     """
-    Crea un mutex con nombre. Devuelve el handle, o None si JEV ya está abierto.
-    El handle debe mantenerse vivo mientras dure el proceso.
+    Crea un mutex con nombre. Devuelve el handle, o None si la aplicación ya está abierta.
     """
     if sys.platform != "win32":
         return True
     try:
         kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
-        handle = kernel32.CreateMutexW(None, False, MUTEX_NAME)
+        handle = kernel32.CreateMutexW(None, False, str(mutex_name))
         if not handle:
-            return True  # sin mutex, mejor permitir el arranque que bloquearlo
+            return True
         if ctypes.get_last_error() == 183:  # ERROR_ALREADY_EXISTS
             if handle:
                 kernel32.CloseHandle(handle)
@@ -83,28 +82,24 @@ def _acquire_single_instance():
         return True
 
 
-def _focus_existing_instance() -> bool:
+def _focus_existing_instance(classic: bool = False) -> bool:
     """
-    Si ya hay una instancia de JEV, trae su isla (o su ventana) al frente en
-    lugar de dejar al usuario con un cuadro de diálogo y sin interfaz.
+    Si ya hay una instancia, trae su ventana al frente.
     """
     if sys.platform != "win32":
         return False
     try:
         user32 = ctypes.windll.user32
-        focused = False
-        # La isla primero; si no existe, la ventana completa.
-        for title in ("JEV Island", "JEV // Autonomous AI"):
+        titles = ("MMAE // Claude Edition",) if classic else ("MMAE Companion Widget", "JEV Island")
+        for title in titles:
             hwnd = user32.FindWindowW(None, title)
             if not hwnd:
                 continue
-            focused = True
-            user32.ShowWindow(hwnd, 8)  # SW_SHOWNA (sin robar el foco)
-            # HWND_TOPMOST + SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW
-            user32.SetWindowPos(hwnd, -1, 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0040)
-            if title != "JEV Island":
-                user32.SetForegroundWindow(hwnd)
-        return focused
+            user32.ShowWindow(hwnd, 9)  # SW_RESTORE
+            user32.SetForegroundWindow(hwnd)
+            user32.BringWindowToTop(hwnd)
+            return True
+        return False
     except Exception:
         return False
 
@@ -164,16 +159,14 @@ def main() -> int:
     sys.stdout = _LOG_STREAM
     sys.stderr = _LOG_STREAM
 
-    _MUTEX_HANDLE = _acquire_single_instance()
-    if _MUTEX_HANDLE is None:
-        if _focus_existing_instance():
-            print("[INFO] JEV ya estaba abierto: se ha traído su interfaz al frente.")
-            return 0
-        # Hay un mutex huérfano (proceso bloqueado o sin ventana): se arranca
-        # una instancia nueva en lugar de dejar al usuario sin interfaz.
-        print("[INFO] Instancia previa sin ventana detectable; se inicia una nueva.")
-
     classic = "--classic" in sys.argv[1:]
+    target_mutex = "Local\\MMAE_ClaudeApp_SingleInstance" if classic else "Local\\MMAE_Widget_SingleInstance"
+    _MUTEX_HANDLE = _acquire_single_instance(target_mutex)
+    if _MUTEX_HANDLE is None:
+        if _focus_existing_instance(classic=classic):
+            print(f"[INFO] Instancia ya abierta (classic={classic}): se ha traído su interfaz al frente.")
+            return 0
+        print("[INFO] Instancia previa sin ventana detectable; se inicia una nueva.")
     try:
         if classic:
             from app import main as app_main

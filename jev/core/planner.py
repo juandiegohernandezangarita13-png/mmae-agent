@@ -115,11 +115,13 @@ class DAGPlanner:
         user_prompt = f"Meta del usuario: {goal}"
 
         try:
+            thinker = getattr(self.llm.config, "thinker_model", None)
             res = self.llm.chat(
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
-                ]
+                ],
+                override_model=thinker
             )
             raw = res.content.strip()
             if "```json" in raw:

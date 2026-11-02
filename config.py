@@ -83,31 +83,34 @@ class AgentConfig:
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
     openrouter_api_key: str = os.getenv("OPENROUTER_API_KEY", "")
 
-    # --- Modelos del Pipeline Híbrido ---
+    # --- Modelos del Pipeline Híbrido y Roles Multi-IA ---
     thinker_model: str = os.getenv(
         "JEV_THINKER_MODEL",
-        "gemini-flash-lite-latest" if os.getenv("GEMINI_API_KEY") else "meta-llama/llama-3.3-70b-instruct:free"
+        "gemini-3.5-flash-lite" if os.getenv("GEMINI_API_KEY") else "meta-llama/llama-3.3-70b-instruct:free"
     )
     executor_model: str = os.getenv(
         "JEV_EXECUTOR_MODEL",
-        "gemini-flash-lite-latest" if os.getenv("GEMINI_API_KEY") else "qwen2.5-coder:latest"
+        "gemini-3.1-flash-lite" if os.getenv("GEMINI_API_KEY") else "qwen2.5-coder:latest"
+    )
+    auditor_model: str = os.getenv(
+        "JEV_AUDITOR_MODEL",
+        "gemini-flash-lite-latest" if os.getenv("GEMINI_API_KEY") else "meta-llama/llama-3.3-70b-instruct:free"
     )
     fcc_model: str = os.getenv("FCC_MODEL", "open_router/meta-llama/llama-3.3-70b-instruct:free")
     gemini_flash_pool: List[str] = field(default_factory=lambda: [
-        "gemini-flash-lite-latest",
-        "gemini-3.5-flash-lite",
         "gemini-3.1-flash-lite",
+        "gemini-3.5-flash-lite",
+        "gemini-flash-lite-latest",
         "gemini-3-flash-preview",
         "gemini-2.5-flash",
     ])
     fallback_models: List[str] = field(default_factory=lambda: [
-        "gemini-flash-lite-latest",
-        "gemini-3.5-flash-lite",
         "gemini-3.1-flash-lite",
+        "gemini-3.5-flash-lite",
+        "gemini-flash-lite-latest",
         "gemini-3-flash-preview",
         "gemini-2.5-flash",
         "meta-llama/llama-3.3-70b-instruct:free",
-        "google/gemini-2.0-flash-exp:free",
         "deepseek/deepseek-r1:free",
         "deepseek/deepseek-chat:free",
         "qwen/qwen-2.5-coder-32b-instruct:free",

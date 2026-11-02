@@ -20,6 +20,8 @@ class UserMemoryCategory(str, Enum):
     SYSTEM_DIRECTIVE = "system_directive"
     PROJECT_CONTEXT = "project_context"
     WORKFLOW_RULE = "workflow_rule"
+    HABITUAL_PATH = "habitual_path"
+    ERROR_RESOLUTION = "error_resolution"
 
 
 class UserPersistentMemory:
@@ -292,6 +294,76 @@ class UserPersistentMemory:
                     res = self.add(value=val, category=cat, key=sub_key, user_id=user_id, raw_text=m.group(0))
                     extracted.append(res)
         return extracted
+
+    def remember_path(self, path_str: str, description: str = "", user_id: str = "default_user") -> Dict[str, Any]:
+        """Almacena o refuerza una ruta de archivo o directorio habitual en la memoria."""
+        clean_p = str(path_str).strip()
+        key = "path_" + re.sub(r'[^a-zA-Z0-9_]', '_', Path(clean_p).name.lower() or "root")[:25]
+        val = f"{clean_p} | {description}" if description else clean_p
+        return self.add(
+            value=val,
+            category=UserMemoryCategory.HABITUAL_PATH.value,
+            key=key,
+            user_id=user_id,
+            confidence=1.0,
+            raw_text=clean_p
+        )
+
+    def remember_error_resolution(self, error_signature: str, resolution: str, user_id: str = "default_user") -> Dict[str, Any]:
+        """Registra la resolución exitosa de un error previo para evitar recaídas entre sesiones."""
+        sig = error_signature.strip()
+        tokens = re.findall(r"\b[a-zA-Z0-9_-]{3,}\b", sig.lower())
+        key = "err_" + ("_".join(tokens[:3]) if tokens else "general")
+        val = f"ERROR: {sig[:200]} --> RESOLUCIÓN: {resolution.strip()}"
+        return self.add(
+            value=val,
+            category=UserMemoryCategory.ERROR_RESOLUTION.value,
+            key=key,
+            user_id=user_id,
+            confidence=1.0,
+            raw_text=val
+        )
+
+    def recall_relevant_memories(
+        self,
+        query: str,
+        user_id: str = "default_user",
+        limit: int = 6
+    ) -> List[Dict[str, Any]]:
+        """Recuperación contextual de hechos, preferencias, rutas y errores pasados relevantes."""
+        return self.search(query=query, user_id=user_id, limit=limit)
+
+    def extract_session_learnings(
+        self,
+        user_goal: str,
+        written_files: Optional[List[tuple]] = None,
+        errors_fixed: Optional[List[Dict[str, str]]] = None,
+        user_id: str = "default_user"
+    ) -> List[Dict[str, Any]]:
+        """
+        Extrae y almacena automáticamente aprendizajes al finalizar una sesión:
+        - Nuevas rutas de archivos manipuladas con éxito.
+        - Errores encontrados durante la tarea que fueron solventados con éxito.
+        """
+        results = []
+        # 1. Rutas de archivos
+        if written_files:
+            for item in written_files:
+                fpath = item[0] if isinstance(item, (tuple, list)) else str(item)
+                if fpath:
+                    res = self.remember_path(fpath, description=f"Creado/usado para: {user_goal[:50]}", user_id=user_id)
+                    results.append(res)
+
+        # 2. Resoluciones de errores
+        if errors_fixed:
+            for ef in errors_fixed:
+                err_sig = ef.get("error", "")
+                fix_text = ef.get("resolution", "")
+                if err_sig and fix_text:
+                    res = self.remember_error_resolution(err_sig, fix_text, user_id=user_id)
+                    results.append(res)
+
+        return results
 
     def get_user_profile_context(self, user_id: str = "default_user") -> str:
         """

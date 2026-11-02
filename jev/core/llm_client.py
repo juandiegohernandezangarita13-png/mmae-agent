@@ -54,6 +54,69 @@ class LocalLLMClient:
             fcc_base_url=getattr(self.config, "fcc_base_url", "http://127.0.0.1:8082")
         )
 
+    @staticmethod
+    def sanitize_messages_for_tool_calling(messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Garantiza que el historial cumpla estrictamente la especificación de function calling de Gemini/OpenAI:
+        1. No permite mensajes 'tool' huérfanos (si no tienen un 'assistant' previo con tool_calls, los convierte a observación user).
+        2. Garantiza que cada mensaje 'tool' tenga el 'name' correcto y coincida con el tool_call_id.
+        3. Cierra llamadas pendientes si un asistente con tool_calls quedó incompleto tras una poda.
+        """
+        sanitized: List[Dict[str, Any]] = []
+        pending_calls: Dict[str, str] = {}  # call_id -> function_name
+
+        for m in messages:
+            role = m.get("role")
+            if role == "assistant" and m.get("tool_calls"):
+                for pid, pname in list(pending_calls.items()):
+                    sanitized.append({
+                        "role": "tool",
+                        "tool_call_id": pid,
+                        "name": pname or "tool",
+                        "content": "[Acción previa registrada]"
+                    })
+                pending_calls = {}
+                for tc in m["tool_calls"]:
+                    cid = tc.get("id") or "call_0"
+                    cname = tc.get("function", {}).get("name", "") if isinstance(tc.get("function"), dict) else tc.get("name", "")
+                    pending_calls[cid] = cname or "tool"
+                sanitized.append(m)
+            elif role == "tool":
+                cid = m.get("tool_call_id")
+                if cid and cid in pending_calls:
+                    name = m.get("name") or pending_calls[cid]
+                    clean_tool = dict(m)
+                    clean_tool["name"] = name
+                    sanitized.append(clean_tool)
+                    del pending_calls[cid]
+                else:
+                    tname = m.get("name") or "herramienta"
+                    content_str = str(m.get("content", ""))
+                    sanitized.append({
+                        "role": "user",
+                        "content": f"[Observación de {tname}]: {content_str}"
+                    })
+            else:
+                for pid, pname in list(pending_calls.items()):
+                    sanitized.append({
+                        "role": "tool",
+                        "tool_call_id": pid,
+                        "name": pname or "tool",
+                        "content": "[Acción previa registrada]"
+                    })
+                pending_calls = {}
+                sanitized.append(m)
+
+        for pid, pname in list(pending_calls.items()):
+            sanitized.append({
+                "role": "tool",
+                "tool_call_id": pid,
+                "name": pname or "tool",
+                "content": "[Acción completada]"
+            })
+
+        return sanitized
+
     def _get_endpoint_and_headers(self, model: str = "") -> Tuple[str, Dict[str, str]]:
         if "gemini" in model.lower() and getattr(self.config, "gemini_api_key", ""):
             url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
@@ -308,6 +371,7 @@ Sé analítico, preciso y estructurado."""
             is_cloud = ("googleapis.com" in url) or ("openrouter.ai" in url)
 
             effective_messages = messages if is_cloud else self._prune_messages_for_local_inference(messages)
+            effective_messages = self.sanitize_messages_for_tool_calling(effective_messages)
 
             # Normalizar nombre de modelo para OpenRouter si tiene prefijo interno open_router/
             clean_model = model_candidate.replace("open_router/", "")
@@ -416,7 +480,7 @@ Sé analítico, preciso y estructurado."""
             local_url = f"{self.config.ollama_base_url.rstrip('/')}/v1/chat/completions"
             local_payload = {
                 "model": self.config.executor_model,
-                "messages": self._prune_messages_for_local_inference(messages),
+                "messages": self.sanitize_messages_for_tool_calling(self._prune_messages_for_local_inference(messages)),
                 "temperature": self.config.temperature,
                 "max_tokens": self.config.max_tokens,
                 "stream": False,

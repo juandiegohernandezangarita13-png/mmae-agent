@@ -142,7 +142,7 @@ class DesktopAppLiveOperatorTool(BaseTool):
     }
 
     def _resolve_executable(self, app_name: str) -> Optional[str]:
-        """Encuentra la ruta completa del ejecutable en el sistema."""
+        """Encuentra la ruta completa del ejecutable o identificador en el sistema."""
         normalized = (app_name or "").strip().lower()
 
         # Si el usuario pasó una ruta que existe directamente
@@ -164,9 +164,22 @@ class DesktopAppLiveOperatorTool(BaseTool):
         if which_result:
             return which_result
 
+        # Catálogo StartApps de Windows (UWP, Store, Atajos instalados)
+        try:
+            from jev.tools.system_apps import OpenApplicationTool
+            start_apps = OpenApplicationTool._get_start_apps()
+            if normalized in start_apps:
+                return f"shell:AppsFolder\\{start_apps[normalized]}"
+            for name, app_id in start_apps.items():
+                if normalized in name or any(w in name for w in normalized.split() if len(w) > 2):
+                    return f"shell:AppsFolder\\{app_id}"
+        except Exception:
+            pass
+
         # Búsqueda aproximada en Program Files para apps típicas
         prog_files = [os.environ.get("ProgramFiles", r"C:\Program Files"),
-                      os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")]
+                      os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)"),
+                      os.path.expandvars(r"%LOCALAPPDATA%\Programs")]
         for pf in prog_files:
             candidate = Path(pf) / app_name / f"{app_name}.exe"
             if candidate.exists():
@@ -306,7 +319,10 @@ class DesktopAppLiveOperatorTool(BaseTool):
 
             # Lanzar la aplicación en proceso independiente
             try:
-                subprocess.Popen([exe_path], shell=False)
+                if exe_path.startswith("shell:"):
+                    ctypes.windll.shell32.ShellExecuteW(None, "open", exe_path, None, None, 1)
+                else:
+                    subprocess.Popen([exe_path], shell=False)
             except Exception as e:
                 return ToolResult(
                     success=False,

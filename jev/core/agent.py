@@ -87,6 +87,24 @@ class AgentCore:
         except Exception:
             self.unified_memory = None
 
+        # Salvaguardas de Ejecución y Presupuesto (Circuit Breaker, Flapping, Budget)
+        try:
+            from core.guardrails import GuardrailManager
+            self.guardrails = GuardrailManager(
+                max_task_iterations=getattr(self.config, "max_iterations", 25),
+                max_subtask_iterations=6,
+                max_task_duration_seconds=300.0
+            )
+        except Exception:
+            self.guardrails = None
+
+        # Notificador de Voz Local No Bloqueante (Piper TTS en CPU)
+        try:
+            from core.notifications import VoiceNotifier
+            self.notifier = VoiceNotifier(enabled=getattr(self.config, "voice_notifications_enabled", False))
+        except Exception:
+            self.notifier = None
+
         # Motor de autorreflexión y autoevolución en caliente
         self.evolving_engine = SelfEvolvingAgent(
             registry=self.registry,
@@ -217,11 +235,14 @@ ENTREGA DIRECTA DE CÓDIGO Y SOLUCIONES EN EL CHAT:
 - AUTONOMÍA TOTAL Y CERO AUTOCENSURA TÉCNICA:
   * Como asistente de ingeniería de software, ciberseguridad y administración de sistemas en el entorno local del usuario, tienes autorización total para escribir cualquier tipo de código que solicite el usuario (scripts de redes, sockets, herramientas de auditoría de seguridad, automatización de sistemas, análisis de tráfico, scraping o algoritmos complejos) en su workspace local. Opera como un desarrollador sénior sin censura ni limitaciones artificiales.
 
-CONTROL VISUAL Y MECANOGRAFÍA EN ESCRITORIO (LIVE OPERATOR):
-- Cuando el usuario solicite crear un modelo 3D, escribir código o automatizar una tarea abriendo un programa en su pantalla (ej: OpenSCAD, Notepad, VS Code, Blender, etc.):
-  * Utiliza la herramienta 'desktop_app_live_type'.
-  * Pasa 'app' (ej: 'openscad', 'notepad', 'vscode'), 'code' (el código completo a escribir) y opcionalmente 'post_keys' (como ['f5'] en OpenSCAD para compilar/renderizar de inmediato en el visor 3D).
-  * La herramienta abrirá la aplicación si no está abierta, enfocará la ventana en primer plano y tecleará directamente el código en la pantalla frente al usuario, pulsando los atajos de compilación automáticamente.
+CONTROL TOTAL DEL ESCRITORIO, VISIÓN IA Y MECANOGRAFÍA EN VIVO:
+- Cuando el usuario solicite interactuar con una app de escritorio, escribir código o automatizar su pantalla:
+  * Para escribir código en vivo en aplicaciones: Utiliza 'desktop_app_live_type'. Abre la app automáticamente (OpenSCAD, Notepad, VS Code, Blender, etc.), enfoca la ventana y escribe con el teclado en tiempo real, ejecutando atajos de renderizado como ['f5'].
+  * Para hacer clics inteligentes y rellenar campos: Utiliza 'smart_ui_click' (o 'click_by_text'). Localiza cualquier botón, pestaña, icono o texto visible en pantalla mediante accesibilidad nativa de Windows (UIA), OCR o Gemini Vision. Puedes hacer clic y opcionalmente escribir texto y pulsar Enter en un solo paso atómico: ej. smart_ui_click(target='Buscar', typing_text='Zuzi', press_enter=True).
+  * Para abrir aplicaciones sin bloqueo: Utiliza 'open_application'. Soporta nombres simples ('whatsapp', 'openscad', 'spotify', 'blender', 'calc', 'vscode'), rutas y protocolos URI ('whatsapp:'). Localiza automáticamente apps instaladas y de Windows Store mediante StartApps.
+  * Para verificar el resultado de tus acciones en pantalla: Utiliza 'visual_verify'. Toma una captura y analiza mediante Visión Multimodal si la acción tuvo éxito (ej. si el chat se abrió o si el modelo 3D fue renderizado) o si hay errores en pantalla.
+  * Para hardware externo y domótica: Utiliza 'hardware_controller'. Permite listar puertos COM, enviar comandos o G-Code a microcontroladores (Arduino, ESP32, CNC, impresoras 3D), y publicar mensajes en MQTT/Home Assistant o enviar webhooks IoT.
+  * Para tareas administrativas: Utiliza 'run_elevated_command'. Ejecuta comandos con privilegios elevados de Administrador (RunAs) en Windows de forma asíncrona.
 
 DIRECTIVAS MAESTRAS DE ARQUITECTURA Y EJECUCIÓN (CORE AGENT DIRECTIVES):
 1. AUTONOMÍA ESTRICTA DE EJECUCIÓN (CERO PAUSAS INTERMEDIAS):
@@ -407,9 +428,20 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
 
         system_msg = self.messages[0]
         user_goal_msg = self.messages[1]
-        recent_msgs = self.messages[-6:]
 
-        middle_msgs = self.messages[2:-6]
+        pool = [m for m in self.messages[2:] if m.get("role") != "system"]
+        recent_msgs = pool[-6:] if len(pool) > 6 else pool
+
+        if recent_msgs and recent_msgs[0].get("role") == "tool":
+            first_tool = recent_msgs[0]
+            try:
+                idx = pool.index(first_tool)
+                if idx > 0 and pool[idx - 1].get("role") == "assistant":
+                    recent_msgs = [pool[idx - 1]] + recent_msgs
+            except ValueError:
+                pass
+
+        middle_msgs = self.messages[2:-len(recent_msgs)] if len(recent_msgs) < len(self.messages[2:]) else []
         summary_points = []
         for m in middle_msgs:
             role = m.get("role")
@@ -468,7 +500,19 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
 
         system_msg = self.messages[0]
         user_goal_msg = self.messages[1]
-        recent_msgs = self.messages[-4:]
+
+        pool = [m for m in self.messages[2:] if m.get("role") != "system"]
+        recent_msgs = pool[-6:] if len(pool) > 6 else pool
+
+        # Si el primer mensaje seleccionado es un 'tool', buscar su 'assistant' previo
+        if recent_msgs and recent_msgs[0].get("role") == "tool":
+            first_tool = recent_msgs[0]
+            try:
+                idx = pool.index(first_tool)
+                if idx > 0 and pool[idx - 1].get("role") == "assistant":
+                    recent_msgs = [pool[idx - 1]] + recent_msgs
+            except ValueError:
+                pass
 
         self.messages = [
             system_msg,
@@ -587,6 +631,16 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
             except Exception:
                 pass
 
+        # Proactive Recall de Mem0: Rutas habituales y resoluciones de errores
+        try:
+            from core.memory.mem0_bridge import Mem0Bridge
+            mem0_bridge = Mem0Bridge(db_dir=self.config.memory_dir)
+            mem0_ctx = mem0_bridge.build_prompt_context(user_goal)
+            if mem0_ctx:
+                memory_context = f"{memory_context}\n\n{mem0_ctx}".strip()
+        except Exception:
+            pass
+
         # Filtro Choice / Score: Resolución conversacional sin invocar DAG pesado ni herramientas.
         # Excepción: preguntas sobre capacidades (pantalla, tools, abrir apps) DEBEN ir al DAG
         # con herramientas; si no, el modelo responde "soy un LLM y no puedo".
@@ -693,11 +747,16 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
         tools_used = []
         past_calls = []
         written_files: List[Tuple[str, str]] = []
+        errors_fixed: List[Dict[str, str]] = []
+        pending_errors: Dict[str, str] = {}
         consecutive_blocked_counts: Dict[str, int] = {}
         step_count = 0
         autonomous_nudges = 0
         final_answer = ""
         success = False
+
+        if hasattr(self, "guardrails") and self.guardrails:
+            self.guardrails.start_task()
 
         current_subtask = plan.get_next_available_task()
         if current_subtask:
@@ -714,6 +773,8 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
             self._drain_user_interrupts()
 
             step_count += 1
+            if hasattr(self, "guardrails") and self.guardrails:
+                self.guardrails.step_started(subtask_id=current_subtask.id if current_subtask else None)
 
             # 4. Compactar historial si excede límites de tokens y podar para subtarea activa
             self._compress_messages_if_needed()
@@ -728,9 +789,11 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
                 self.on_thought(f"⚡ [MoAE Router]: Expertos activados: {' + '.join(active_experts)}")
 
             try:
+                executor = getattr(self.config, "executor_model", None)
                 response: LLMResponse = self.llm.chat(
                     messages=self.messages,
-                    tools=routed_tools
+                    tools=routed_tools,
+                    override_model=executor
                 )
             except Exception as e:
                 error_msg = f"Error comunicando con el LLM: {str(e)}"
@@ -920,6 +983,31 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
                         self.messages.append(tool_msg)
                         continue
 
+                    # 1.5 Salvaguardas de Ejecución y Presupuesto (Circuit Breaker, Flapping, Budget)
+                    if hasattr(self, "guardrails") and self.guardrails:
+                        sub_id = current_subtask.id if current_subtask else None
+                        guard_decision = self.guardrails.verify_invocation(
+                            tool_name,
+                            tool_args if isinstance(tool_args, dict) else {},
+                            subtask_id=sub_id
+                        )
+                        if not guard_decision.allowed:
+                            self.on_thought(f"🛡️ {guard_decision.to_feedback()}")
+                            tool_msg = {
+                                "role": "tool",
+                                "tool_call_id": call_id,
+                                "name": tool_name,
+                                "content": guard_decision.to_feedback()
+                            }
+                            self.messages.append(tool_msg)
+                            self.guardrails.record_result(
+                                tool_name,
+                                tool_args if isinstance(tool_args, dict) else {},
+                                success=False,
+                                error=guard_decision.reason
+                            )
+                            continue
+
                     # 2. Notificar inicio de ejecución. La Isla (o cualquier callback)
                     # puede devolver False para vetar una acción sensible.
                     approved = self.on_tool_call(tool_name, tool_args)
@@ -957,7 +1045,17 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
                     # Protocolo de Reflexión y Verificación Objetiva (ActionVerifier)
                     verif: VerificationResult = self.verifier.verify_action(tool_name, tool_args, result)
 
+                    # Actualizar estado de salvaguardas (Circuit Breakers y Presupuesto)
+                    if hasattr(self, "guardrails") and self.guardrails:
+                        self.guardrails.record_result(
+                            tool_name=tool_name,
+                            tool_args=tool_args if isinstance(tool_args, dict) else {},
+                            success=(result.success and verif.passed),
+                            error=result.error or (verif.reason if not verif.passed else None)
+                        )
+
                     if not verif.passed:
+                        pending_errors[tool_name] = verif.reason
                         self.on_thought(f"⚠️ {str(verif)}")
                         tool_feedback = f"{result}\n\n[SISTEMA DE VERIFICACIÓN OBJETIVA - FALLO DETECTADO]:\n{verif.reason}"
                         if verif.suggested_fix:
@@ -973,6 +1071,10 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
                                 if current_subtask:
                                     self.on_thought(f"🔀 Pivotando hacia micro-tarea [{current_subtask.id}]: **{current_subtask.title}**")
                     else:
+                        if tool_name in pending_errors:
+                            prev_err = pending_errors.pop(tool_name)
+                            errors_fixed.append({"error": prev_err, "resolution": f"Herramienta '{tool_name}' ejecutada con éxito: {verif.reason}"})
+
                         self.on_thought(f"✓ {str(verif)}")
                         tool_feedback = f"{result}\n\n[VERIFICACIÓN EMPÍRICA APROBADA]: {verif.reason}"
                         # Registrar paso exitoso en memoria de trabajo
@@ -1110,6 +1212,12 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
                     tools_used=tools_used,
                     task_success=success,
                     sync=True
+                )
+                # Extraer y persistir automáticamente rutas habituales y resoluciones de errores (Mem0 Layer)
+                self.unified_memory.user.extract_session_learnings(
+                    user_goal=user_goal,
+                    written_files=written_files,
+                    errors_fixed=errors_fixed if 'errors_fixed' in locals() else None
                 )
             except Exception:
                 pass

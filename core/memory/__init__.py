@@ -14,6 +14,7 @@ from core.memory.temporal_graph import TemporalKnowledgeGraph
 from core.memory.knowledge_hub import HeterogeneousKnowledgeHub, DocumentChunk
 from core.memory.background_worker import BackgroundMemoryWorker
 from core.memory.unified_system import UnifiedMemorySystem, MMAEMemorySystem
+from core.memory.mem0_bridge import Mem0Bridge
 
 try:
     from jev.core.memory import HierarchicalMemory
@@ -30,5 +31,6 @@ __all__ = [
     "DocumentChunk",
     "BackgroundMemoryWorker",
     "UnifiedMemorySystem",
-    "MMAEMemorySystem"
+    "MMAEMemorySystem",
+    "Mem0Bridge"
 ]

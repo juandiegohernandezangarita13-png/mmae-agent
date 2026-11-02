@@ -283,7 +283,7 @@ class IslandBridge:
     # ------------------------------------------------------------------
     # API expuesta al frontend
     # ------------------------------------------------------------------
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self, *args, **kwargs) -> Dict[str, Any]:
         from jev.core.status_sync import get_agent_status
         synced = get_agent_status()
         base = {
@@ -303,7 +303,10 @@ class IslandBridge:
             "island_mode": True,
         }
         if self._jarvis is not None:
-            base = self._jarvis.activity_snapshot()
+            try:
+                base = self._jarvis.activity_snapshot()
+            except Exception:
+                pass
 
         # Si hay actividad sincronizada desde la terminal o proceso externo, reflejarla
         if synced.get("running"):
@@ -326,10 +329,10 @@ class IslandBridge:
 
         return base
 
-    def expand(self) -> Dict[str, Any]:
+    def expand(self, *args, **kwargs) -> Dict[str, Any]:
         return {"ok": True, "expanded": False}
 
-    def collapse(self) -> Dict[str, Any]:
+    def collapse(self, *args, **kwargs) -> Dict[str, Any]:
         return {"ok": True, "expanded": False}
 
     def _save_current_position(self) -> None:
@@ -348,13 +351,22 @@ class IslandBridge:
         except Exception:
             pass
 
-    def move_delta(self, dx: Any = 0, dy: Any = 0) -> Dict[str, Any]:
+    def move_delta(self, *args, **kwargs) -> Dict[str, Any]:
         """Desplaza la ventana de forma suave y sin depender de captura de ratón Win32."""
-        if isinstance(dx, (list, tuple)):
-            if len(dx) >= 2:
-                dx, dy = dx[0], dx[1]
-            else:
-                dx, dy = 0, 0
+        dx, dy = 0, 0
+        if args:
+            first = args[0]
+            if isinstance(first, (list, tuple)) and len(first) >= 2:
+                dx, dy = first[0], first[1]
+            elif len(args) >= 2:
+                dx, dy = args[0], args[1]
+            elif isinstance(first, (int, float)):
+                dx = first
+        if "dx" in kwargs:
+            dx = kwargs["dx"]
+        if "dy" in kwargs:
+            dy = kwargs["dy"]
+
         try:
             dx = int(dx)
             dy = int(dy)
@@ -377,28 +389,28 @@ class IslandBridge:
                 return {"ok": False, "error": str(e)}
         return {"ok": False}
 
-    def drag_window(self) -> Dict[str, Any]:
+    def drag_window(self, *args, **kwargs) -> Dict[str, Any]:
         """Permite mover y arrastrar la ventana sin bordes por toda la pantalla usando Win32."""
         if not self._hwnd:
             return {"ok": False}
         try:
             ctypes.windll.user32.ReleaseCapture()
+            # Usar PostMessageW para no bloquear el puente JS durante el arrastre
             # WM_SYSCOMMAND (0x0112), SC_MOVE + HTCAPTION (0xF012)
-            ctypes.windll.user32.SendMessageW(self._hwnd, 0x0112, 0xF012, 0)
-            self._save_current_position()
+            ctypes.windll.user32.PostMessageW(self._hwnd, 0x0112, 0xF012, 0)
             return {"ok": True}
         except Exception as exc:
             return {"ok": False, "error": str(exc)}
 
-    def is_autostart(self) -> Dict[str, Any]:
+    def is_autostart(self, *args, **kwargs) -> Dict[str, Any]:
         return {"ok": True, "enabled": is_autostart_enabled()}
 
-    def toggle_autostart(self) -> Dict[str, Any]:
+    def toggle_autostart(self, *args, **kwargs) -> Dict[str, Any]:
         new_val = not is_autostart_enabled()
         res = setup_startup_launcher(new_val)
         return {"ok": res, "enabled": is_autostart_enabled()}
 
-    def open_main(self) -> Dict[str, Any]:
+    def open_main(self, *args, **kwargs) -> Dict[str, Any]:
         """Muestra y enfoca la ventana completa de la aplicación (o la lanza de forma desacoplada)."""
         if self._main_window is not None:
             try:
@@ -419,6 +431,7 @@ class IslandBridge:
             from pathlib import Path
             base_dir = Path(__file__).resolve().parents[2]
             app_script = base_dir / "app.py"
+            launcher_script = base_dir / "jev_launcher.py"
 
             # 1. Comprobar si ya existe la ventana principal abierta y enfocarla
             found_hwnd = None
@@ -444,55 +457,59 @@ class IslandBridge:
                 ctypes.windll.user32.BringWindowToTop(found_hwnd)
                 return {"ok": True, "focused": True}
 
-            # 2. Si no está abierta, lanzar app.py directamente con python.exe
-            if app_script.exists():
-                DETACHED = 0x00000008 | 0x00000200  # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
-                subprocess.Popen(
-                    ["python.exe", str(app_script)],
-                    shell=False,
-                    cwd=str(base_dir),
-                    creationflags=DETACHED if sys.platform == "win32" else 0
-                )
-                return {"ok": True, "launched": True}
+            # 2. Si no está abierta, lanzar mediante el intérprete activo o pythonw
+            DETACHED = 0x00000008 | 0x00000200  # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
+            py_bin = sys.executable or "pythonw.exe"
+            cmd = [py_bin, str(launcher_script), "--classic"] if launcher_script.exists() else [py_bin, str(app_script)]
+            subprocess.Popen(
+                cmd,
+                shell=False,
+                cwd=str(base_dir),
+                creationflags=DETACHED if sys.platform == "win32" else 0
+            )
+            return {"ok": True, "launched": True}
         except Exception as e:
             return {"ok": False, "error": str(e)}
 
-        return {"ok": False, "error": "No se pudo abrir la aplicación."}
-
-    def close_widget(self) -> Dict[str, Any]:
-        """Cierra el widget de escritorio."""
+    def close_widget(self, *args, **kwargs) -> Dict[str, Any]:
+        """Cierra el widget de escritorio de inmediato."""
         if self._island_window is not None:
             try:
                 self._island_window.destroy()
             except Exception:
                 pass
+        def _force_exit():
+            import time, os
+            time.sleep(0.2)
+            os._exit(0)
+        threading.Thread(target=_force_exit, daemon=True).start()
         return {"ok": True}
 
-    def stop_agent(self) -> Dict[str, Any]:
+    def stop_agent(self, *args, **kwargs) -> Dict[str, Any]:
         if self._jarvis is None:
             return {"ok": False}
         self._jarvis.stop_agent()
         return {"ok": True}
 
-    def toggle_voice(self) -> Dict[str, Any]:
+    def toggle_voice(self, *args, **kwargs) -> Dict[str, Any]:
         if self._jarvis is None:
             return {"ok": False, "enabled": False}
         enabled = not bool(getattr(self._jarvis, "_voice_enabled", False))
         self._jarvis.toggle_voice_synthesis(enabled)
         return {"ok": True, "enabled": enabled}
 
-    def set_confirm_risky(self, enabled: bool = False) -> Dict[str, Any]:
+    def set_confirm_risky(self, enabled: bool = False, *args, **kwargs) -> Dict[str, Any]:
         if self._jarvis is None:
             return {"ok": False}
         value = self._jarvis.set_confirm_risky(bool(enabled))
         return {"ok": True, "enabled": value}
 
-    def resolve_approval(self, allow: bool = False) -> Dict[str, Any]:
+    def resolve_approval(self, allow: bool = False, *args, **kwargs) -> Dict[str, Any]:
         if self._jarvis is None:
             return {"ok": False}
         return self._jarvis.resolve_approval(bool(allow))
 
-    def send_chat(self, text: str) -> Dict[str, Any]:
+    def send_chat(self, text: str = "", *args, **kwargs) -> Dict[str, Any]:
         """Envía un prompt o tarea directamente a JEV desde la isla flotante."""
         if not text or not str(text).strip():
             return {"ok": False, "error": "Prompt vacío"}
@@ -508,7 +525,7 @@ class IslandBridge:
         except Exception as exc:
             return {"ok": False, "error": str(exc)}
 
-    def send_file_drop(self, filename: str, file_data: str = "", prompt: str = "") -> Dict[str, Any]:
+    def send_file_drop(self, filename: str = "", file_data: str = "", prompt: str = "", *args, **kwargs) -> Dict[str, Any]:
         """Procesa un archivo o imagen arrastrado sobre la isla flotante."""
         if self._jarvis is None:
             return {"ok": False, "error": "JEV no está conectado"}
@@ -530,7 +547,7 @@ class IslandBridge:
         except Exception as exc:
             return {"ok": False, "error": str(exc)}
 
-    def get_cursor(self) -> Dict[str, Any]:
+    def get_cursor(self, *args, **kwargs) -> Dict[str, Any]:
         """Obtiene la posición global del cursor y la geometría física de la isla para seguimiento 360°."""
         pt = _POINT()
         try:
@@ -557,7 +574,7 @@ class IslandBridge:
             "wh": win_h,
         }
 
-    def get_chat_history(self) -> Dict[str, Any]:
+    def get_chat_history(self, *args, **kwargs) -> Dict[str, Any]:
         """Devuelve los mensajes recientes de la conversación activa."""
         msgs = []
         if self._jarvis is not None:
@@ -578,7 +595,7 @@ class IslandBridge:
                     pass
         return {"ok": True, "messages": msgs}
 
-    def quit_app(self) -> Dict[str, Any]:
+    def quit_app(self, *args, **kwargs) -> Dict[str, Any]:
         """Cierra el agente y todas las ventanas de JEV."""
         if self._quit_state is not None:
             self._quit_state["quitting"] = True

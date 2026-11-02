@@ -1,27 +1,29 @@
 @echo off
-setlocal enabledelayedexpansion
 title MMAE // Launcher
 cd /d "%~dp0"
 set "PYTHONIOENCODING=utf-8"
 
-set "PY_EXE=python.exe"
-set "PYW_EXE=pythonw.exe"
+set "PY_EXE=C:\Users\juand\AppData\Roaming\uv\python\cpython-3.11.16-windows-x86_64-none\python.exe"
 
-:: Si se pasa 'app', abrir directamente la aplicación de chat estilo Claude
+if not exist "%PY_EXE%" (
+    set "PY_EXE=python.exe"
+)
+
 if /i "%~1"=="app" (
-    start "" python.exe "%~dp0app.py"
+    start "" "%PY_EXE%" "%~dp0jev_launcher.py" --classic
     exit /b 0
 )
 
-:: Si se pasan argumentos desde terminal (ej: iniciar.bat "mi tarea" o -i), ejecutar en modo consola
-if not "%~1"=="" (
-    python.exe "%~dp0main.py" %*
+if /i "%~1"=="telegram" (
+    "%PY_EXE%" "%~dp0jev\interfaces\telegram_bot.py"
     exit /b %ERRORLEVEL%
 )
 
-:: Cerrar cualquier instancia previa huérfana para asegurar código fresco
-taskkill /F /IM pythonw.exe >nul 2>&1
+if not "%~1"=="" (
+    "%PY_EXE%" "%~dp0main.py" %*
+    exit /b %ERRORLEVEL%
+)
 
-:: Arranque predeterminado: lanzar el Widget Flotante de escritorio directamente
-start "" pythonw.exe "%~dp0main.py" --desktop
+taskkill /F /IM python.exe >nul 2>&1
+start "" "%PY_EXE%" "%~dp0jev_launcher.py"
 exit /b 0
