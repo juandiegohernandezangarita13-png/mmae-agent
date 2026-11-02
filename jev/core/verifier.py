@@ -133,6 +133,25 @@ class ActionVerifier:
             exit_code = result.data.get("exit_code") if result.data else None
             stderr = result.data.get("stderr", "") if result.data else ""
 
+            # Detección de falso positivo en ejecutores de pruebas (Ran 0 tests con código 0)
+            cmd_lower = cmd.lower()
+            out_lower = (result.output or "").lower()
+            if any(k in cmd_lower for k in ("unittest", "pytest", "test_", "test ")):
+                zero_tests_indicators = [
+                    "ran 0 tests",
+                    "0 tests ejecutados",
+                    "collected 0 items",
+                    "no tests were found",
+                    "no tests found",
+                    "0 passed, 0 failed"
+                ]
+                if any(zt in out_lower for zt in zero_tests_indicators):
+                    return VerificationResult(
+                        passed=False,
+                        reason="Falso positivo detectado: El comando terminó con código 0 pero no ejecutó ninguna prueba (0 tests encontrados).",
+                        suggested_fix="Ejecuta directamente el archivo de pruebas (ej: python test_engine.py) o especifica la ruta de descubrimiento (ej: python -m unittest discover -s <directorio> -p 'test_*.py')."
+                    )
+
             if exit_code is not None and exit_code != 0:
                 return VerificationResult(
                     passed=False,

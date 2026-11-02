@@ -162,7 +162,29 @@ class DeepThinker:
                 )
 
         # Verificación para ejecución CLI
-        if tool_name in ("execute_command", "cli_execute_structured"):
+        if tool_name in ("execute_command", "cli_execute_structured", "run_shell", "execute_python"):
+            cmd_str = str(tool_args.get("command") or tool_args.get("code") or "").lower()
+            is_test_runner = any(k in cmd_str for k in ("unittest", "pytest", "test_", "test "))
+
+            if is_test_runner:
+                zero_tests_indicators = [
+                    "ran 0 tests",
+                    "0 tests ejecutados",
+                    "collected 0 items",
+                    "no tests were found",
+                    "no tests found",
+                    "0 passed, 0 failed"
+                ]
+                if any(zt in output_lower for zt in zero_tests_indicators):
+                    return VerificationResult(
+                        is_valid=False,
+                        evidence="FALSO POSITIVO: El ejecutor de pruebas terminó con código 0 pero no ejecutó ninguna prueba (0 tests encontrados).",
+                        suggested_correction=(
+                            "Debes ejecutar el archivo de pruebas específico directamente (ej: python test_engine.py) "
+                            "o indicar el directorio de descubrimiento (ej: python -m unittest discover -s <ruta_carpeta> -p 'test_*.py')."
+                        )
+                    )
+
             if "exit_code: 0" in output_lower or "código de salida: 0" in output_lower or "éxito" in output_lower:
                 return VerificationResult(
                     is_valid=True,
