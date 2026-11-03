@@ -158,9 +158,9 @@ class SkillRAG:
         tokens = [t.strip() for t in query.split() if len(t.strip()) > 1]
         if not tokens:
             return ""
-        # Buscar palabras clave con operador OR para máxima cobertura
-        clean_tokens = [re.sub(r'[^a-zA-Z0-9_\-]', '', t) for t in tokens]
-        clean_tokens = [t for t in clean_tokens if t]
+        # Filtrar caracteres conflictivos de FTS5 (como guiones, dos puntos y comillas)
+        clean_tokens = [re.sub(r'[^a-zA-Z0-9_]', '', t) for t in tokens]
+        clean_tokens = [f'"{t}"' for t in clean_tokens if len(t) >= 2]
         if not clean_tokens:
             return ""
-        return " OR ".join(clean_tokens)
+        return " OR ".join(clean_tokens[:15])  # Limitar a las 15 palabras clave principales
