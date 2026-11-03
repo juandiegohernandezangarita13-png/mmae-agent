@@ -47,15 +47,47 @@ class SidecarProxyHandler(BaseHTTPRequestHandler):
         elif path == "/browse":
             target_url = query_params.get("url", [""])[0].strip()
             self._handle_browse(target_url)
+        elif path == "/image":
+            img_name = query_params.get("name", [""])[0].strip()
+            self._handle_image(img_name)
         elif path == "/status":
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            self.wfile.write(b'{"status": "ok", "service": "Antigravity Sidecar Web Engine"}')
+            self.wfile.write(b'{"status": "ok", "service": "Bable Web Engine"}')
         else:
-            # Página de inicio del navegador Antigravity
+            # Página de inicio del navegador Bable
             self._handle_home()
+
+    def _handle_image(self, img_name: str):
+        """Sirve imágenes generadas por el agente de forma segura y directa."""
+        if not img_name:
+            self.send_response(400)
+            self.end_headers()
+            return
+
+        # Limpiar nombre para evitar path traversal
+        clean_name = os.path.basename(img_name)
+        from jev.config import BASE_DIR
+        img_path = Path(BASE_DIR) / "data" / "generated_images" / clean_name
+        if not img_path.exists():
+            # Buscar en directorio actual
+            img_path = Path("data/generated_images") / clean_name
+
+        if img_path.exists():
+            data = img_path.read_bytes()
+            mime = "image/jpeg" if clean_name.lower().endswith((".jpg", ".jpeg")) else "image/png"
+            self.send_response(200)
+            self.send_header("Content-Type", mime)
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Cache-Control", "public, max-age=86400")
+            self.end_headers()
+            self.wfile.write(data)
+        else:
+            self.send_response(404)
+            self.end_headers()
 
     def _handle_home(self):
         html = f"""<!DOCTYPE html>

@@ -815,7 +815,7 @@ def main():
         window_width, window_height = 1380, 860
 
     window = webview.create_window(
-        title="Antigravity 2.0 // MMAE - Multi-Model Autonomous Engine",
+        title="Bable 2.0 // Multi-Model Autonomous Engine",
         url=str(html_path.resolve()),
         js_api=bridge,
         width=window_width,

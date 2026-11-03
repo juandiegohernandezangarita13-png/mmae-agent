@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Antigravity 2.0 // MMAE</title>
+  <title>Bable 2.0 // Multi-Model Autonomous Engine</title>
   <style>
     :root {
       --bg-titlebar: #18191d;
@@ -187,7 +187,7 @@
     }
 
     /* ==================================================================
-       LEFT SIDEBAR (ANTIGRAVITY 2.0 STYLE)
+       LEFT SIDEBAR (BABLE 2.0 STYLE)
        ================================================================== */
     .sidebar {
       width: var(--sidebar-width);
@@ -303,8 +303,8 @@
       transition: background 0.12s, color 0.12s;
     }
 
-    .side-nav-item:hover {
-      background: rgba(255, 255, 255, 0.05);
+    .side-nav-item:hover, .side-nav-item.active {
+      background: rgba(255, 255, 255, 0.06);
       color: var(--text-main);
     }
 
@@ -450,7 +450,7 @@
     }
 
     /* ==================================================================
-       CENTER CHAT & CONVERSATION COLUMN
+       CENTER MAIN CONTAINER (SWITCHABLE VIEWS: CHAT, AUTOMATIONS, CUSTOMIZATIONS)
        ================================================================== */
     .main-chat-container {
       flex: 1;
@@ -463,7 +463,6 @@
       min-width: 360px;
     }
 
-    /* Chat Header / Breadcrumb */
     .chat-header {
       height: 42px;
       border-bottom: 1px solid var(--border-subtle);
@@ -550,7 +549,7 @@
       border-color: rgba(37, 99, 235, 0.4);
     }
 
-    /* Pestaña flotante de reapertura del Sidecar cuando está plegado */
+    /* Pestaña flotante de reapertura del Sidecar */
     .sidecar-dock-tab {
       position: absolute;
       right: 0;
@@ -581,7 +580,18 @@
       color: #ffffff;
     }
 
-    /* Message Stream */
+    /* ==================================================================
+       VISTA 1: CHAT / CONVERSATION STREAM
+       ================================================================== */
+    .view-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
     .chat-stream {
       flex: 1;
       overflow-y: auto;
@@ -608,31 +618,11 @@
       margin: 0 auto;
     }
 
-    /* User Message Bubble */
     .user-bubble-wrap {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
       gap: 8px;
-    }
-
-    .user-thumbnail-preview {
-      width: 90px;
-      height: 54px;
-      background: #111215;
-      border: 1px solid var(--border-medium);
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      cursor: pointer;
-    }
-
-    .user-thumbnail-preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
     }
 
     .user-bubble {
@@ -647,14 +637,12 @@
       user-select: text;
     }
 
-    /* Deliberation / Deep Thought Accordion */
     .thought-accordion {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       margin: 6px 0 10px 0;
       overflow: hidden;
-      transition: border-color 0.15s;
     }
 
     .thought-header {
@@ -666,7 +654,6 @@
       color: #93c5fd;
       font-size: 12px;
       background: rgba(37, 99, 235, 0.05);
-      user-select: none;
     }
 
     .thought-header-left {
@@ -700,7 +687,6 @@
       white-space: pre-wrap;
     }
 
-    /* Tool Call Card */
     .tool-card {
       background: #191b20;
       border: 1px solid var(--border-subtle);
@@ -743,7 +729,6 @@
       padding: 2px 6px;
       border-radius: 4px;
       font-weight: 500;
-      flex-shrink: 0;
     }
 
     .tool-status-badge.running {
@@ -756,12 +741,6 @@
       color: #34d399;
     }
 
-    .tool-status-badge.error {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-    }
-
-    /* Assistant Response Bubble */
     .assistant-bubble {
       color: var(--text-main);
       font-size: 14px;
@@ -787,107 +766,61 @@
       font-weight: 600;
     }
 
-    .assistant-bubble a {
-      color: #60a5fa;
-      text-decoration: none;
-    }
-    .assistant-bubble a:hover {
-      text-decoration: underline;
-    }
-
-    /* Code Block */
-    .code-block {
-      background: var(--bg-code);
-      border: 1px solid var(--border-subtle);
+    /* Tarjeta de imagen renderizada en el chat */
+    .chat-img-card {
+      margin: 14px 0;
+      background: #18191d;
+      border: 1px solid var(--border-medium);
       border-radius: var(--radius-md);
-      margin: 12px 0;
       overflow: hidden;
+      max-width: 520px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
     }
 
-    .code-header {
-      background: rgba(255, 255, 255, 0.03);
-      border-bottom: 1px solid var(--border-subtle);
-      padding: 6px 12px;
+    .chat-rendered-img {
+      width: 100%;
+      height: auto;
+      max-height: 480px;
+      object-fit: contain;
+      background: #0d0e11;
+      display: block;
+      cursor: pointer;
+    }
+
+    .chat-img-caption {
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 11.5px;
-      color: var(--text-dim);
-      user-select: none;
+      gap: 10px;
     }
 
-    .code-lang {
-      font-family: monospace;
-      text-transform: uppercase;
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-
-    .btn-copy {
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 2px 8px;
+    .img-badge {
+      background: rgba(37, 99, 235, 0.2);
+      color: #60a5fa;
+      padding: 2px 6px;
       border-radius: 4px;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      transition: all 0.12s;
+      font-size: 10.5px;
+      font-weight: 600;
     }
 
-    .btn-copy:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #ffffff;
-    }
-
-    pre code {
-      display: block;
-      padding: 12px 16px;
-      font-family: Consolas, "SF Mono", Monaco, "Courier New", monospace;
-      font-size: 12.5px;
-      line-height: 1.5;
-      color: #e2e8f0;
-      overflow-x: auto;
-      user-select: text;
-    }
-
-    /* Bottom Message Actions Row */
-    .msg-actions-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-top: 10px;
-      font-size: 11.5px;
-      color: var(--text-dim);
-      user-select: none;
-    }
-
-    .msg-time {
-      color: var(--text-dim);
-    }
-
-    .action-btn {
+    .btn-download-img {
       background: transparent;
-      border: none;
-      color: var(--text-dim);
-      cursor: pointer;
-      padding: 2px;
-      border-radius: 3px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.12s;
-    }
-
-    .action-btn:hover {
+      border: 1px solid var(--border-subtle);
       color: var(--text-main);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .btn-download-img:hover {
+      background: rgba(255, 255, 255, 0.1);
     }
 
-    /* ==================================================================
-       ANTIGRAVITY 2.0 FLOATING COMPOSER
-       ================================================================== */
+    /* Floating Composer */
     .composer-container {
       position: absolute;
       bottom: 20px;
@@ -914,7 +847,6 @@
       flex-direction: column;
       gap: 10px;
       pointer-events: auto;
-      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     .composer-card:focus-within {
@@ -964,9 +896,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.12s, color 0.12s;
     }
-
     .btn-attach:hover {
       background: rgba(255, 255, 255, 0.08);
       color: var(--text-main);
@@ -983,7 +913,6 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
 
     .model-selector-pill:hover {
@@ -1017,29 +946,12 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      transition: background 0.12s;
     }
-
     .model-opt-item:hover {
       background: rgba(255, 255, 255, 0.08);
     }
-
     .model-opt-item.active {
       background: rgba(37, 99, 235, 0.2);
-    }
-
-    .model-opt-title {
-      font-size: 12.5px;
-      color: var(--text-main);
-      font-weight: 500;
-    }
-
-    .model-opt-badge {
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-dim);
     }
 
     .toolbar-right {
@@ -1059,14 +971,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.12s, color 0.12s;
     }
-
     .icon-tool-btn:hover {
       background: rgba(255, 255, 255, 0.08);
       color: var(--text-main);
     }
-
     .icon-tool-btn.shield-ok {
       color: #34d399;
     }
@@ -1075,29 +984,16 @@
       width: 30px;
       height: 30px;
       border-radius: var(--radius-pill);
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--border-medium);
-      color: var(--text-main);
+      background: var(--accent-blue);
+      border: 1px solid var(--accent-blue);
+      color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: background 0.15s, transform 0.1s, border-color 0.15s;
     }
-
-    .btn-send.active {
-      background: var(--accent-blue);
-      border-color: var(--accent-blue);
-      color: #ffffff;
-    }
-
     .btn-send:hover {
       background: var(--accent-blue-hover);
-      color: #ffffff;
-    }
-
-    .btn-send:active {
-      transform: scale(0.92);
     }
 
     .btn-stop {
@@ -1112,62 +1008,266 @@
       cursor: pointer;
     }
 
-    /* Attachment thumbnail badge in composer */
-    .attachment-preview-badge {
+    /* ==================================================================
+       VISTA 2: AUTOMATIONS VIEW (IDÉNTICO A LA CAPTURA DEL USUARIO)
+       ================================================================== */
+    .automations-view {
       display: none;
+      flex-direction: column;
+      flex: 1;
+      height: 100%;
+      padding: 32px 40px;
+      overflow-y: auto;
+    }
+
+    .view-title-row {
+      display: flex;
       align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 4px 8px;
-      font-size: 11.5px;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .view-heading {
+      font-size: 24px;
+      font-weight: 600;
       color: var(--text-main);
-      width: fit-content;
     }
 
-    .attachment-preview-badge img {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      object-fit: cover;
+    .heading-action-buttons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .attachment-remove-btn {
-      cursor: pointer;
-      color: var(--text-dim);
-    }
-    .attachment-remove-btn:hover {
-      color: var(--accent-red);
-    }
-
-    /* Notificación flotante temporal */
-    .toast-notice {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #2563eb;
-      color: #ffffff;
-      padding: 8px 18px;
-      border-radius: 20px;
+    .btn-pill-primary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-medium);
+      color: var(--text-main);
+      border-radius: var(--radius-pill);
+      padding: 6px 14px;
       font-size: 13px;
       font-weight: 500;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      z-index: 9999;
-      display: none;
-      animation: fadeInOut 2.5s forwards;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-pill-primary:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: var(--border-focus);
     }
 
-    @keyframes fadeInOut {
-      0% { opacity: 0; transform: translate(-50%, 10px); }
-      15% { opacity: 1; transform: translate(-50%, 0); }
-      85% { opacity: 1; transform: translate(-50%, 0); }
-      100% { opacity: 0; transform: translate(-50%, -10px); }
+    .view-search-input-wrap {
+      width: 100%;
+      max-width: 680px;
+      background: #18191d;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 40px;
+    }
+
+    .view-search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-size: 13.5px;
+    }
+
+    .view-empty-state {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dim);
+      font-size: 14px;
     }
 
     /* ==================================================================
-       SPLITTER DIVIDER (RESIZABLE)
+       VISTA 3: CUSTOMIZATIONS VIEW (IDÉNTICO A LA CAPTURA DEL USUARIO)
+       ================================================================== */
+    .customizations-view {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      height: 100%;
+      padding: 32px 40px;
+      overflow-y: auto;
+    }
+
+    .tab-switch-pill {
+      background: #18191d;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-pill);
+      padding: 3px;
+      display: flex;
+      gap: 2px;
+    }
+
+    .tab-pill-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      border-radius: var(--radius-pill);
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .tab-pill-btn.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    /* Hero Featured Card */
+    .hero-featured-card {
+      background: #181a20;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      display: flex;
+      overflow: hidden;
+      margin-bottom: 32px;
+      max-width: 820px;
+    }
+
+    .hero-art-side {
+      width: 42%;
+      background: radial-gradient(circle at center, #1e3a8a 0%, #0f172a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .hero-info-side {
+      flex: 1;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .hero-tag {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+
+    .hero-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .hero-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .hero-actions-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .installed-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* Secciones de Plugins Grid */
+    .plugins-section {
+      margin-bottom: 36px;
+      max-width: 820px;
+    }
+
+    .plugins-section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .plugins-section-desc {
+      font-size: 12.5px;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+    }
+
+    .plugins-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 12px;
+    }
+
+    .plugin-card {
+      background: #18191d;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: background 0.15s, border-color 0.15s;
+      cursor: pointer;
+    }
+    .plugin-card:hover {
+      background: #202227;
+      border-color: var(--border-medium);
+    }
+
+    .plugin-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .plugin-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .plugin-texts {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .plugin-name {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    .plugin-blurb {
+      font-size: 11.5px;
+      color: var(--text-dim);
+    }
+
+    /* ==================================================================
+       RIGHT EMBEDDED BROWSER SIDECAR (COLLAPSIBLE / DESPLEGABLE)
        ================================================================== */
     .split-divider {
       width: 4px;
@@ -1182,9 +1282,6 @@
       background: var(--accent-blue);
     }
 
-    /* ==================================================================
-       RIGHT EMBEDDED BROWSER SIDECAR (COLLAPSIBLE / DESPLEGABLE)
-       ================================================================== */
     .browser-sidecar {
       width: 48%;
       min-width: 320px;
@@ -1203,7 +1300,6 @@
       display: none !important;
     }
 
-    /* Tab bar */
     .browser-tab-bar {
       height: 38px;
       background: #141518;
@@ -1239,12 +1335,6 @@
       max-width: 220px;
       overflow: hidden;
       text-overflow: ellipsis;
-      transition: background 0.12s, color 0.12s;
-    }
-
-    .browser-tab:hover {
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--text-main);
     }
 
     .browser-tab.active {
@@ -1261,36 +1351,6 @@
       padding: 1px 3px;
     }
 
-    .browser-tab-close:hover {
-      color: var(--text-main);
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .btn-new-tab {
-      width: 24px;
-      height: 24px;
-      border-radius: var(--radius-xs);
-      background: transparent;
-      border: none;
-      color: var(--text-dim);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .btn-new-tab:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-main);
-    }
-
-    .sidecar-window-tools {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    /* Browser Navigation Bar */
     .browser-nav-bar {
       height: 42px;
       background: var(--bg-sidecar);
@@ -1313,9 +1373,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.12s, color 0.12s;
     }
-
     .browser-nav-btn:hover {
       background: rgba(255, 255, 255, 0.08);
       color: var(--text-main);
@@ -1331,15 +1389,6 @@
       align-items: center;
       padding: 0 8px;
       gap: 6px;
-      transition: border-color 0.15s;
-    }
-
-    .browser-url-input-wrap:focus-within {
-      border-color: var(--accent-blue);
-    }
-
-    .lock-icon {
-      color: #34d399;
     }
 
     .browser-url-input {
@@ -1351,7 +1400,6 @@
       font-size: 12px;
     }
 
-    /* Quick Bookmarks Bar */
     .browser-bookmarks-bar {
       height: 28px;
       background: #141518;
@@ -1364,10 +1412,6 @@
       flex-shrink: 0;
     }
 
-    .browser-bookmarks-bar::-webkit-scrollbar {
-      display: none;
-    }
-
     .bookmark-pill {
       font-size: 11px;
       color: var(--text-dim);
@@ -1375,18 +1419,12 @@
       border-radius: 4px;
       cursor: pointer;
       white-space: nowrap;
-      transition: background 0.12s, color 0.12s;
-      display: flex;
-      align-items: center;
-      gap: 4px;
     }
-
     .bookmark-pill:hover {
       background: rgba(255, 255, 255, 0.08);
       color: var(--text-main);
     }
 
-    /* Browser Viewport */
     .browser-viewport {
       flex: 1;
       position: relative;
@@ -1404,51 +1442,23 @@
       flex: 1;
     }
 
-    /* Friendly fallback / Webview Hub */
-    .browser-hub-overlay {
-      position: absolute;
-      inset: 0;
-      background: #101114;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 30px;
-      text-align: center;
-      z-index: 10;
-    }
-
-    .browser-hub-card {
-      max-width: 440px;
-      background: #1a1c21;
-      border: 1px solid var(--border-medium);
-      border-radius: var(--radius-md);
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      align-items: center;
-    }
-
-    .btn-launch-ext {
-      background: var(--accent-blue);
+    /* Modal / Popups */
+    .toast-notice {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2563eb;
       color: #ffffff;
-      border: none;
-      border-radius: var(--radius-sm);
-      padding: 8px 16px;
+      padding: 8px 18px;
+      border-radius: 20px;
       font-size: 13px;
       font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 9999;
+      display: none;
     }
 
-    .btn-launch-ext:hover {
-      background: var(--accent-blue-hover);
-    }
-
-    /* Modales Globales (Settings / Automations / Customizations) */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -1459,10 +1469,7 @@
       justify-content: center;
       z-index: 5000;
     }
-
-    .modal-backdrop.show {
-      display: flex;
-    }
+    .modal-backdrop.show { display: flex; }
 
     .modal-card {
       width: 90%;
@@ -1485,12 +1492,6 @@
       padding-bottom: 12px;
     }
 
-    .modal-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
     .modal-close-btn {
       background: transparent;
       border: none;
@@ -1498,32 +1499,19 @@
       cursor: pointer;
       font-size: 18px;
     }
-
-    .modal-close-btn:hover {
-      color: var(--text-main);
-    }
-
-    .modal-body {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.6;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
   </style>
 </head>
 <body>
 
   <!-- ==================================================================
-       BARRA DE MENÚ Y TÍTULO SUPERIOR (ESTILO ANTIGRAVITY 2.0)
+       BARRA DE MENÚ Y TÍTULO SUPERIOR (BABLE 2.0)
        ================================================================== -->
   <header class="app-titlebar">
     <div class="titlebar-left">
-      <div class="menu-item" id="menuAntigravity">
-        <span>Antigravity</span>
-        <div class="menu-dropdown" id="dropdownAntigravity">
-          <div class="dropdown-opt" id="optAbout"><span>Acerca de MMAE</span> <span class="shortcut">v2.5</span></div>
+      <div class="menu-item" id="menuBable">
+        <span>Bable</span>
+        <div class="menu-dropdown" id="dropdownBable">
+          <div class="dropdown-opt" id="optAbout"><span>Acerca de Bable</span> <span class="shortcut">v2.5</span></div>
           <div class="dropdown-opt" id="optCheckModels"><span>Comprobar Modelos (Groq/Gemini)</span></div>
           <div class="dropdown-divider"></div>
           <div class="dropdown-opt" id="optQuit"><span>Salir</span> <span class="shortcut">Alt+F4</span></div>
@@ -1534,14 +1522,18 @@
         <span>Workspace</span>
         <div class="menu-dropdown" id="dropdownWorkspace">
           <div class="dropdown-opt" id="optOpenExplorer"><span>Abrir Carpeta en Explorador</span> <span class="shortcut">Ctrl+O</span></div>
+          <div class="dropdown-opt" id="optOpenVSCode"><span>Abrir en VS Code</span></div>
           <div class="dropdown-opt" id="optFineTuningReport"><span>Ver Informe de Ajuste Fino</span></div>
-          <div class="dropdown-opt" id="optReloadWorkspace"><span>Recargar Workspace</span></div>
         </div>
       </div>
 
       <div class="menu-item" id="menuView">
         <span>View</span>
         <div class="menu-dropdown" id="dropdownView">
+          <div class="dropdown-opt" id="optViewChat"><span>Vista de Chat</span></div>
+          <div class="dropdown-opt" id="optViewAutomations"><span>Vista de Automations</span></div>
+          <div class="dropdown-opt" id="optViewCustomizations"><span>Vista de Customizations</span></div>
+          <div class="dropdown-divider"></div>
           <div class="dropdown-opt" id="optToggleBrowser"><span>Alternar Navegador Sidecar</span> <span class="shortcut">Ctrl+B</span></div>
           <div class="dropdown-opt" id="optToggleSidebar"><span>Alternar Barra Lateral</span> <span class="shortcut">Ctrl+\</span></div>
         </div>
@@ -1559,7 +1551,7 @@
     </div>
 
     <div class="titlebar-center">
-      <span>IA_Automejorable</span>
+      <span>bable</span>
       <span>—</span>
       <span id="titlebarModelBadge">Qwen 3.8 27B (Groq 526 t/s)</span>
     </div>
@@ -1578,15 +1570,15 @@
   </header>
 
   <!-- ==================================================================
-       ESPACIO DE TRABAJO PRINCIPAL (SIDEBAR + CHAT + NAVEGADOR SIDECAR)
+       ESPACIO DE TRABAJO PRINCIPAL (SIDEBAR + MAIN + NAVEGADOR SIDECAR)
        ================================================================== -->
   <div class="app-workspace">
 
-    <!-- BARRA LATERAL (SIDEBAR ANTIGRAVITY 2.0) -->
+    <!-- BARRA LATERAL (SIDEBAR BABLE 2.0) -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-top-bar">
         <div class="sidebar-top-left">
-          <div class="brand-triangle" title="Antigravity 2.0">
+          <div class="brand-triangle" title="Bable">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13.5H5.5L12 6.5z"/>
             </svg>
@@ -1645,12 +1637,12 @@
       <div class="projects-scroll">
         <!-- Proyecto Radar de Bounties -->
         <div class="project-folder">
-          <div class="project-row">
+          <div class="project-row" onclick="switchProject('Radar de Bounties sin...')">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
             <span>Radar de Bounties sin...</span>
           </div>
           <div class="project-children">
-            <div class="conv-item">
+            <div class="conv-item" onclick="switchConversation('Búsqueda Rápida De Boun...')">
               <span class="conv-title">Búsqueda Rápida De Boun...</span>
               <span class="conv-time">20h</span>
             </div>
@@ -1659,48 +1651,52 @@
 
         <!-- Proyecto Activo: IA_Automejorable -->
         <div class="project-folder">
-          <div class="project-row active">
+          <div class="project-row active" onclick="switchProject('IA_Automejorable')">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" color="#60A5FA"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
             <span>IA_Automejorable</span>
           </div>
           <div class="project-children">
-            <div class="conv-item active" id="convItemActive">
-              <span class="conv-title" id="sidebarConvTitle">GitHub Agent vs Coucou A...</span>
+            <div class="conv-item active" id="convItemActive" onclick="switchConversation('Nueva Sesión')">
+              <span class="conv-title" id="sidebarConvTitle">Nueva Sesión</span>
               <span class="conv-time">activo</span>
+            </div>
+            <div class="conv-item" onclick="switchConversation('Perfumes Nitro y Creación Visual')">
+              <span class="conv-title">Perfumes Nitro y Creación...</span>
+              <span class="conv-time">1h</span>
             </div>
           </div>
         </div>
 
-        <!-- Demás Proyectos Idénticos a la Captura -->
-        <div class="project-row">
+        <!-- Demás Proyectos -->
+        <div class="project-row" onclick="switchProject('bable')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
           <span>bable</span>
         </div>
-        <div class="project-row">
+        <div class="project-row" onclick="switchProject('clases de espanol')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
           <span>clases de espanol</span>
         </div>
-        <div class="project-row">
+        <div class="project-row" onclick="switchProject('app para compra')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
           <span>app para compra</span>
         </div>
-        <div class="project-row">
+        <div class="project-row" onclick="switchProject('local-notebook-vault')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
           <span>local-notebook-vault</span>
         </div>
-        <div class="project-row">
+        <div class="project-row" onclick="switchProject('RadioCafe-WS')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
           <span>RadioCafe-WS</span>
         </div>
-        <div class="project-row">
+        <div class="project-row" onclick="switchProject('ourmuseo')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
           <span>ourmuseo</span>
         </div>
-        <div class="project-row">
+        <div class="project-row" onclick="switchProject('circulo')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
           <span>circulo</span>
         </div>
-        <div class="project-row">
+        <div class="project-row" onclick="switchProject('apps adove')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
           <span>apps adove</span>
         </div>
@@ -1715,13 +1711,13 @@
       </div>
     </aside>
 
-    <!-- ÁREA CENTRAL DE CONVERSACIÓN / CHAT -->
+    <!-- CONTENEDOR PRINCIPAL -->
     <main class="main-chat-container">
       <header class="chat-header">
         <div class="breadcrumb-row">
-          <span class="breadcrumb-item">IA_Automejorable</span>
+          <span class="breadcrumb-item" id="breadcrumbProject">bable</span>
           <span class="breadcrumb-sep">/</span>
-          <span class="breadcrumb-current" id="chatTitle">GitHub Agent vs Coucou A...</span>
+          <span class="breadcrumb-current" id="chatTitle">Nueva Sesión</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
 
@@ -1741,7 +1737,7 @@
         </div>
       </header>
 
-      <!-- Pestaña lateral cuando el Sidecar está plegado para volver a desplegarlo con un clic -->
+      <!-- Pestaña lateral flotante cuando el navegador está plegado -->
       <div class="sidecar-dock-tab" id="sidecarDockTab" title="Desplegar Navegador Web (Ctrl+B)">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="15 18 9 12 15 6"></polyline>
@@ -1749,133 +1745,233 @@
         <span>Navegador Web</span>
       </div>
 
-      <!-- Flujo de Mensajes -->
-      <div class="chat-stream" id="chatStream">
-        <div class="message-row">
-          <div class="user-bubble-wrap">
-            <div class="user-thumbnail-preview" title="Imagen adjunta">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+      <!-- VISTA 1: CHAT / CONVERSATION VIEW -->
+      <div class="view-panel" id="chatView">
+        <div class="chat-stream" id="chatStream">
+          <!-- Turno 1: Solicitud de creación de imagen del usuario -->
+          <div class="message-row">
+            <div class="user-bubble-wrap">
+              <div class="user-bubble">
+                crea una imagen de perfumes puede ser cualquiera de nitro por ejemplo
+              </div>
             </div>
-            <div class="user-bubble">
-              hagamosle la tarea de ajuste fino
+          </div>
+
+          <!-- Turno 2: Respuesta del Agente con Pensamiento, Tool Card e IMAGEN RENDERIZADA -->
+          <div class="message-row">
+            <div class="thought-accordion">
+              <div class="thought-header">
+                <div class="thought-header-left">
+                  <span>Pensamiento y Deliberación OpenMythos</span>
+                </div>
+                <span style="font-size:11px;">▼</span>
+              </div>
+              <div class="thought-body">
+[MoAE Router]: Herramienta invocada: 'skill_image_generator'
+{"name": "skill_image_generator", "arguments": {"prompt": "Un frasco de perfume de la marca Nitro, iluminación profesional de estudio, fondo limpio y elegante, diseño fotorrealista 8k", "width": 1024, "height": 1024}}
+✓ [Síntesis Visual Pollinations Flux]: 70,114 bytes recibidos. Archivo guardado localmente en 'data/generated_images/gen_1793700103350.jpg'.
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <div class="tool-left">
+                <span class="tool-name-badge">skill_image_generator</span>
+                <span class="tool-args-preview">{"prompt": "Un frasco de perfume de la marca Nitro...", "width": 1024, "height": 1024}</span>
+              </div>
+              <span class="tool-status-badge ok">✓ Éxito</span>
+            </div>
+
+            <div class="assistant-bubble">
+              <p>He generado la imagen del perfume <strong>Nitro</strong> con iluminación profesional de estudio y acabados de lujo:</p>
+
+              <!-- Tarjeta de Imagen Renderizada en Alta Definición -->
+              <div class="chat-img-card">
+                <img
+                  class="chat-rendered-img"
+                  src="http://127.0.0.1:8765/image?name=gen_1793700103350.jpg"
+                  alt="Perfume Nitro - Frasco de Lujo"
+                  onclick="openImageInExternal('http://127.0.0.1:8765/image?name=gen_1793700103350.jpg')"
+                />
+                <div class="chat-img-caption">
+                  <span class="img-badge">✨ Generada con Flux</span>
+                  <span>Frasco de perfume Nitro (1024x1024)</span>
+                  <button class="btn-download-img" onclick="openImageInExternal('http://127.0.0.1:8765/image?name=gen_1793700103350.jpg')">
+                    Ver Completa ↗
+                  </button>
+                </div>
+              </div>
+
+              <p>El archivo se encuentra guardado en tu disco local en <code>data/generated_images/gen_1793700103350.jpg</code>. ¿Deseas hacer alguna variación o ajustar el diseño?</p>
+
+              <div class="msg-actions-row">
+                <span class="msg-time">justo ahora</span>
+                <button class="action-btn" title="Copiar mensaje" onclick="copySnippet(this, 'He generado la imagen del perfume Nitro...')">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                </button>
+                <button class="action-btn" title="Útil">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="message-row">
-          <div class="assistant-bubble">
-            <p>Tarea completada. El informe técnico ha sido generado y guardado en el archivo <code>data/fine_tuning/INFORME_AJUSTE_FINO.md</code> con todas las especificaciones de hardware, LoRA y el comando de exportación GGUF.</p>
+        <!-- Floating Composer -->
+        <div class="composer-container">
+          <div class="composer-card">
+            <textarea
+              class="composer-textarea"
+              id="promptInput"
+              rows="1"
+              placeholder="Ask anything, @ to mention, / for actions"
+            ></textarea>
 
-            <p><strong>¿Qué te gustaría hacer ahora?</strong></p>
+            <div class="composer-toolbar">
+              <div class="toolbar-left">
+                <button class="btn-attach" id="btnAttach" title="Adjuntar archivo o imagen">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
 
-            <ul>
-              <li><strong>Opción 1:</strong> Ponerlo a ejecutar el entrenamiento real (<code>action: train</code>), lo que descargará el modelo base y entrenará los adaptadores LoRA en segundo plano.</li>
-              <li><strong>Opción 2:</strong> Volver a poner a prueba su capacidad de desarrollo y pedirle que resuelva el benchmark del <strong>motor de colas concurrentes con SQLite</strong> que habíamos preparado antes, para ver cómo lo resuelve a toda velocidad con Groq.</li>
-            </ul>
+                <button class="model-selector-pill" id="modelSelectorPill">
+                  <span id="currentModelLabel">Qwen 3.8 27B (Groq 526 t/s)</span>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                </button>
 
-            <div class="msg-actions-row">
-              <span class="msg-time">2h ago</span>
-              <button class="action-btn" title="Copiar mensaje" onclick="copySnippet(this, 'Tarea completada. El informe técnico ha sido generado...')">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-              </button>
-              <button class="action-btn" title="Útil">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
-              </button>
-              <button class="action-btn" title="No útil">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
-              </button>
+                <div class="model-dropdown-menu" id="modelDropdownMenu">
+                  <div class="model-opt-item active" data-model="qwen/qwen3.8-27b">
+                    <span>⚡ Qwen 3.8 27B (Groq LPU)</span>
+                    <span style="font-size:10px; color:#34d399;">526 t/s</span>
+                  </div>
+                  <div class="model-opt-item" data-model="openai/gpt-oss-120b">
+                    <span>🧠 GPT-OSS 120B (Groq)</span>
+                    <span style="font-size:10px; color:#60a5fa;">Razonador</span>
+                  </div>
+                  <div class="model-opt-item" data-model="gemini-2.5-flash">
+                    <span>♊ Gemini 2.5 Flash</span>
+                    <span style="font-size:10px; color:#9aa0a6;">Google Cloud</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="toolbar-right">
+                <button class="btn-stop" id="btnStop">■ Detener</button>
+                <button class="icon-tool-btn shield-ok" title="QA Security Shield Activo">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                </button>
+                <button class="btn-send active" id="btnSend" title="Enviar (Enter)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- COMPOSER FLOTANTE (ANTIGRAVITY 2.0 STYLE) -->
-      <div class="composer-container">
-        <div class="composer-card">
-          <!-- Vista previa de adjunto si hay -->
-          <div class="attachment-preview-badge" id="attachmentBadge">
-            <img id="attachmentImg" src="" alt="thumbnail">
-            <span id="attachmentName">captura.png</span>
-            <span class="attachment-remove-btn" id="attachmentRemoveBtn" title="Quitar">✕</span>
+      <!-- VISTA 2: AUTOMATIONS VIEW (IDÉNTICO A LA CAPTURA) -->
+      <div class="automations-view" id="automationsView">
+        <div class="view-title-row">
+          <div class="view-heading">Automations</div>
+          <div class="heading-action-buttons">
+            <button class="btn-pill-primary" onclick="showTemporaryNotice('Crear automatización con prompt asistido...')">
+              <span>✨ Create with Prompt</span>
+            </button>
+            <button class="btn-pill-primary" onclick="showTemporaryNotice('Crear nueva tarea programada...')">
+              <span>+ New</span>
+            </button>
           </div>
+        </div>
 
-          <textarea
-            class="composer-textarea"
-            id="promptInput"
-            rows="1"
-            placeholder="Ask anything, @ to mention, / for actions"
-          ></textarea>
+        <div class="view-search-input-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" class="view-search-input" placeholder="Search automations...">
+        </div>
 
-          <div class="composer-toolbar">
-            <div class="toolbar-left">
-              <input type="file" id="filePickerInput" style="display: none;" accept="image/*,.txt,.py,.md,.json">
-              <button class="btn-attach" id="btnAttach" title="Adjuntar archivo o imagen">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-              </button>
+        <div class="view-empty-state">
+          <span>No automations configured.</span>
+        </div>
+      </div>
 
-              <button class="model-selector-pill" id="modelSelectorPill">
-                <span id="currentModelLabel">Qwen 3.8 27B (Groq 526 t/s)</span>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="18 15 12 9 6 15"></polyline>
-                </svg>
-              </button>
+      <!-- VISTA 3: CUSTOMIZATIONS VIEW (IDÉNTICO A LA CAPTURA) -->
+      <div class="customizations-view" id="customizationsView">
+        <div class="view-title-row">
+          <div class="view-heading">Customizations</div>
+          <div class="tab-switch-pill">
+            <button class="tab-pill-btn active" id="tabCustomMarketplace">Marketplace</button>
+            <button class="tab-pill-btn" id="tabCustomInstalled">Installed</button>
+          </div>
+        </div>
 
-              <!-- Dropdown Flotante de Modelos -->
-              <div class="model-dropdown-menu" id="modelDropdownMenu">
-                <div class="model-opt-item active" data-model="qwen/qwen3.8-27b">
-                  <span class="model-opt-title">⚡ Qwen 3.8 27B (Groq LPU)</span>
-                  <span class="model-opt-badge" style="color:#34d399;">526 t/s</span>
-                </div>
-                <div class="model-opt-item" data-model="openai/gpt-oss-120b">
-                  <span class="model-opt-title">🧠 GPT-OSS 120B (Groq Razonador)</span>
-                  <span class="model-opt-badge" style="color:#60a5fa;">120B Frontier</span>
-                </div>
-                <div class="model-opt-item" data-model="gemini-2.5-flash">
-                  <span class="model-opt-title">♊ Gemini 2.5 Flash</span>
-                  <span class="model-opt-badge">Google Cloud</span>
-                </div>
-                <div class="model-opt-item" data-model="gemini-flash-lite-latest">
-                  <span class="model-opt-title">♊ Gemini Flash Lite</span>
-                  <span class="model-opt-badge">Flash Lite</span>
-                </div>
-                <div class="model-opt-item" data-model="ollama/qwen2.5-coder:latest">
-                  <span class="model-opt-title">💻 Qwen 2.5 Coder 7B</span>
-                  <span class="model-opt-badge">Ollama Local</span>
-                </div>
-                <div class="model-opt-item" data-model="fcc/open_router/meta-llama/llama-3.3-70b-instruct:free">
-                  <span class="model-opt-title">🆓 Llama 3.3 70B</span>
-                  <span class="model-opt-badge">Claude Code Pool</span>
+        <div class="view-search-input-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" class="view-search-input" placeholder="Search customizations...">
+        </div>
+
+        <!-- Featured Card: Firebase -->
+        <div class="hero-featured-card">
+          <div class="hero-art-side">
+            <span style="font-size:40px;">🔥</span>
+            <span style="font-size:32px;">⚡</span>
+            <span style="font-size:32px;">📦</span>
+          </div>
+          <div class="hero-info-side">
+            <div class="hero-tag">Featured</div>
+            <div class="hero-title">Firebase</div>
+            <div class="hero-desc">Prototype, build & run modern apps that users love with Firebase's backend, AI, and operational infrastructure.</div>
+            <div class="hero-actions-row">
+              <div class="installed-badge">✓ Installed</div>
+              <button class="btn-ide" onclick="showTemporaryNotice('Detalles de integración de Firebase...')">Details</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección Google Workspace -->
+        <div class="plugins-section">
+          <div class="plugins-section-title">Google Workspace</div>
+          <div class="plugins-section-desc">Connect to Google Workspace, including Docs, Sheets, Slides, Drive, and Calendar.</div>
+
+          <div class="plugins-grid">
+            <div class="plugin-card" onclick="showTemporaryNotice('Plugin Google Docs listo')">
+              <div class="plugin-left">
+                <div class="plugin-icon-box" style="background:rgba(37,99,235,0.2); color:#60a5fa;">📄</div>
+                <div class="plugin-texts">
+                  <div class="plugin-name">Google Docs</div>
+                  <div class="plugin-blurb">Read, draft, and edit docs.</div>
                 </div>
               </div>
+              <span style="color:var(--text-dim);">⋮</span>
             </div>
 
-            <div class="toolbar-right">
-              <button class="btn-stop" id="btnStop">■ Detener</button>
+            <div class="plugin-card" onclick="showTemporaryNotice('Plugin Google Sheets listo')">
+              <div class="plugin-left">
+                <div class="plugin-icon-box" style="background:rgba(16,185,129,0.2); color:#34d399;">📊</div>
+                <div class="plugin-texts">
+                  <div class="plugin-name">Google Sheets</div>
+                  <div class="plugin-blurb">Read, write, and format spreadsheets.</div>
+                </div>
+              </div>
+              <span style="color:var(--text-dim);">⋮</span>
+            </div>
 
-              <button class="icon-tool-btn shield-ok" id="btnShield" title="QA Security Shield Activo">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-              </button>
+            <div class="plugin-card" onclick="showTemporaryNotice('Plugin Google Slides listo')">
+              <div class="plugin-left">
+                <div class="plugin-icon-box" style="background:rgba(245,158,11,0.2); color:#fbbf24;">📑</div>
+                <div class="plugin-texts">
+                  <div class="plugin-name">Google Slides</div>
+                  <div class="plugin-blurb">Read, edit, and export presentations.</div>
+                </div>
+              </div>
+              <span style="color:var(--text-dim);">⋮</span>
+            </div>
 
-              <button class="icon-tool-btn" id="btnMic" title="Voz / Micrófono">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                  <line x1="12" y1="19" x2="12" y2="23"></line>
-                  <line x1="8" y1="23" x2="16" y2="23"></line>
-                </svg>
-              </button>
-
-              <button class="btn-send active" id="btnSend" title="Enviar (Enter)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-              </button>
+            <div class="plugin-card" onclick="showTemporaryNotice('Plugin Google Drive listo')">
+              <div class="plugin-left">
+                <div class="plugin-icon-box" style="background:rgba(6,182,212,0.2); color:#22d3ee;">📁</div>
+                <div class="plugin-texts">
+                  <div class="plugin-name">Google Drive</div>
+                  <div class="plugin-blurb">Search, upload, download, and share files.</div>
+                </div>
+              </div>
+              <span style="color:var(--text-dim);">⋮</span>
             </div>
           </div>
         </div>
@@ -1886,10 +1982,9 @@
     <div class="split-divider" id="splitDivider" title="Arrastrar para redimensionar"></div>
 
     <!-- ==================================================================
-       RIGHT EMBEDDED BROWSER SIDECAR (DESPLEGABLE / COLLAPSIBLE)
+       RIGHT EMBEDDED BROWSER SIDECAR (MOTOR WEB BABLE)
        ================================================================== -->
     <aside class="browser-sidecar" id="browserSidecar">
-      <!-- Pestañas de Navegación -->
       <div class="browser-tab-bar">
         <div class="browser-tabs-row" id="browserTabsRow">
           <div class="browser-tab active" id="tabSearchHome" data-url="http://127.0.0.1:8765/">
@@ -1897,11 +1992,7 @@
             <span class="browser-tab-close">✕</span>
           </div>
           <div class="browser-tab" id="tabGroq" data-url="http://127.0.0.1:8765/browse?url=https%3A%2F%2Fconsole.groq.com%2Fkeys">
-            <span>🔥 API Keys - GroqCloud</span>
-            <span class="browser-tab-close">✕</span>
-          </div>
-          <div class="browser-tab" id="tabHackerNews" data-url="http://127.0.0.1:8765/browse?url=https%3A%2F%2Fnews.ycombinator.com">
-            <span>⚡ Hacker News</span>
+            <span>🔥 GroqCloud Keys</span>
             <span class="browser-tab-close">✕</span>
           </div>
           <button class="btn-new-tab" id="btnNewBrowserTab" title="Nueva pestaña">+</button>
@@ -1909,26 +2000,17 @@
 
         <div class="sidecar-window-tools">
           <div class="icon-nav-btn" id="btnSidecarFullscreen" title="Pantalla completa sidecar">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-            </svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
           </div>
           <div class="icon-nav-btn" id="btnSidecarClose" title="Plegar navegador sidecar">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </div>
         </div>
       </div>
 
-      <!-- Barra de Dirección URL & Controles de Navegador -->
       <div class="browser-nav-bar">
         <button class="browser-nav-btn" id="btnBrowserHome" title="Inicio / Buscador">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         </button>
         <button class="browser-nav-btn" id="btnBrowserBack" title="Atrás">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -1941,35 +2023,27 @@
         </button>
 
         <div class="browser-url-input-wrap">
-          <span class="lock-icon" title="Motor Web Desbloqueado">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span class="lock-icon" title="Motor Web Bable">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
           </span>
           <input
             type="text"
             class="browser-url-input"
             id="browserUrlInput"
             value="http://127.0.0.1:8765/"
-            placeholder="Buscar en la web, escribir URL o nombre de sitio (ej: youtube, wikipedia)..."
+            placeholder="Buscar en la web, escribir URL o sitio (ej: youtube, wikipedia, python docs)..."
           />
         </div>
 
-        <button class="browser-nav-btn" id="btnBrowserSnapshot" title="Inyectar página actual al agente en el chat">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-            <circle cx="12" cy="13" r="4"></circle>
-          </svg>
+        <button class="browser-nav-btn" id="btnBrowserSnapshot" title="Inyectar URL activa al chat">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
         </button>
 
         <button class="browser-nav-btn" id="btnBrowserOpenExternal" title="Abrir en Chrome/Edge externo">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            <polyline points="15 3 21 3 21 9"></polyline>
-            <line x1="10" y1="14" x2="21" y2="3"></line>
-          </svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
         </button>
       </div>
 
-      <!-- Barra de Marcadores Rápidos -->
       <div class="browser-bookmarks-bar">
         <div class="bookmark-pill" data-target="http://127.0.0.1:8765/">🔍 Buscar en la Web</div>
         <div class="bookmark-pill" data-target="https://news.ycombinator.com">⚡ Hacker News</div>
@@ -1977,10 +2051,8 @@
         <div class="bookmark-pill" data-target="https://console.groq.com/keys">🔥 GroqCloud Keys</div>
         <div class="bookmark-pill" data-target="https://aistudio.google.com/welcome">✨ Google AI Studio</div>
         <div class="bookmark-pill" data-target="https://github.com/juandiegohernandezangarita13-png/mmae-agent">🐙 GitHub Repo</div>
-        <div class="bookmark-pill" data-target="http://localhost:8000">💻 Localhost Preview</div>
       </div>
 
-      <!-- Viewport / Iframe con renderizado interactivo -->
       <div class="browser-viewport">
         <iframe
           class="browser-iframe"
@@ -1988,25 +2060,6 @@
           src="http://127.0.0.1:8765/"
           sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
         ></iframe>
-
-        <!-- Fallback interactivo por si el usuario lo requiere -->
-        <div class="browser-hub-overlay" id="browserHubOverlay">
-          <div class="browser-hub-card">
-            <div style="font-size: 32px;" id="hubIcon">🌐</div>
-            <h3 style="color:#ffffff; font-size:16px;" id="hubTitle">Navegador Web</h3>
-            <p style="font-size:12.5px; color:#9aa0a6;" id="hubDesc">
-              El motor proxy local está listo para explorar páginas web y búsquedas en tiempo real.
-            </p>
-            <div style="display:flex; gap:10px; width:100%;">
-              <button class="btn-launch-ext" id="btnHubLaunchExternal" style="flex:1; justify-content:center;">
-                <span>Abrir Externo ↗</span>
-              </button>
-              <button class="btn-ide" id="btnHubShowLocal" style="flex:1; justify-content:center;">
-                <span>Volver al Inicio</span>
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </aside>
 
@@ -2019,21 +2072,17 @@
   <div class="modal-backdrop" id="modalSettings">
     <div class="modal-card">
       <div class="modal-header">
-        <span class="modal-title">⚙ Configuración del Agente MMAE</span>
+        <span style="font-weight:600; font-size:16px;">⚙ Configuración de Bable</span>
         <button class="modal-close-btn" onclick="closeModal('modalSettings')">✕</button>
       </div>
-      <div class="modal-body">
-        <p><strong>Proveedor LLM Activo:</strong> <span id="cfgActiveProvider" style="color:#60a5fa;">Groq LPU (526 t/s)</span></p>
+      <div style="font-size:13px; color:var(--text-muted); line-height:1.6; display:flex; flex-direction:column; gap:10px;">
+        <p><strong>Proyecto Activo:</strong> <span style="color:#60a5fa;">bable (IA_Automejorable)</span></p>
+        <p><strong>Motor LLM Activo:</strong> <span style="color:#34d399;">Groq LPU (526 tokens/s)</span></p>
         <p><strong>Ajuste Fino LoRA:</strong> 374 muestras compiladas en <code>data/fine_tuning/</code>.</p>
-        <p><strong>Motor de Navegación:</strong> Proxy Web local activo en puerto 8765 (desbloqueo de iframe).</p>
-        <p><strong>QA Security Shield:</strong> Centinelas activos (Protección contra inyección de prompts y verificación sandbox).</p>
+        <p><strong>Generación de Imágenes:</strong> Flux & SDXL integrado con renderizado directo en el chat.</p>
         <div style="margin-top:10px; display:flex; gap:10px;">
-          <button class="btn-ide" onclick="if(window.pywebview&&window.pywebview.api) window.pywebview.api.open_ide();">
-            💻 Abrir en VS Code
-          </button>
-          <button class="btn-ide" onclick="if(window.pywebview&&window.pywebview.api) window.pywebview.api.open_workspace_folder();">
-            📂 Abrir en Explorador
-          </button>
+          <button class="btn-ide" onclick="launchIDE()">💻 Abrir en VS Code</button>
+          <button class="btn-ide" onclick="if(window.pywebview&&window.pywebview.api) window.pywebview.api.open_workspace_folder();">📂 Abrir en Explorador</button>
         </div>
       </div>
     </div>
@@ -2069,36 +2118,122 @@
     var splitDivider = document.getElementById("splitDivider");
     var browserUrlInput = document.getElementById("browserUrlInput");
     var browserIframe = document.getElementById("browserIframe");
-    var browserHubOverlay = document.getElementById("browserHubOverlay");
-    var filePickerInput = document.getElementById("filePickerInput");
-    var btnAttach = document.getElementById("btnAttach");
-    var attachmentBadge = document.getElementById("attachmentBadge");
-    var attachmentImg = document.getElementById("attachmentImg");
-    var attachmentName = document.getElementById("attachmentName");
-    var attachmentRemoveBtn = document.getElementById("attachmentRemoveBtn");
     var toastNotice = document.getElementById("toastNotice");
 
+    // Vistas
+    var chatView = document.getElementById("chatView");
+    var automationsView = document.getElementById("automationsView");
+    var customizationsView = document.getElementById("customizationsView");
+    var navAutomations = document.getElementById("navAutomations");
+    var navCustomizations = document.getElementById("navCustomizations");
+
     var currentThoughtBlock = null;
-    var attachedImageBase64 = null;
     var isSidecarFullscreen = false;
     var isDraggingSplitter = false;
 
-    // Mostrar aviso flotante temporal
     function showTemporaryNotice(text) {
       toastNotice.textContent = text;
       toastNotice.style.display = "block";
-      setTimeout(function () {
-        toastNotice.style.display = "none";
-      }, 2500);
+      setTimeout(function () { toastNotice.style.display = "none"; }, 2500);
     }
 
-    // Auto-ajuste de altura del input
+    // ------------------------------------------------------------------
+    // CONTROL DE VISTAS (CHAT, AUTOMATIONS, CUSTOMIZATIONS)
+    // ------------------------------------------------------------------
+    function showView(viewName) {
+      chatView.style.display = "none";
+      automationsView.style.display = "none";
+      customizationsView.style.display = "none";
+      navAutomations.classList.remove("active");
+      navCustomizations.classList.remove("active");
+
+      if (viewName === "automations") {
+        automationsView.style.display = "flex";
+        navAutomations.classList.add("active");
+        document.getElementById("chatTitle").textContent = "Automations";
+      } else if (viewName === "customizations") {
+        customizationsView.style.display = "flex";
+        navCustomizations.classList.add("active");
+        document.getElementById("chatTitle").textContent = "Customizations";
+      } else {
+        chatView.style.display = "flex";
+        document.getElementById("chatTitle").textContent = document.getElementById("sidebarConvTitle").textContent;
+      }
+    }
+
+    navAutomations.addEventListener("click", function () { showView("automations"); });
+    navCustomizations.addEventListener("click", function () { showView("customizations"); });
+    document.getElementById("optViewChat").addEventListener("click", function () { showView("chat"); });
+    document.getElementById("optViewAutomations").addEventListener("click", function () { showView("automations"); });
+    document.getElementById("optViewCustomizations").addEventListener("click", function () { showView("customizations"); });
+
+    function switchProject(projectName) {
+      document.getElementById("breadcrumbProject").textContent = projectName;
+      showView("chat");
+      showTemporaryNotice("Proyecto activo: " + projectName);
+    }
+
+    function switchConversation(convTitle) {
+      document.getElementById("sidebarConvTitle").textContent = convTitle;
+      document.getElementById("chatTitle").textContent = convTitle;
+      showView("chat");
+    }
+
+    // ------------------------------------------------------------------
+    // NUEVA CONVERSACIÓN
+    // ------------------------------------------------------------------
+    function startNewConversation() {
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.new_conversation) {
+        window.pywebview.api.new_conversation();
+      }
+      chatStream.innerHTML = `
+        <div class="message-row">
+          <div class="assistant-bubble">
+            <p><strong>✨ Nueva conversación iniciada en Bable.</strong></p>
+            <p>Entorno listo con <strong>Groq LPU (526 tokens/s)</strong> y herramientas de desarrollo y generación visual activas.</p>
+            <p>¿Qué objetivo deseas programar o crear hoy?</p>
+          </div>
+        </div>
+      `;
+      switchConversation("Nueva Sesión");
+      promptInput.value = "";
+      promptInput.style.height = "auto";
+      promptInput.focus();
+      showTemporaryNotice("Nueva conversación iniciada");
+    }
+
+    btnNewConversation.addEventListener("click", startNewConversation);
+
+    // ------------------------------------------------------------------
+    // OPEN IDE (VS CODE DIRECTO)
+    // ------------------------------------------------------------------
+    function launchIDE() {
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.open_ide) {
+        window.pywebview.api.open_ide().then(function (res) {
+          if (res && res.success) {
+            showTemporaryNotice("Abriendo espacio de trabajo en " + (res.ide || "VS Code") + "...");
+          } else if (window.pywebview.api.open_workspace_folder) {
+            window.pywebview.api.open_workspace_folder();
+          }
+        }).catch(function () {
+          if (window.pywebview.api.open_workspace_folder) window.pywebview.api.open_workspace_folder();
+        });
+      } else if (window.pywebview && window.pywebview.api && window.pywebview.api.open_workspace_folder) {
+        window.pywebview.api.open_workspace_folder();
+      }
+    }
+
+    btnOpenIDE.addEventListener("click", launchIDE);
+    document.getElementById("optOpenVSCode").addEventListener("click", launchIDE);
+
+    // ------------------------------------------------------------------
+    // ENVIAR Y RECIBIR MENSAJES
+    // ------------------------------------------------------------------
     promptInput.addEventListener("input", function () {
       this.style.height = "auto";
       this.style.height = Math.min(this.scrollHeight, 180) + "px";
     });
 
-    // Enviar con Enter
     promptInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -2115,51 +2250,6 @@
       setWorking(false);
     });
 
-    // ------------------------------------------------------------------
-    // 1. NUEVA CONVERSACIÓN (FUNCIONAMIENTO COMPLETO)
-    // ------------------------------------------------------------------
-    function startNewConversation() {
-      if (window.pywebview && window.pywebview.api && window.pywebview.api.new_conversation) {
-        window.pywebview.api.new_conversation();
-      }
-      chatStream.innerHTML = `
-        <div class="message-row">
-          <div class="assistant-bubble">
-            <p><strong>✨ Nueva conversación iniciada.</strong></p>
-            <p>Entorno listo con <strong>Groq LPU (526 tokens/s)</strong> y herramientas de desarrollo autónomo activas.</p>
-            <p>¿Qué objetivo deseas programar o investigar hoy?</p>
-          </div>
-        </div>
-      `;
-      document.getElementById("chatTitle").textContent = "Nueva Sesión";
-      document.getElementById("sidebarConvTitle").textContent = "Nueva Sesión";
-      promptInput.value = "";
-      promptInput.style.height = "auto";
-      promptInput.focus();
-      showTemporaryNotice("Nueva conversación iniciada");
-    }
-
-    btnNewConversation.addEventListener("click", startNewConversation);
-
-    // ------------------------------------------------------------------
-    // 2. OPEN IDE (VS CODE DIRECTO)
-    // ------------------------------------------------------------------
-    btnOpenIDE.addEventListener("click", function () {
-      if (window.pywebview && window.pywebview.api && window.pywebview.api.open_ide) {
-        window.pywebview.api.open_ide().then(function (res) {
-          if (res && res.success) {
-            showTemporaryNotice("Abriendo espacio de trabajo en " + (res.ide || "IDE") + "...");
-          } else if (window.pywebview.api.open_workspace_folder) {
-            window.pywebview.api.open_workspace_folder();
-          }
-        }).catch(function () {
-          if (window.pywebview.api.open_workspace_folder) window.pywebview.api.open_workspace_folder();
-        });
-      } else if (window.pywebview && window.pywebview.api && window.pywebview.api.open_workspace_folder) {
-        window.pywebview.api.open_workspace_folder();
-      }
-    });
-
     function setWorking(working) {
       if (working) {
         btnStop.style.display = "inline-flex";
@@ -2168,8 +2258,6 @@
         btnStop.style.display = "none";
         btnSend.style.display = "inline-flex";
         if (currentThoughtBlock) {
-          var spinner = currentThoughtBlock.querySelector(".thought-spinner");
-          if (spinner) spinner.remove();
           currentThoughtBlock = null;
         }
       }
@@ -2177,41 +2265,24 @@
 
     function sendPrompt() {
       var text = promptInput.value.trim();
-      if (!text && !attachedImageBase64) return;
+      if (!text) return;
 
-      appendUserMessage(text, attachedImageBase64);
+      showView("chat");
+      appendUserMessage(text);
       promptInput.value = "";
       promptInput.style.height = "auto";
       setWorking(true);
 
-      var imgPayload = attachedImageBase64;
-      clearAttachment();
-
-      if (window.pywebview && window.pywebview.api) {
-        if (imgPayload && window.pywebview.api.execute_task_with_image) {
-          window.pywebview.api.execute_task_with_image(text, imgPayload);
-        } else if (window.pywebview.api.execute_task) {
-          window.pywebview.api.execute_task(text, imgPayload);
-        }
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.execute_task) {
+        window.pywebview.api.execute_task(text);
       }
     }
 
-    function appendUserMessage(text, imgB64) {
+    function appendUserMessage(text) {
       var row = document.createElement("div");
       row.className = "message-row";
-
-      var thumbHtml = "";
-      if (imgB64) {
-        thumbHtml = `
-          <div class="user-thumbnail-preview" title="Imagen adjunta">
-            <img src="${imgB64}" alt="adjunto">
-          </div>
-        `;
-      }
-
       row.innerHTML = `
         <div class="user-bubble-wrap">
-          ${thumbHtml}
           <div class="user-bubble">${escapeHtml(text)}</div>
         </div>
       `;
@@ -2231,12 +2302,6 @@
             <button class="action-btn" title="Copiar mensaje" onclick="copySnippet(this, ${JSON.stringify(text)})">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             </button>
-            <button class="action-btn" title="Útil">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
-            </button>
-            <button class="action-btn" title="No útil">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
-            </button>
           </div>
         </div>
       `;
@@ -2251,8 +2316,8 @@
     function escapeHtml(str) {
       return (str || "")
         .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
     }
@@ -2265,21 +2330,41 @@
       });
     }
 
+    function openImageInExternal(url) {
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.open_external_url) {
+        window.pywebview.api.open_external_url(url);
+      } else {
+        window.open(url, "_blank");
+      }
+    }
+
+    // Formateador de Markdown con soporte completo para imágenes generadas e imágenes locales
     function formatMarkdown(md) {
       if (!md) return "";
+
+      // Bloques de código
       var codeBlockRegex = /```([a-zA-Z0-9_\-\.]*)\n([\s\S]*?)```/g;
       var out = md.replace(codeBlockRegex, function (match, lang, code) {
         lang = lang || "code";
         return `
-          <div class="code-block">
-            <div class="code-header">
-              <span class="code-lang">${escapeHtml(lang)}</span>
-              <button class="btn-copy" onclick="copySnippet(this, ${JSON.stringify(code.trim())})">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                <span>Copiar</span>
-              </button>
+          <div class="code-block" style="background:#141518; border:1px solid rgba(255,255,255,0.08); border-radius:8px; margin:12px 0;">
+            <div style="padding:6px 12px; border-bottom:1px solid rgba(255,255,255,0.08); font-size:11px; color:#9aa0a6;">${escapeHtml(lang)}</div>
+            <pre style="padding:12px 14px; overflow-x:auto; font-family:monospace; color:#e2e8f0; font-size:12.5px;"><code>${escapeHtml(code.trim())}</code></pre>
+          </div>
+        `;
+      });
+
+      // Imágenes Markdown ![alt](url)
+      var imgRegex = /!\[(.*?)\]\((.*?)\)/g;
+      out = out.replace(imgRegex, function (match, alt, url) {
+        return `
+          <div class="chat-img-card">
+            <img class="chat-rendered-img" src="${url}" alt="${escapeHtml(alt)}" onclick="openImageInExternal('${url}')"/>
+            <div class="chat-img-caption">
+              <span class="img-badge">✨ Imagen</span>
+              <span>${escapeHtml(alt)}</span>
+              <button class="btn-download-img" onclick="openImageInExternal('${url}')">Abrir ↗</button>
             </div>
-            <pre><code>${escapeHtml(code.trim())}</code></pre>
           </div>
         `;
       });
@@ -2287,7 +2372,7 @@
       var paragraphs = out.split(/\n\n+/);
       return paragraphs.map(function (p) {
         p = p.trim();
-        if (p.startsWith("<div class=\"code-block\"")) return p;
+        if (p.startsWith("<div class=\"code-block\"") || p.startsWith("<div class=\"chat-img-card\"")) return p;
         if (p.startsWith("• ") || p.startsWith("- ") || p.startsWith("* ")) {
           var items = p.split(/\n[•\-\*]\s+/).filter(Boolean);
           return "<ul>" + items.map(function (it) {
@@ -2299,7 +2384,31 @@
     }
 
     // ------------------------------------------------------------------
-    // 3. CONTROL DE PLEGADO Y REPLEGADO (COLLAPSIBLE / DESPLEGABLE)
+    // RENDERIZADO REACTIVO DE IMÁGENES GENERADAS POR EL AGENTE
+    // ------------------------------------------------------------------
+    window.onAgentImageGenerated = function (imgUri, promptVal) {
+      var row = document.createElement("div");
+      row.className = "message-row";
+      row.innerHTML = `
+        <div class="assistant-bubble">
+          <p><strong>🎨 Imagen generada para:</strong> <em>"${escapeHtml(promptVal)}"</em></p>
+          <div class="chat-img-card">
+            <img class="chat-rendered-img" src="${imgUri}" alt="${escapeHtml(promptVal)}" onclick="openImageInExternal('${imgUri}')"/>
+            <div class="chat-img-caption">
+              <span class="img-badge">Flux 1024x1024</span>
+              <span>${escapeHtml(promptVal.substring(0, 40))}...</span>
+              <button class="btn-download-img" onclick="openImageInExternal('${imgUri}')">Ver Completa ↗</button>
+            </div>
+          </div>
+        </div>
+      `;
+      chatStream.appendChild(row);
+      scrollToBottom();
+      showTemporaryNotice("¡Imagen renderizada en el chat!");
+    };
+
+    // ------------------------------------------------------------------
+    // CONTROL DEL NAVEGADOR SIDECAR (PLEGAR / DESPLEGAR)
     // ------------------------------------------------------------------
     sidebarToggleBtn.addEventListener("click", function () {
       sidebar.classList.toggle("collapsed");
@@ -2308,13 +2417,11 @@
     function toggleBrowserSidecar() {
       var isCurrentlyCollapsed = browserSidecar.classList.contains("collapsed");
       if (isCurrentlyCollapsed) {
-        // Desplegar
         browserSidecar.classList.remove("collapsed");
         btnToggleSidecar.classList.add("active");
         splitDivider.style.display = "block";
         sidecarDockTab.style.display = "none";
       } else {
-        // Plegar
         browserSidecar.classList.add("collapsed");
         btnToggleSidecar.classList.remove("active");
         splitDivider.style.display = "none";
@@ -2328,17 +2435,12 @@
 
     btnSidecarFullscreen.addEventListener("click", function () {
       isSidecarFullscreen = !isSidecarFullscreen;
-      if (isSidecarFullscreen) {
-        browserSidecar.style.width = "100%";
-        browserSidecar.style.maxWidth = "100%";
-      } else {
-        browserSidecar.style.width = "48%";
-        browserSidecar.style.maxWidth = "75%";
-      }
+      browserSidecar.style.width = isSidecarFullscreen ? "100%" : "48%";
+      browserSidecar.style.maxWidth = isSidecarFullscreen ? "100%" : "75%";
     });
 
-    // Redimensionamiento arrastrable del split
-    splitDivider.addEventListener("mousedown", function (e) {
+    // Redimensionamiento
+    splitDivider.addEventListener("mousedown", function () {
       isDraggingSplitter = true;
       splitDivider.classList.add("dragging");
       document.body.style.cursor = "col-resize";
@@ -2362,31 +2464,21 @@
     });
 
     // ------------------------------------------------------------------
-    // 4. MOTOR DE NAVEGACIÓN Y BÚSQUEDA WEB REAL (SIN BLOQUEO DE IFRAME)
+    // NAVEGACIÓN Y BÚSQUEDA WEB
     // ------------------------------------------------------------------
     function navigateToUrl(rawInput) {
       var input = (rawInput || "").trim();
-      if (!input) {
-        input = PROXY_BASE + "/";
-      }
+      if (!input) input = PROXY_BASE + "/";
 
       var targetIframeUrl = "";
-
-      // 1. Ya apunta al proxy local o localhost
-      if (input.startsWith(PROXY_BASE) || input.startsWith("http://127.0.0.1:" + PROXY_PORT) || input.startsWith("http://localhost:8000")) {
+      if (input.startsWith(PROXY_BASE) || input.startsWith("http://127.0.0.1:" + PROXY_PORT)) {
         targetIframeUrl = input;
-      }
-      // 2. Búsqueda explícita con '?' o texto con espacios o sin punto
-      else if (input.startsWith("?") || input.includes(" ") || (!input.includes(".") && !input.startsWith("http"))) {
+      } else if (input.startsWith("?") || input.includes(" ") || (!input.includes(".") && !input.startsWith("http"))) {
         var query = input.startsWith("?") ? input.substring(1).trim() : input;
         targetIframeUrl = PROXY_BASE + "/search?q=" + encodeURIComponent(query);
-      }
-      // 3. Atajo para sitios populares sin .com (youtube, github, google, wikipedia)
-      else if (!input.includes(".") && ["youtube", "google", "github", "wikipedia", "reddit"].indexOf(input.toLowerCase()) !== -1) {
+      } else if (!input.includes(".") && ["youtube", "google", "github", "wikipedia", "reddit"].indexOf(input.toLowerCase()) !== -1) {
         targetIframeUrl = PROXY_BASE + "/browse?url=" + encodeURIComponent("https://www." + input.toLowerCase() + ".com");
-      }
-      // 4. URL estándar: se enruta a través del proxy desbloqueador
-      else {
+      } else {
         var fullUrl = input;
         if (!fullUrl.startsWith("http://") && !fullUrl.startsWith("https://") && !fullUrl.startsWith("about:")) {
           fullUrl = "https://" + fullUrl;
@@ -2395,35 +2487,19 @@
       }
 
       browserUrlInput.value = input;
-      browserHubOverlay.style.display = "none";
       browserIframe.src = targetIframeUrl;
 
-      // Asegurar que el sidecar esté desplegado
       if (browserSidecar.classList.contains("collapsed")) {
         toggleBrowserSidecar();
       }
     }
 
-    function updateActiveTabTitle(title) {
-      var activeTab = document.querySelector(".browser-tab.active span:first-child");
-      if (activeTab) {
-        activeTab.textContent = title;
-      }
-    }
-
     browserUrlInput.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        navigateToUrl(this.value);
-      }
+      if (e.key === "Enter") navigateToUrl(this.value);
     });
 
-    document.getElementById("btnBrowserHome").addEventListener("click", function () {
-      navigateToUrl(PROXY_BASE + "/");
-    });
-
-    document.getElementById("btnBrowserReload").addEventListener("click", function () {
-      navigateToUrl(browserUrlInput.value);
-    });
+    document.getElementById("btnBrowserHome").addEventListener("click", function () { navigateToUrl(PROXY_BASE + "/"); });
+    document.getElementById("btnBrowserReload").addEventListener("click", function () { navigateToUrl(browserUrlInput.value); });
 
     document.getElementById("btnBrowserOpenExternal").addEventListener("click", function () {
       var raw = browserUrlInput.value;
@@ -2433,29 +2509,22 @@
       } else if (!raw.startsWith("http://") && !raw.startsWith("https://")) {
         extUrl = "https://duckduckgo.com/?q=" + encodeURIComponent(raw);
       }
-      if (window.pywebview && window.pywebview.api && window.pywebview.api.open_external_url) {
-        window.pywebview.api.open_external_url(extUrl);
-      } else {
-        window.open(extUrl, "_blank");
-      }
+      openImageInExternal(extUrl);
     });
 
     document.getElementById("btnBrowserSnapshot").addEventListener("click", function () {
-      var currentUrl = browserUrlInput.value;
-      promptInput.value += ` [Investigar contenido de la página web: ${currentUrl}]`;
+      promptInput.value += ` [Analizar contenido web de: ${browserUrlInput.value}]`;
       promptInput.focus();
-      showTemporaryNotice("Contexto web añadido al prompt");
+      showTemporaryNotice("Contexto web añadido");
     });
 
-    // Marcadores rápidos
     document.querySelectorAll(".bookmark-pill").forEach(function (pill) {
       pill.addEventListener("click", function () {
-        var target = this.getAttribute("data-target");
-        navigateToUrl(target);
+        navigateToUrl(this.getAttribute("data-target"));
       });
     });
 
-    // Pestañas del navegador
+    // Pestañas
     document.querySelectorAll(".browser-tab").forEach(function (tab) {
       tab.addEventListener("click", function (e) {
         if (e.target.classList.contains("browser-tab-close")) {
@@ -2474,40 +2543,27 @@
       var newTab = document.createElement("div");
       newTab.className = "browser-tab active";
       newTab.setAttribute("data-url", PROXY_BASE + "/");
-      newTab.innerHTML = `<span>🌐 Nueva Pestaña</span><span class="browser-tab-close">✕</span>`;
+      newTab.innerHTML = `<span>🌐 Búsqueda</span><span class="browser-tab-close">✕</span>`;
       document.querySelectorAll(".browser-tab").forEach(function (t) { t.classList.remove("active"); });
       document.getElementById("browserTabsRow").insertBefore(newTab, document.getElementById("btnNewBrowserTab"));
       navigateToUrl(PROXY_BASE + "/");
     });
 
-    // ------------------------------------------------------------------
-    // SINCRONIZACIÓN EN VIVO CUANDO EL AGENTE BUSCA O NAVEGA
-    // ------------------------------------------------------------------
+    // Sincronización en vivo del Agente
     window.onAgentWebSearch = function (query) {
-      if (browserSidecar.classList.contains("collapsed")) {
-        toggleBrowserSidecar();
-      }
+      if (browserSidecar.classList.contains("collapsed")) toggleBrowserSidecar();
       browserUrlInput.value = query;
       navigateToUrl("?" + query);
-      updateActiveTabTitle("🔍 " + query);
     };
 
     window.onAgentNavigateBrowser = function (url) {
-      if (browserSidecar.classList.contains("collapsed")) {
-        toggleBrowserSidecar();
-      }
+      if (browserSidecar.classList.contains("collapsed")) toggleBrowserSidecar();
       browserUrlInput.value = url;
       navigateToUrl(url);
-      try {
-        var domain = new URL(url).hostname;
-        updateActiveTabTitle("🌐 " + domain);
-      } catch (e) {
-        updateActiveTabTitle("🌐 " + url.substring(0, 16));
-      }
     };
 
     // ------------------------------------------------------------------
-    // SELECTOR DE MODELOS (POPUP MENÚ)
+    // SELECTOR DE MODELOS
     // ------------------------------------------------------------------
     modelSelectorPill.addEventListener("click", function (e) {
       e.stopPropagation();
@@ -2517,7 +2573,7 @@
     document.querySelectorAll(".model-opt-item").forEach(function (opt) {
       opt.addEventListener("click", function () {
         var modelId = this.getAttribute("data-model");
-        var title = this.querySelector(".model-opt-title").textContent;
+        var title = this.querySelector("span:first-child").textContent;
         document.querySelectorAll(".model-opt-item").forEach(function (o) { o.classList.remove("active"); });
         this.classList.add("active");
         currentModelLabel.textContent = title;
@@ -2532,56 +2588,7 @@
     });
 
     // ------------------------------------------------------------------
-    // ADJUNTOS / IMÁGENES
-    // ------------------------------------------------------------------
-    btnAttach.addEventListener("click", function () {
-      filePickerInput.click();
-    });
-
-    filePickerInput.addEventListener("change", function (e) {
-      var file = e.target.files[0];
-      if (!file) return;
-      var reader = new FileReader();
-      reader.onload = function (evt) {
-        setAttachment(evt.target.result, file.name);
-      };
-      reader.readAsDataURL(file);
-    });
-
-    // Soporte para pegar imágenes desde el portapapeles (Ctrl+V)
-    window.addEventListener("paste", function (e) {
-      var items = (e.clipboardData || e.originalEvent.clipboardData).items;
-      for (var i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf("image") !== -1) {
-          var blob = items[i].getAsFile();
-          var reader = new FileReader();
-          reader.onload = function (evt) {
-            setAttachment(evt.target.result, "imagen_pegada.png");
-          };
-          reader.readAsDataURL(blob);
-          break;
-        }
-      }
-    });
-
-    function setAttachment(base64, name) {
-      attachedImageBase64 = base64;
-      attachmentImg.src = base64;
-      attachmentName.textContent = name || "captura.png";
-      attachmentBadge.style.display = "inline-flex";
-    }
-
-    function clearAttachment() {
-      attachedImageBase64 = null;
-      attachmentBadge.style.display = "none";
-      attachmentImg.src = "";
-      filePickerInput.value = "";
-    }
-
-    attachmentRemoveBtn.addEventListener("click", clearAttachment);
-
-    // ------------------------------------------------------------------
-    // MENÚS DE LA BARRA SUPERIOR
+    // MENÚS SUPERIORES
     // ------------------------------------------------------------------
     function setupMenu(menuBtnId, dropdownId) {
       var btn = document.getElementById(menuBtnId);
@@ -2597,7 +2604,7 @@
       });
     }
 
-    setupMenu("menuAntigravity", "dropdownAntigravity");
+    setupMenu("menuBable", "dropdownBable");
     setupMenu("menuWorkspace", "dropdownWorkspace");
     setupMenu("menuView", "dropdownView");
     setupMenu("menuWindow", "dropdownWindow");
@@ -2610,43 +2617,26 @@
 
     window.addEventListener("click", closeAllMenus);
 
-    // Acciones de ventana
     document.getElementById("winMinBtn").addEventListener("click", function () {
-      if (window.pywebview && window.pywebview.api && window.pywebview.api.window_minimize) {
-        window.pywebview.api.window_minimize();
-      }
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.window_minimize) window.pywebview.api.window_minimize();
     });
     document.getElementById("winMaxBtn").addEventListener("click", function () {
-      if (window.pywebview && window.pywebview.api && window.pywebview.api.window_toggle_maximize) {
-        window.pywebview.api.window_toggle_maximize();
-      }
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.window_toggle_maximize) window.pywebview.api.window_toggle_maximize();
     });
     document.getElementById("winCloseBtn").addEventListener("click", function () {
-      if (window.pywebview && window.pywebview.api && window.pywebview.api.close_app) {
-        window.pywebview.api.close_app();
-      }
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.close_app) window.pywebview.api.close_app();
     });
 
     document.getElementById("optOpenExplorer").addEventListener("click", function () {
-      if (window.pywebview && window.pywebview.api && window.pywebview.api.open_workspace_folder) {
-        window.pywebview.api.open_workspace_folder();
-      }
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.open_workspace_folder) window.pywebview.api.open_workspace_folder();
     });
 
     document.getElementById("optToggleBrowser").addEventListener("click", toggleBrowserSidecar);
-    document.getElementById("optToggleSidebar").addEventListener("click", function () {
-      sidebar.classList.toggle("collapsed");
-    });
+    document.getElementById("optToggleSidebar").addEventListener("click", function () { sidebar.classList.toggle("collapsed"); });
+    document.getElementById("btnSettings").addEventListener("click", function () { document.getElementById("modalSettings").classList.add("show"); });
 
-    document.getElementById("btnSettings").addEventListener("click", function () {
-      document.getElementById("modalSettings").classList.add("show");
-    });
+    function closeModal(id) { document.getElementById(id).classList.remove("show"); }
 
-    function closeModal(id) {
-      document.getElementById(id).classList.remove("show");
-    }
-
-    // Atajos de teclado (Ctrl+B para alternar navegador sidecar)
     window.addEventListener("keydown", function (e) {
       if (e.ctrlKey && e.key === "b") {
         e.preventDefault();
@@ -2657,9 +2647,7 @@
       }
     });
 
-    // ------------------------------------------------------------------
-    // CALLBACKS DESDE PYTHON (JARVIS BRIDGE)
-    // ------------------------------------------------------------------
+    // Callbacks del Agente
     window.onAgentThought = function (thoughtText) {
       if (!currentThoughtBlock) {
         currentThoughtBlock = document.createElement("div");
@@ -2713,38 +2701,10 @@
     };
 
     window.onAgentFinish = function (finalAnswer) {
-      if (currentThoughtBlock) {
-        var spinner = currentThoughtBlock.querySelector(".thought-spinner");
-        if (spinner) spinner.remove();
-        currentThoughtBlock = null;
-      }
+      if (currentThoughtBlock) currentThoughtBlock = null;
       appendAssistantMessage(finalAnswer);
       setWorking(false);
     };
-
-    window.onRenderWebPreview = function (htmlContent, title) {
-      browserHubOverlay.style.display = "none";
-      browserIframe.srcdoc = htmlContent;
-      browserUrlInput.value = "local://preview/" + (title || "vista_previa.html");
-      if (browserSidecar.classList.contains("collapsed")) {
-        toggleBrowserSidecar();
-      }
-    };
-
-    // Telemetría inicial
-    function loadInitialTelemetry() {
-      if (window.pywebview && window.pywebview.api && window.pywebview.api.get_telemetry) {
-        window.pywebview.api.get_telemetry().then(function (t) {
-          if (!t) return;
-          if (t.model) {
-            currentModelLabel.textContent = t.model;
-            titlebarModelBadge.textContent = t.model;
-          }
-        }).catch(function () {});
-      }
-    }
-    window.addEventListener("pywebviewready", loadInitialTelemetry);
-    setTimeout(loadInitialTelemetry, 800);
   </script>
 </body>
 </html>

@@ -71,16 +71,28 @@ def display_tool_call(tool_name: str, arguments: Dict[str, Any]) -> None:
     console.print("╰" + "─" * 65, style="dim yellow")
 
 
-def display_tool_result(tool_name: str, result: ToolResult) -> None:
-    """Muestra el resultado devuelto por una herramienta."""
-    if result.success:
-        summary = result.output.strip()
+def display_tool_result(tool_name: str, result: Any) -> None:
+    """Muestra el resultado devuelto por una herramienta de forma segura."""
+    if isinstance(result, str):
+        summary = result.strip()
+        first_line = summary.splitlines()[0] if summary else "Completado"
+        if len(first_line) > 100:
+            first_line = first_line[:100] + "..."
+        console.print(f"[bold green]✓[/bold green] [dim]{tool_name}:[/dim] {first_line}")
+        return
+
+    success = getattr(result, "success", True)
+    output = getattr(result, "output", str(result))
+    error = getattr(result, "error", None)
+
+    if success:
+        summary = (output or "").strip()
         first_line = summary.splitlines()[0] if summary else "Completado exitosamente"
         if len(first_line) > 100:
             first_line = first_line[:100] + "..."
         console.print(f"[bold green]✓[/bold green] [dim]{tool_name}:[/dim] {first_line}")
     else:
-        err_msg = (result.error or result.output or "Error desconocido").strip()
+        err_msg = (error or output or "Error desconocido").strip()
         first_err = err_msg.splitlines()[0] if err_msg else "Fallo de ejecución"
         console.print(f"[bold red]✗[/bold red] [red]{tool_name} error:[/red] {first_err[:120]}")
 
