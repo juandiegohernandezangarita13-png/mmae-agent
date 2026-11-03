@@ -118,7 +118,10 @@ class LocalLLMClient:
         return sanitized
 
     def _get_endpoint_and_headers(self, model: str = "") -> Tuple[str, Dict[str, str]]:
-        if "gemini" in model.lower() and getattr(self.config, "gemini_api_key", ""):
+        if model.startswith("ollama/"):
+            url = f"{self.config.ollama_base_url.rstrip('/')}/v1/chat/completions"
+            headers = {"Content-Type": "application/json"}
+        elif "gemini" in model.lower() and getattr(self.config, "gemini_api_key", ""):
             url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
             headers = {
                 "Authorization": f"Bearer {self.config.gemini_api_key}",
@@ -363,6 +366,14 @@ Sé analítico, preciso y estructurado."""
                 if fcc_target not in models_to_try:
                     models_to_try.append(fcc_target)
 
+        # Red de seguridad final: modelo local de Ollama (ej. qwen2.5-coder:latest) sin límites de cuota
+        local_coder = getattr(self.config, "ollama_model", "qwen2.5-coder:latest")
+        if "gemini" in str(local_coder).lower() or not local_coder:
+            local_coder = "qwen2.5-coder:latest"
+        ollama_fallback = f"ollama/{local_coder}"
+        if ollama_fallback not in models_to_try:
+            models_to_try.append(ollama_fallback)
+
         last_error = None
         max_retries = max(getattr(self.config, "llm_max_retries", 2), 2)
 
@@ -370,33 +381,37 @@ Sé analítico, preciso y estructurado."""
             # 0. Soporte para Claude Code (Free-Claude-Code local daemon) y fallback automático fcc/
             if self.config.llm_provider in ("claude_code", "fcc") or model_candidate.startswith("fcc/"):
                 actual_model = model_candidate.replace("fcc/", "") if model_candidate.startswith("fcc/") else model_candidate
-                from jev.core.claude_code_bridge import ClaudeCodeBridge
-                bridge = ClaudeCodeBridge(default_model=actual_model)
-                sys_content = None
-                chat_msgs = []
-                for m in messages:
-                    if m.get("role") == "system" and sys_content is None:
-                        sys_content = m.get("content")
-                    else:
-                        chat_msgs.append(m)
-                res = bridge.send_message(
-                    messages=chat_msgs,
-                    system=sys_content,
-                    model=actual_model if "/" in actual_model else None,
-                    max_tokens=getattr(self.config, "max_tokens", 2048),
-                    temperature=self.config.temperature,
-                    tools=tools
-                )
-                if res.is_success:
-                    self.free_router.report_success(model_candidate)
-                    return LLMResponse(
-                        content=res.content,
-                        tool_calls=res.tool_calls,
-                        raw_response=res.raw_response
+                try:
+                    from jev.core.claude_code_bridge import ClaudeCodeBridge
+                    bridge = ClaudeCodeBridge(default_model=actual_model)
+                    sys_content = None
+                    chat_msgs = []
+                    for m in messages:
+                        if m.get("role") == "system" and sys_content is None:
+                            sys_content = m.get("content")
+                        else:
+                            chat_msgs.append(m)
+                    res = bridge.send_message(
+                        messages=chat_msgs,
+                        system=sys_content,
+                        model=actual_model if "/" in actual_model else None,
+                        max_tokens=getattr(self.config, "max_tokens", 2048),
+                        temperature=self.config.temperature,
+                        tools=tools
                     )
-                else:
-                    self.free_router.report_error(model_candidate)
-                    last_error = RuntimeError(res.error)
+                    if res.is_success:
+                        self.free_router.report_success(model_candidate)
+                        return LLMResponse(
+                            content=res.content,
+                            tool_calls=res.tool_calls,
+                            raw_response=res.raw_response
+                        )
+                    else:
+                        self.free_router.report_error(model_candidate)
+                        last_error = RuntimeError(res.error)
+                        continue
+                except Exception as fcc_exc:
+                    last_error = fcc_exc
                     continue
 
             # Determinar endpoint y cabeceras
@@ -406,8 +421,8 @@ Sé analítico, preciso y estructurado."""
             effective_messages = messages if is_cloud else self._prune_messages_for_local_inference(messages)
             effective_messages = self.sanitize_messages_for_tool_calling(effective_messages)
 
-            # Normalizar nombre de modelo para OpenRouter si tiene prefijo interno open_router/
-            clean_model = model_candidate.replace("open_router/", "")
+            # Normalizar nombre de modelo si tiene prefijos internos
+            clean_model = model_candidate.replace("open_router/", "").replace("ollama/", "")
 
             payload: Dict[str, Any] = {
                 "model": clean_model,
@@ -512,9 +527,12 @@ Sé analítico, preciso y estructurado."""
 
         # Si agotamos todos los candidatos, intentar con el modelo local Ollama directamente con keep_alive y reintentos
         try:
+            local_target = getattr(self.config, "ollama_model", "qwen2.5-coder:latest")
+            if "gemini" in str(local_target).lower() or not local_target:
+                local_target = "qwen2.5-coder:latest"
             local_url = f"{self.config.ollama_base_url.rstrip('/')}/v1/chat/completions"
             local_payload = {
-                "model": self.config.executor_model,
+                "model": local_target,
                 "messages": self.sanitize_messages_for_tool_calling(self._prune_messages_for_local_inference(messages)),
                 "temperature": self.config.temperature,
                 "max_tokens": self.config.max_tokens,
