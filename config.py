@@ -134,6 +134,17 @@ class AgentConfig:
     allowed_telegram_user_id: int = int(os.getenv("ALLOWED_TELEGRAM_USER_ID", "0") or "0")
     island_mode: bool = True
 
+    # --- Voz Asíncrona (Fish Audio) ---
+    fish_api_key: str = os.getenv("FISH_API_KEY", "")
+    fish_voice_id: str = os.getenv("FISH_VOICE_ID", "")
+    fish_api_url: str = os.getenv("FISH_API_URL", "https://api.fish.audio/v1/tts")
+    voice_enabled: bool = os.getenv("VOICE_ENABLED", "1").lower() in ("true", "1", "yes")
+
+    # --- Curiosidad Autónoma y Decaimiento Cognitivo (Chronos) ---
+    curiosity_idle_seconds: float = float(os.getenv("CURIOSITY_IDLE_SECONDS", "900.0"))
+    curiosity_enabled: bool = os.getenv("CURIOSITY_ENABLED", "1").lower() in ("true", "1", "yes")
+    decay_threshold_days: float = float(os.getenv("DECAY_THRESHOLD_DAYS", "7.0"))
+
     # --- TypeSafe AI System-1 (Jev Router) ---
     typesafe_api_key: str = os.getenv("TYPESAFE_API_KEY", "")
     typesafe_api_url: str = os.getenv("TYPESAFE_API_URL", "https://api.typesafe.ai/v1/systemone")

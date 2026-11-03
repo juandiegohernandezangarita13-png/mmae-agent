@@ -15,6 +15,7 @@ from core.memory.knowledge_hub import HeterogeneousKnowledgeHub, DocumentChunk
 from core.memory.background_worker import BackgroundMemoryWorker
 from core.memory.unified_system import UnifiedMemorySystem, MMAEMemorySystem
 from core.memory.mem0_bridge import Mem0Bridge
+from core.memory.procedure_store import ProceduralRecord, ProceduralMemoryManager, DEFAULT_DB_PATH
 
 try:
     from jev.core.memory import HierarchicalMemory
@@ -32,5 +33,8 @@ __all__ = [
     "BackgroundMemoryWorker",
     "UnifiedMemorySystem",
     "MMAEMemorySystem",
-    "Mem0Bridge"
+    "Mem0Bridge",
+    "ProceduralRecord",
+    "ProceduralMemoryManager",
+    "DEFAULT_DB_PATH",
 ]

@@ -18,7 +18,10 @@ class MicroEngine:
 
         micro_prompt = (
             f"Basándote en el siguiente esqueleto macro, desarrolla y escribe el código "
-            f"o la llamada a herramienta JSON ('tool', 'parameters'). Mantén precisión técnica:\n\n"
+            f"o la llamada a herramienta JSON ('tool', 'parameters').\n"
+            f"Si la tarea requiere inspecciones en lote, múltiples lecturas o filtrado local, utiliza la herramienta "
+            f"'execute_script' con un bloque Python compacto que imprima JSON estructurado para ahorrar tokens.\n"
+            f"Mantén precisión técnica y utiliza siempre rutas absolutas o literales protegidos:\n\n"
             f"{skeleton}"
         )
 

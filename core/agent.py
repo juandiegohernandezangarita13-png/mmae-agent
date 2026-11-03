@@ -24,8 +24,13 @@ from core.memory import (
 from core.reflection_loop import ReflectionLoop
 from core.planner import TaskPlanner
 from core.persistence import StatePersistence
-from core.evaluator import OutputEvaluator
+from core.evaluator import OutputEvaluator, DeterministicOracle
 from core.executor import AgentExecutor
+from core.chronos import Chronos, ExecutionTimer
+from core.goldfish_critic import GoldfishCritic
+from core.script_runner import ScriptRunner
+from core.voice_announcer import VoiceAnnouncer
+from core.curiosity_daemon import CuriosityDaemon
 
 from skills.base import SkillRegistry
 from skills.terminal import SafeTerminalSkill
@@ -89,6 +94,24 @@ class MMAEAutonomousAgent:
             api_url=getattr(self.config, "typesafe_api_url", os.getenv("TYPESAFE_API_URL", "https://api.typesafe.ai/v1/systemone")),
             timeout_seconds=getattr(self.config, "typesafe_timeout_seconds", 0.200)
         )
+
+        # 6. Componentes Avanzados: Chronos, Goldfish Critic, Script Runner, Oráculo y Voz
+        from pathlib import Path
+        self.chronos = Chronos()
+        self.critic = GoldfishCritic(api_base_url=self.config.api_base_url)
+        self.script_runner = ScriptRunner(working_dir=Path(self.config.safe_working_directory))
+        self.deterministic_oracle = DeterministicOracle()
+        self.voice = VoiceAnnouncer(enabled=getattr(self.config, "voice_enabled", True))
+
+        # 7. Demonio de Curiosidad (Auto-mantenimiento procedimental)
+        self.curiosity_daemon = CuriosityDaemon(
+            idle_threshold_seconds=getattr(self.config, "curiosity_idle_seconds", 900.0),
+            voice_announcer=self.voice,
+            goldfish_critic=self.critic,
+            script_runner=self.script_runner,
+        )
+        if getattr(self.config, "curiosity_enabled", False):
+            self.curiosity_daemon.start()
         
         log.info("MMAE inicializado y listo para operar.")
 
@@ -153,6 +176,17 @@ class MMAEAutonomousAgent:
             "Ingesta e indexa un archivo local (PDF, Markdown, TXT, código) en el Knowledge Hub (Coach)."
         )(lambda file_path: {"chunks_indexed": self.unified_memory.knowledge.ingest_file(file_path)})
 
+        # Ejecución Programática en Lote (ScriptRunner / CodeAct / Factory Droid)
+        self.registry.register(
+            "execute_script",
+            "Ejecuta un script local en Python para lecturas, filtros y verificaciones en lote, retornando un JSON compacto."
+        )(lambda script_code, timeout_seconds=30: self.script_runner.run_script(script_code=script_code, timeout_seconds=timeout_seconds).to_dict())
+
+        self.registry.register(
+            "run_python_script",
+            "Alias para execute_script."
+        )(lambda script_code, timeout_seconds=30: self.script_runner.run_script(script_code=script_code, timeout_seconds=timeout_seconds).to_dict())
+
         # Conectar herramientas del núcleo avanzado si existen
         if self.agent_core and hasattr(self.agent_core, "registry"):
             for tool_name in self.agent_core.registry.list_tools():
@@ -194,6 +228,26 @@ class MMAEAutonomousAgent:
         log.info("📋 Generando esqueleto macro...")
         macro_prompt = f"{user_goal}\n\n{memory_context}" if memory_context else user_goal
         macro_output = self.macro.generate_skeleton(macro_prompt)
+
+        # AUDITOR STATELESS PRE-EJECUCIÓN (Goldfish Critic - Google EGM)
+        critic_audit = self.critic.audit_plan(
+            skeleton=macro_output["skeleton"],
+            literals=macro_output.get("literals", []),
+        )
+        if not critic_audit.approved:
+            err_reasons = " | ".join(critic_audit.blockers)
+            log.warning(f"🚨 [GoldfishCritic Rechazo Pre-Ejecución]: {err_reasons}")
+            self.voice.announce("Plan rechazado por el auditor pre-ejecución debido a bloqueantes críticos.", priority="high")
+            return {
+                "goal": user_goal,
+                "error": f"Plan rechazado por Goldfish Critic: {err_reasons}",
+                "success": False,
+                "blockers": critic_audit.blockers,
+                "suggested_fixes": critic_audit.suggested_fixes,
+                "skeleton": macro_output.get("skeleton"),
+                "results": [{"task": "Goldfish Critic Pre-Audit", "result": {"success": False, "blockers": critic_audit.blockers}}]
+            }
+
         tasks = self.planner.parse_tasks_from_skeleton(macro_output["skeleton"])
 
         results = []

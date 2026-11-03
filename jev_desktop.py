@@ -79,6 +79,21 @@ def main() -> int:
 
     island_bridge.attach(bridge, None, island_window, quit_state)
 
+    # Iniciar demonio de curiosidad en segundo plano si está habilitado
+    curiosity_daemon = None
+    if getattr(config, "curiosity_enabled", True):
+        try:
+            from core.curiosity_daemon import CuriosityDaemon
+            from core.voice_announcer import VoiceAnnouncer
+            voice_announcer = VoiceAnnouncer(enabled=getattr(config, "voice_enabled", True))
+            curiosity_daemon = CuriosityDaemon(
+                idle_threshold_seconds=getattr(config, "curiosity_idle_seconds", 900.0),
+                voice_announcer=voice_announcer,
+            )
+            curiosity_daemon.start()
+        except Exception as e:
+            print(f"[WARN] No se pudo inicializar CuriosityDaemon en la Isla: {e}")
+
     def _on_started() -> None:
         """Configura el HWND nativo tras el renderizado de la ventana."""
         try:
@@ -96,7 +111,11 @@ def main() -> int:
         except Exception:
             pass
 
-    webview.start(_on_started, debug=False)
+    try:
+        webview.start(_on_started, debug=False)
+    finally:
+        if curiosity_daemon:
+            curiosity_daemon.stop()
     return 0
 
 

@@ -56,10 +56,17 @@ class HierarchicalMemory:
                     last_used DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
             """)
-            try:
-                cursor.execute("ALTER TABLE procedural_solutions ADD COLUMN phase TEXT DEFAULT 'general'")
-            except sqlite3.OperationalError:
-                pass
+            for migration_col in [
+                "phase TEXT DEFAULT 'general'",
+                "confidence_score REAL DEFAULT 1.0",
+                "last_verified_at DATETIME",
+                "success_count INTEGER DEFAULT 0",
+                "failure_count INTEGER DEFAULT 0",
+            ]:
+                try:
+                    cursor.execute(f"ALTER TABLE procedural_solutions ADD COLUMN {migration_col}")
+                except sqlite3.OperationalError:
+                    pass
 
             # Sembrar solución procedimental para apertura de apps de Windows y WhatsApp
             cursor.execute("SELECT COUNT(*) FROM procedural_solutions WHERE category = 'windows_apps'")
