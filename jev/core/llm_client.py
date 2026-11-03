@@ -385,7 +385,11 @@ Sé analítico, preciso y estructurado."""
 
         # Si existe clave de Groq (inferencia ultra-rápida en nube LPU a 500 tokens/s gratuita):
         if getattr(self.config, "groq_api_key", ""):
-            groq_models = ["groq/llama-3.3-70b-versatile", "groq/qwen-2.5-coder-32b", "groq/llama-3.1-8b-instant"]
+            groq_models = [
+                "groq/qwen/qwen3.8-27b",
+                "groq/openai/gpt-oss-120b",
+                "groq/openai/gpt-oss-20b"
+            ]
             models_to_try = [m for m in groq_models if m not in models_to_try] + models_to_try
 
         last_error = None
