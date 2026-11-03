@@ -727,18 +727,69 @@ class JarvisBridge:
                     code_bin = candidate
 
             if code_bin:
-                subprocess.Popen([code_bin, workspace_str], shell=True)
+                subprocess.Popen(f'"{code_bin}" "{workspace_str}"', shell=True)
                 return {"success": True, "ide": "VS Code", "path": workspace_str}
 
             # 2. Intentar Cursor
             cursor_bin = shutil.which("cursor") or shutil.which("cursor.cmd")
             if cursor_bin:
-                subprocess.Popen([cursor_bin, workspace_str], shell=True)
+                subprocess.Popen(f'"{cursor_bin}" "{workspace_str}"', shell=True)
                 return {"success": True, "ide": "Cursor", "path": workspace_str}
 
             # 3. Fallback: Explorador de Windows
             os.startfile(workspace_str)
             return {"success": True, "ide": "Explorer", "path": workspace_str}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def reload_agent(self) -> Dict[str, Any]:
+        """
+        Recarga en caliente los módulos del agente, herramientas y estado interno,
+        permitiendo aplicar cambios de código sin reiniciar la terminal ni el proceso.
+        """
+        try:
+            import importlib
+            import sys
+
+            # 1. Recargar módulos clave de herramientas y configuración
+            target_modules = [
+                'jev.tools.office_tools',
+                'jev.tools.web',
+                'jev.tools.github',
+                'jev.tools.filesystem',
+                'jev.tools.code_runner',
+                'jev.tools.image_generator',
+                'jev.tools.dynamic_loader',
+                'jev.tools.base',
+                'jev.tools',
+                'jev.config',
+            ]
+            reloaded = []
+            for mod_name in target_modules:
+                if mod_name in sys.modules:
+                    try:
+                        importlib.reload(sys.modules[mod_name])
+                        reloaded.append(mod_name)
+                    except Exception as mod_err:
+                        print(f"[HotReload] Error recargando {mod_name}: {mod_err}")
+
+            # 2. Reconstruir el registro de herramientas del agente
+            from jev.tools import build_default_registry
+            reg, mgr = build_default_registry()
+            if hasattr(self, '_agent') and self._agent:
+                self._agent.registry = reg
+                self._agent.dynamic_manager = mgr
+
+            # 3. Limpiar estado de ejecución en progreso si lo había
+            self._tool_in_progress = False
+            self._current_task = ""
+
+            return {
+                "success": True,
+                "reloaded": reloaded,
+                "tools_count": len(reg.list_tools()) if reg else 0,
+                "message": f"Agente actualizado: {len(reloaded)} módulos recargados con éxito."
+            }
         except Exception as e:
             return {"success": False, "error": str(e)}
 

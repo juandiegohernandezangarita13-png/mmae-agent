@@ -363,16 +363,15 @@
     .project-row {
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: space-between;
+      gap: 6px;
       padding: 6px 10px;
       border-radius: var(--radius-sm);
       color: var(--text-muted);
       font-size: 12.5px;
       cursor: pointer;
       transition: background 0.12s, color 0.12s;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      position: relative;
     }
 
     .project-row:hover {
@@ -385,9 +384,31 @@
       font-weight: 500;
     }
 
+    .project-row-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    .project-row-actions {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .project-row:hover .project-row-actions,
+    .project-row.active .project-row-actions {
+      display: flex;
+    }
+
     .project-children {
       margin-left: 12px;
-      padding-left: 10px;
+      padding-left: 8px;
       border-left: 1px solid rgba(255, 255, 255, 0.06);
       display: flex;
       flex-direction: column;
@@ -398,12 +419,13 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 10px;
+      padding: 5px 8px;
       border-radius: var(--radius-sm);
       color: var(--text-muted);
       font-size: 12px;
       cursor: pointer;
       transition: background 0.12s, color 0.12s;
+      position: relative;
     }
 
     .conv-item:hover {
@@ -429,6 +451,45 @@
       color: var(--text-dim);
       margin-left: 6px;
       flex-shrink: 0;
+    }
+
+    .conv-item:hover .conv-time {
+      display: none;
+    }
+
+    .conv-actions {
+      display: none;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+      margin-left: 4px;
+    }
+
+    .conv-item:hover .conv-actions,
+    .conv-item.active .conv-actions {
+      display: flex;
+    }
+
+    .btn-action-icon {
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .btn-action-icon:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: var(--text-main);
+    }
+
+    .btn-action-icon.danger:hover {
+      background: rgba(239, 68, 68, 0.22);
+      color: #ef4444;
     }
 
     /* Sidebar Footer (Settings) */
@@ -506,6 +567,41 @@
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+
+    .btn-refresh-agent {
+      background: #2563EB;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: var(--radius-sm);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.35);
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+    }
+
+    .btn-refresh-agent:hover {
+      background: #1D4ED8;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-refresh-agent:active {
+      transform: translateY(0);
+    }
+
+    .btn-refresh-agent.spinning svg {
+      animation: spinAgent 0.8s linear infinite;
+    }
+
+    @keyframes spinAgent {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     .btn-ide {
@@ -1905,81 +2001,17 @@
       <div class="projects-header">
         <span>Projects</span>
         <div class="projects-actions">
-          <div class="projects-action-btn" title="Filtrar">
+          <div class="projects-action-btn" id="btnFilterProjects" title="Filtrar">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
           </div>
-          <div class="projects-action-btn" title="Nuevo proyecto">
+          <div class="projects-action-btn" id="btnNewProject" title="Nuevo proyecto">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
           </div>
         </div>
       </div>
 
-      <div class="projects-scroll">
-        <!-- Proyecto Radar de Bounties -->
-        <div class="project-folder">
-          <div class="project-row" onclick="switchProject('Radar de Bounties sin...')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-            <span>Radar de Bounties sin...</span>
-          </div>
-          <div class="project-children">
-            <div class="conv-item" onclick="switchConversation('Búsqueda Rápida De Boun...')">
-              <span class="conv-title">Búsqueda Rápida De Boun...</span>
-              <span class="conv-time">20h</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Proyecto Activo: IA_Automejorable -->
-        <div class="project-folder">
-          <div class="project-row active" onclick="switchProject('IA_Automejorable')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" color="#60A5FA"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-            <span>IA_Automejorable</span>
-          </div>
-          <div class="project-children">
-            <div class="conv-item active" id="convItemActive" onclick="switchConversation('Nueva Sesión')">
-              <span class="conv-title" id="sidebarConvTitle">Nueva Sesión</span>
-              <span class="conv-time">activo</span>
-            </div>
-            <div class="conv-item" onclick="switchConversation('Perfumes Nitro y Creación Visual')">
-              <span class="conv-title">Perfumes Nitro y Creación...</span>
-              <span class="conv-time">1h</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Demás Proyectos -->
-        <div class="project-row" onclick="switchProject('bable')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-          <span>bable</span>
-        </div>
-        <div class="project-row" onclick="switchProject('clases de espanol')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-          <span>clases de espanol</span>
-        </div>
-        <div class="project-row" onclick="switchProject('app para compra')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-          <span>app para compra</span>
-        </div>
-        <div class="project-row" onclick="switchProject('local-notebook-vault')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-          <span>local-notebook-vault</span>
-        </div>
-        <div class="project-row" onclick="switchProject('RadioCafe-WS')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-          <span>RadioCafe-WS</span>
-        </div>
-        <div class="project-row" onclick="switchProject('ourmuseo')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-          <span>ourmuseo</span>
-        </div>
-        <div class="project-row" onclick="switchProject('circulo')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-          <span>circulo</span>
-        </div>
-        <div class="project-row" onclick="switchProject('apps adove')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-          <span>apps adove</span>
-        </div>
+      <div class="projects-scroll" id="projectsTreeContainer">
+        <!-- Árbol dinámico de proyectos y conversaciones -->
       </div>
 
       <div class="sidebar-footer" id="btnSettings">
@@ -2008,6 +2040,13 @@
         </div>
 
         <div class="chat-header-actions">
+          <button class="btn-refresh-agent" id="btnRefreshAgent" title="Actualizar código del agente y recargar interfaz sin reiniciar terminal">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+            </svg>
+            <span>Actualizar Agente</span>
+          </button>
+
           <button class="btn-ide" id="btnOpenIDE" title="Abrir espacio de trabajo directamente en VS Code (code .)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
             <span>Open IDE</span>
@@ -2666,7 +2705,8 @@
         document.getElementById("chatTitle").textContent = "Customizations";
       } else {
         chatView.style.display = "flex";
-        document.getElementById("chatTitle").textContent = document.getElementById("sidebarConvTitle").textContent;
+        var activeConv = (conversationsData && conversationsData.length) ? conversationsData.find(function (c) { return c.id === currentConvId; }) : null;
+        document.getElementById("chatTitle").textContent = activeConv ? activeConv.title : "Nueva Sesión";
       }
     }
 
@@ -3128,42 +3168,521 @@
       });
     }
 
+    // ------------------------------------------------------------------
+    // GESTIÓN DE PROYECTOS Y CONVERSACIONES (PERSISTENCIA Y ACCIONES)
+    // ------------------------------------------------------------------
+    var DEFAULT_PROJECTS = [
+      { id: "IA_Automejorable", name: "IA_Automejorable" },
+      { id: "Radar de Bounties sin...", name: "Radar de Bounties sin..." },
+      { id: "bable", name: "bable" },
+      { id: "clases de espanol", name: "clases de espanol" },
+      { id: "app para compra", name: "app para compra" },
+      { id: "local-notebook-vault", name: "local-notebook-vault" },
+      { id: "RadioCafe-WS", name: "RadioCafe-WS" },
+      { id: "ourmuseo", name: "ourmuseo" },
+      { id: "circulo", name: "circulo" },
+      { id: "apps adove", name: "apps adove" }
+    ];
+
+    var DEFAULT_CONVERSATIONS = [
+      {
+        id: "conv_ia_1",
+        projectId: "IA_Automejorable",
+        title: "GitHub Agent vs Coucou A...",
+        time: "2h",
+        pinned: true,
+        html: `
+          <div class="message-row">
+            <div class="user-bubble-wrap">
+              <div class="user-bubble">hagamosle la tarea de ajuste fino</div>
+            </div>
+          </div>
+          <div class="message-row">
+            <div class="assistant-bubble">
+              <p>Tarea completada. El informe técnico ha sido generado y guardado en <code>data/fine_tuning/INFORME_AJUSTE_FINO.md</code> con todas las especificaciones de hardware, LoRA y el comando de exportación GGUF.</p>
+              <div class="tool-call-banner">
+                <span class="tool-badge">soup_fine_tuner</span>
+                <span class="tool-args">{ "action": "status" }</span>
+                <span class="tool-status">✓ Éxito</span>
+              </div>
+              <p><strong>¿Qué te gustaría hacer ahora?</strong></p>
+              <ul>
+                <li><strong>Opción 1:</strong> Ponerlo a ejecutar el entrenamiento real (<code>action: train</code>), lo que descargará el modelo base y entrenará los adaptadores LoRA en segundo plano.</li>
+                <li><strong>Opción 2:</strong> Volver a poner a prueba su capacidad de desarrollo y pedirle que resuelva el benchmark del motor de colas concurrentes con SQLite.</li>
+              </ul>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: "conv_ia_2",
+        projectId: "IA_Automejorable",
+        title: "Perfumes Nitro y Creación...",
+        time: "1h",
+        pinned: false,
+        html: `
+          <div class="message-row">
+            <div class="user-bubble-wrap">
+              <div class="user-bubble">crea una imagen de perfumes puede ser cualquiera de nitro por ejemplo</div>
+            </div>
+          </div>
+          <div class="message-row">
+            <div class="assistant-bubble">
+              <div class="thought-block open">
+                <div class="thought-header">
+                  <div class="thought-title-group">
+                    <span class="thought-icon">💡</span>
+                    <span>Pensamiento y Deliberación OpenMythos</span>
+                  </div>
+                </div>
+                <div class="thought-content">
+                  <p>Iniciando generación de perfume Nitro con iluminación de estudio y alta resolución...</p>
+                </div>
+              </div>
+              <div class="tool-call-banner">
+                <span class="tool-badge">skill_image_generator</span>
+                <span class="tool-args">{"prompt": "Un frasco de perfume de la marca Nitro, iluminado profesional...", "width": 1024, "height": 1024}</span>
+                <span class="tool-status">✓ Éxito</span>
+              </div>
+              <p>✓ Imagen generada y cargada en el visor interactivo de Bable.</p>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: "conv_bounties_1",
+        projectId: "Radar de Bounties sin...",
+        title: "Búsqueda Rápida De Boun...",
+        time: "20h",
+        pinned: false,
+        html: `
+          <div class="message-row">
+            <div class="assistant-bubble">
+              <p><strong>Radar de Bounties activo.</strong></p>
+              <p>Explorando repositorios y recompensas con Groq LPU (526 tokens/s).</p>
+            </div>
+          </div>
+        `
+      }
+    ];
+
+    var projectsData = [];
+    var conversationsData = [];
+    var currentConvId = "";
+    var currentProjectId = "IA_Automejorable";
+
+    function initProjectsAndConversations() {
+      try {
+        var storedProjects = localStorage.getItem("bable_projects");
+        projectsData = storedProjects ? JSON.parse(storedProjects) : DEFAULT_PROJECTS;
+
+        var storedConvs = localStorage.getItem("bable_conversations");
+        conversationsData = storedConvs ? JSON.parse(storedConvs) : DEFAULT_CONVERSATIONS;
+
+        currentConvId = localStorage.getItem("bable_active_conv_id") || "conv_ia_1";
+        currentProjectId = localStorage.getItem("bable_active_project_id") || "IA_Automejorable";
+      } catch (e) {
+        console.warn("Error leyendo localStorage, usando valores por defecto:", e);
+        projectsData = DEFAULT_PROJECTS;
+        conversationsData = DEFAULT_CONVERSATIONS;
+        currentConvId = "conv_ia_1";
+        currentProjectId = "IA_Automejorable";
+      }
+
+      var activeConv = conversationsData.find(function (c) { return c.id === currentConvId; });
+      if (!activeConv) {
+        currentConvId = conversationsData[0] ? conversationsData[0].id : "";
+      }
+
+      if (currentConvId) {
+        var conv = conversationsData.find(function (c) { return c.id === currentConvId; });
+        if (conv) {
+          currentProjectId = conv.projectId;
+          if (conv.html && conv.html.trim().length > 0) {
+            chatStream.innerHTML = conv.html;
+          }
+          var chatTitleEl = document.getElementById("chatTitle");
+          if (chatTitleEl) chatTitleEl.textContent = conv.title;
+          var breadcrumbEl = document.getElementById("breadcrumbProject");
+          if (breadcrumbEl) breadcrumbEl.textContent = conv.projectId;
+        }
+      }
+
+      renderProjectsTree();
+    }
+
+    function saveCurrentConversationState() {
+      if (!currentConvId) return;
+      var conv = conversationsData.find(function (c) { return c.id === currentConvId; });
+      if (conv && chatStream) {
+        conv.html = chatStream.innerHTML;
+      }
+      try {
+        localStorage.setItem("bable_conversations", JSON.stringify(conversationsData));
+        localStorage.setItem("bable_projects", JSON.stringify(projectsData));
+        localStorage.setItem("bable_active_conv_id", currentConvId);
+        localStorage.setItem("bable_active_project_id", currentProjectId);
+      } catch (e) {
+        console.warn("Error guardando en localStorage:", e);
+      }
+    }
+
+    function renderProjectsTree() {
+      var container = document.getElementById("projectsTreeContainer");
+      if (!container) return;
+
+      container.innerHTML = "";
+
+      projectsData.forEach(function (project) {
+        var isActProject = (project.id === currentProjectId);
+        var folderDiv = document.createElement("div");
+        folderDiv.className = "project-folder";
+
+        var rowDiv = document.createElement("div");
+        rowDiv.className = "project-row" + (isActProject ? " active" : "");
+        rowDiv.onclick = function (e) {
+          if (e.target.closest(".project-actions") || e.target.closest(".btn-action-icon")) return;
+          switchProject(project.id);
+        };
+
+        var leftDiv = document.createElement("div");
+        leftDiv.className = "project-row-left";
+        leftDiv.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="${isActProject ? '#60A5FA' : 'none'}" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span title="${escapeHtml(project.name)}">${escapeHtml(project.name)}</span>
+        `;
+
+        var actionsDiv = document.createElement("div");
+        actionsDiv.className = "project-row-actions";
+        actionsDiv.innerHTML = `
+          <span class="btn-action-icon" title="Nueva conversación en este proyecto" onclick="createNewConversation('${project.id}', event)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </span>
+          <span class="btn-action-icon" title="Opciones de proyecto" onclick="showProjectMenu('${project.id}', event)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+          </span>
+        `;
+
+        rowDiv.appendChild(leftDiv);
+        rowDiv.appendChild(actionsDiv);
+        folderDiv.appendChild(rowDiv);
+
+        var convs = conversationsData.filter(function (c) {
+          return c.projectId === project.id;
+        });
+
+        if (convs.length > 0) {
+          var childrenDiv = document.createElement("div");
+          childrenDiv.className = "project-children";
+
+          convs.forEach(function (conv) {
+            var isActConv = (conv.id === currentConvId);
+            var convEl = document.createElement("div");
+            convEl.className = "conv-item" + (isActConv ? " active" : "");
+            convEl.onclick = function (e) {
+              if (e.target.closest(".conv-actions") || e.target.closest(".btn-action-icon")) return;
+              switchConversation(conv.id);
+            };
+
+            convEl.innerHTML = `
+              <span class="conv-title" title="${escapeHtml(conv.title)}">${escapeHtml(conv.title)}</span>
+              <span class="conv-time">${isActConv ? 'activo' : escapeHtml(conv.time || '1h')}</span>
+              <div class="conv-actions">
+                <span class="btn-action-icon" title="Opciones" onclick="showConvMenu('${conv.id}', event)">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                </span>
+                <span class="btn-action-icon" title="${conv.pinned ? 'Desfijar' : 'Fijar'}" onclick="pinConversation('${conv.id}', event)">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="${conv.pinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-2l-2-2V5h1V3H6v2h1v8l-2 2v2z"></path>
+                  </svg>
+                </span>
+                <span class="btn-action-icon danger" title="Eliminar conversación" onclick="deleteConversation('${conv.id}', event)">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </span>
+              </div>
+            `;
+            childrenDiv.appendChild(convEl);
+          });
+
+          folderDiv.appendChild(childrenDiv);
+        }
+
+        container.appendChild(folderDiv);
+      });
+    }
+
     function switchProject(projectName) {
-      document.getElementById("breadcrumbProject").textContent = projectName;
-      showView("chat");
-      showTemporaryNotice("Proyecto activo: " + projectName);
+      saveCurrentConversationState();
+      currentProjectId = projectName;
+
+      var projectConvs = conversationsData.filter(function (c) { return c.projectId === projectName; });
+      if (projectConvs.length > 0) {
+        switchConversation(projectConvs[0].id);
+      } else {
+        createNewConversation(projectName);
+      }
     }
 
-    function switchConversation(convTitle) {
-      document.getElementById("sidebarConvTitle").textContent = convTitle;
-      document.getElementById("chatTitle").textContent = convTitle;
+    function switchConversation(convId) {
+      if (currentConvId === convId) {
+        showView("chat");
+        return;
+      }
+
+      saveCurrentConversationState();
+
+      currentConvId = convId;
+      var conv = conversationsData.find(function (c) { return c.id === convId; });
+      if (!conv) return;
+
+      currentProjectId = conv.projectId;
+
+      if (conv.html && conv.html.trim().length > 0) {
+        chatStream.innerHTML = conv.html;
+      } else {
+        chatStream.innerHTML = `
+          <div class="message-row">
+            <div class="assistant-bubble">
+              <p><strong>✨ ${escapeHtml(conv.title)}</strong></p>
+              <p>Proyecto: <strong>${escapeHtml(conv.projectId)}</strong> | Motor: <strong>Groq LPU (526 t/s)</strong>.</p>
+              <p>¿Qué objetivo deseas programar o crear hoy?</p>
+            </div>
+          </div>
+        `;
+        conv.html = chatStream.innerHTML;
+      }
+
+      var chatTitleEl = document.getElementById("chatTitle");
+      if (chatTitleEl) chatTitleEl.textContent = conv.title;
+      var breadcrumbEl = document.getElementById("breadcrumbProject");
+      if (breadcrumbEl) breadcrumbEl.textContent = conv.projectId;
+
+      renderProjectsTree();
       showView("chat");
+      scrollToBottom();
+      showTemporaryNotice("Conversación: " + conv.title);
     }
 
-    // ------------------------------------------------------------------
-    // NUEVA CONVERSACIÓN
-    // ------------------------------------------------------------------
-    function startNewConversation() {
+    function createNewConversation(targetProjectId, event) {
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+      saveCurrentConversationState();
+
+      var proj = targetProjectId || currentProjectId || "IA_Automejorable";
+      var newId = "conv_" + Date.now();
+      var newConv = {
+        id: newId,
+        projectId: proj,
+        title: "Nueva Sesión",
+        time: "activo",
+        pinned: false,
+        html: `
+          <div class="message-row">
+            <div class="assistant-bubble">
+              <p><strong>✨ Nueva conversación iniciada en Bable.</strong></p>
+              <p>Proyecto: <strong>${escapeHtml(proj)}</strong> | Entorno listo con <strong>Groq LPU (526 tokens/s)</strong> y herramientas de desarrollo y generación visual activas.</p>
+              <p>¿Qué objetivo deseas programar o crear hoy?</p>
+            </div>
+          </div>
+        `
+      };
+
+      conversationsData.forEach(function (c) {
+        if (c.projectId === proj && c.time === "activo") c.time = "ahora";
+      });
+
+      conversationsData.unshift(newConv);
+
       if (window.pywebview && window.pywebview.api && window.pywebview.api.new_conversation) {
         window.pywebview.api.new_conversation();
       }
-      chatStream.innerHTML = `
-        <div class="message-row">
-          <div class="assistant-bubble">
-            <p><strong>✨ Nueva conversación iniciada en Bable.</strong></p>
-            <p>Entorno listo con <strong>Groq LPU (526 tokens/s)</strong> y herramientas de desarrollo y generación visual activas.</p>
-            <p>¿Qué objetivo deseas programar o crear hoy?</p>
-          </div>
-        </div>
-      `;
-      switchConversation("Nueva Sesión");
+
+      currentConvId = newId;
+      currentProjectId = proj;
+
+      chatStream.innerHTML = newConv.html;
+      var chatTitleEl = document.getElementById("chatTitle");
+      if (chatTitleEl) chatTitleEl.textContent = newConv.title;
+      var breadcrumbEl = document.getElementById("breadcrumbProject");
+      if (breadcrumbEl) breadcrumbEl.textContent = newConv.projectId;
+
+      saveCurrentConversationState();
+      renderProjectsTree();
+
+      showView("chat");
       promptInput.value = "";
       promptInput.style.height = "auto";
       promptInput.focus();
-      showTemporaryNotice("Nueva conversación iniciada");
+      showTemporaryNotice("Nueva conversación creada en " + proj);
     }
 
-    btnNewConversation.addEventListener("click", startNewConversation);
+    function deleteConversation(convId, event) {
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+      var conv = conversationsData.find(function (c) { return c.id === convId; });
+      var title = conv ? conv.title : "esta conversación";
+
+      if (!confirm("¿Eliminar la conversación \"" + title + "\"?")) {
+        return;
+      }
+
+      var idx = conversationsData.findIndex(function (c) { return c.id === convId; });
+      if (idx !== -1) {
+        conversationsData.splice(idx, 1);
+      }
+
+      if (currentConvId === convId) {
+        var remainingInProject = conversationsData.filter(function (c) { return c.projectId === currentProjectId; });
+        if (remainingInProject.length > 0) {
+          switchConversation(remainingInProject[0].id);
+        } else if (conversationsData.length > 0) {
+          switchConversation(conversationsData[0].id);
+        } else {
+          createNewConversation(currentProjectId);
+        }
+      } else {
+        saveCurrentConversationState();
+        renderProjectsTree();
+      }
+      showTemporaryNotice("Conversación eliminada");
+    }
+
+    function showConvMenu(convId, event) {
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+      var conv = conversationsData.find(function (c) { return c.id === convId; });
+      if (!conv) return;
+
+      var choice = prompt("Opciones para \"" + conv.title + "\":\n1: Renombrar conversación\n2: " + (conv.pinned ? "Desfijar" : "Fijar (Pin)") + " conversación\n3: Eliminar conversación\n(Escribe 1, 2 o 3):", "1");
+      if (choice === "1") {
+        renameConversation(convId);
+      } else if (choice === "2") {
+        pinConversation(convId);
+      } else if (choice === "3") {
+        deleteConversation(convId);
+      }
+    }
+
+    function renameConversation(convId, event) {
+      if (event) event.stopPropagation();
+      var conv = conversationsData.find(function (c) { return c.id === convId; });
+      if (!conv) return;
+      var newName = prompt("Ingresa el nuevo título para esta conversación:", conv.title);
+      if (newName && newName.trim().length > 0) {
+        conv.title = newName.trim();
+        if (currentConvId === convId) {
+          document.getElementById("chatTitle").textContent = conv.title;
+        }
+        saveCurrentConversationState();
+        renderProjectsTree();
+        showTemporaryNotice("Conversación renombrada a: " + conv.title);
+      }
+    }
+
+    function pinConversation(convId, event) {
+      if (event) event.stopPropagation();
+      var conv = conversationsData.find(function (c) { return c.id === convId; });
+      if (!conv) return;
+      conv.pinned = !conv.pinned;
+      saveCurrentConversationState();
+      renderProjectsTree();
+      showTemporaryNotice(conv.pinned ? "📌 Conversación fijada" : "Conversación desfijada");
+    }
+
+    function showProjectMenu(projectId, event) {
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+      var choice = prompt("Opciones para el proyecto \"" + projectId + "\":\n1: Nueva conversación aquí\n2: Renombrar proyecto\n(Escribe 1 o 2):", "1");
+      if (choice === "1") {
+        createNewConversation(projectId);
+      } else if (choice === "2") {
+        var newName = prompt("Nuevo nombre para el proyecto:", projectId);
+        if (newName && newName.trim().length > 0) {
+          var clean = newName.trim();
+          var proj = projectsData.find(function (p) { return p.id === projectId; });
+          if (proj) {
+            proj.id = clean;
+            proj.name = clean;
+          }
+          conversationsData.forEach(function (c) {
+            if (c.projectId === projectId) c.projectId = clean;
+          });
+          if (currentProjectId === projectId) {
+            currentProjectId = clean;
+            document.getElementById("breadcrumbProject").textContent = clean;
+          }
+          saveCurrentConversationState();
+          renderProjectsTree();
+          showTemporaryNotice("Proyecto renombrado");
+        }
+      }
+    }
+
+    btnNewConversation.addEventListener("click", function () {
+      createNewConversation(currentProjectId);
+    });
+
+    var btnNewProject = document.getElementById("btnNewProject");
+    if (btnNewProject) {
+      btnNewProject.addEventListener("click", function () {
+        var projName = prompt("Nombre del nuevo proyecto / carpeta:", "Nuevo Proyecto");
+        if (projName && projName.trim().length > 0) {
+          var cleanName = projName.trim();
+          if (!projectsData.some(function (p) { return p.id === cleanName; })) {
+            projectsData.push({ id: cleanName, name: cleanName });
+          }
+          createNewConversation(cleanName);
+        }
+      });
+    }
+
+    // ------------------------------------------------------------------
+    // BOTÓN ACTUALIZAR AGENTE (HOT-RELOAD EN VIVO)
+    // ------------------------------------------------------------------
+    var btnRefreshAgent = document.getElementById("btnRefreshAgent");
+    if (btnRefreshAgent) {
+      btnRefreshAgent.addEventListener("click", function () {
+        btnRefreshAgent.classList.add("spinning");
+        showTemporaryNotice("🔄 Actualizando código del agente...");
+        saveCurrentConversationState();
+
+        if (window.pywebview && window.pywebview.api && window.pywebview.api.reload_agent) {
+          window.pywebview.api.reload_agent().then(function (res) {
+            btnRefreshAgent.classList.remove("spinning");
+            if (res && res.success) {
+              showTemporaryNotice("✓ " + (res.message || "Agente actualizado exitosamente"));
+              setTimeout(function () {
+                window.location.reload();
+              }, 400);
+            } else {
+              showTemporaryNotice("⚠️ " + ((res && res.error) || "Error al recargar agente"));
+              setTimeout(function () {
+                window.location.reload();
+              }, 800);
+            }
+          }).catch(function (err) {
+            btnRefreshAgent.classList.remove("spinning");
+            console.error("Error llamando reload_agent:", err);
+            window.location.reload();
+          });
+        } else {
+          setTimeout(function () {
+            btnRefreshAgent.classList.remove("spinning");
+            window.location.reload();
+          }, 350);
+        }
+      });
+    }
 
     // ------------------------------------------------------------------
     // OPEN IDE (VS CODE DIRECTO)
@@ -3240,6 +3759,14 @@
     }
 
     function appendUserMessage(text) {
+      var conv = conversationsData.find(function (c) { return c.id === currentConvId; });
+      if (conv && (conv.title === "Nueva Sesión" || conv.title === "Nueva conversación")) {
+        conv.title = text.slice(0, 24).trim() + (text.length > 24 ? "..." : "");
+        var chatTitleEl = document.getElementById("chatTitle");
+        if (chatTitleEl) chatTitleEl.textContent = conv.title;
+        renderProjectsTree();
+      }
+
       var row = document.createElement("div");
       row.className = "message-row";
       row.innerHTML = `
@@ -3249,6 +3776,7 @@
       `;
       chatStream.appendChild(row);
       scrollToBottom();
+      saveCurrentConversationState();
     }
 
     function appendAssistantMessage(text) {
@@ -3268,6 +3796,7 @@
       `;
       chatStream.appendChild(row);
       scrollToBottom();
+      saveCurrentConversationState();
     }
 
     function scrollToBottom() {
@@ -3722,6 +4251,15 @@
       appendAssistantMessage(finalAnswer);
       setWorking(false);
     };
+
+    // Inicializar gestor multi-sesión de proyectos y conversaciones
+    document.addEventListener("DOMContentLoaded", function () {
+      initProjectsAndConversations();
+    });
+    // Llamada directa de respaldo en caso de que DOMContentLoaded ya haya ocurrido
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+      initProjectsAndConversations();
+    }
   </script>
 </body>
 </html>
