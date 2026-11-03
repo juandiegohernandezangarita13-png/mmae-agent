@@ -271,12 +271,15 @@
       align-items: center;
       gap: 8px;
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
     }
 
     .btn-new-conversation:hover {
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.08);
       border-color: var(--border-focus);
+    }
+    .btn-new-conversation:active {
+      transform: scale(0.98);
     }
 
     /* Elementos Principales (Automations, Customizations) */
@@ -527,23 +530,55 @@
     }
 
     .btn-sidecar-toggle {
-      width: 28px;
-      height: 28px;
       border-radius: var(--radius-sm);
-      background: transparent;
-      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
       color: var(--text-muted);
       cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: center;
-      transition: background 0.15s, color 0.15s;
+      gap: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
 
     .btn-sidecar-toggle:hover, .btn-sidecar-toggle.active {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-main);
-      border-color: var(--border-subtle);
+      background: rgba(37, 99, 235, 0.15);
+      color: #60a5fa;
+      border-color: rgba(37, 99, 235, 0.4);
+    }
+
+    /* Pestaña flotante de reapertura del Sidecar cuando está plegado */
+    .sidecar-dock-tab {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #1e2024;
+      border: 1px solid var(--border-medium);
+      border-right: none;
+      border-radius: 8px 0 0 8px;
+      padding: 12px 6px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      z-index: 95;
+      color: #60a5fa;
+      font-size: 11px;
+      font-weight: 600;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      box-shadow: -4px 0 16px rgba(0, 0, 0, 0.55);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .sidecar-dock-tab:hover {
+      background: #252830;
+      color: #ffffff;
     }
 
     /* Message Stream */
@@ -1106,6 +1141,31 @@
       color: var(--accent-red);
     }
 
+    /* Notificación flotante temporal */
+    .toast-notice {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2563eb;
+      color: #ffffff;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 9999;
+      display: none;
+      animation: fadeInOut 2.5s forwards;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translate(-50%, 10px); }
+      15% { opacity: 1; transform: translate(-50%, 0); }
+      85% { opacity: 1; transform: translate(-50%, 0); }
+      100% { opacity: 0; transform: translate(-50%, -10px); }
+    }
+
     /* ==================================================================
        SPLITTER DIVIDER (RESIZABLE)
        ================================================================== */
@@ -1134,14 +1194,13 @@
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
-      transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), margin-right 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
       z-index: 80;
     }
 
     .browser-sidecar.collapsed {
-      margin-right: -100%;
-      display: none;
+      display: none !important;
     }
 
     /* Tab bar */
@@ -1532,7 +1591,7 @@
               <path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13.5H5.5L12 6.5z"/>
             </svg>
           </div>
-          <div class="icon-nav-btn" id="sidebarToggleBtn" title="Ocultar barra lateral">
+          <div class="icon-nav-btn" id="sidebarToggleBtn" title="Ocultar barra lateral (Ctrl+\)">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2"></rect>
               <line x1="9" y1="3" x2="9" y2="21"></line>
@@ -1554,7 +1613,7 @@
       </div>
 
       <div class="sidebar-action-wrap">
-        <button class="btn-new-conversation" id="btnNewConversation">
+        <button class="btn-new-conversation" id="btnNewConversation" title="Iniciar nueva conversación limpia">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           <span>New Conversation</span>
         </button>
@@ -1605,9 +1664,9 @@
             <span>IA_Automejorable</span>
           </div>
           <div class="project-children">
-            <div class="conv-item active">
-              <span class="conv-title">GitHub Agent vs Coucou A...</span>
-              <span class="conv-time">2h</span>
+            <div class="conv-item active" id="convItemActive">
+              <span class="conv-title" id="sidebarConvTitle">GitHub Agent vs Coucou A...</span>
+              <span class="conv-time">activo</span>
             </div>
           </div>
         </div>
@@ -1667,23 +1726,31 @@
         </div>
 
         <div class="chat-header-actions">
-          <button class="btn-ide" id="btnOpenIDE" title="Abrir en editor de código">
+          <button class="btn-ide" id="btnOpenIDE" title="Abrir espacio de trabajo directamente en VS Code (code .)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
             <span>Open IDE</span>
           </button>
 
-          <button class="btn-sidecar-toggle active" id="btnToggleSidecar" title="Alternar Navegador Sidecar (Ctrl+B)">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <button class="btn-sidecar-toggle active" id="btnToggleSidecar" title="Mostrar/Ocultar Navegador Sidecar (Ctrl+B)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2"></rect>
               <line x1="15" y1="3" x2="15" y2="21"></line>
             </svg>
+            <span>Navegador</span>
           </button>
         </div>
       </header>
 
+      <!-- Pestaña lateral cuando el Sidecar está plegado para volver a desplegarlo con un clic -->
+      <div class="sidecar-dock-tab" id="sidecarDockTab" title="Desplegar Navegador Web (Ctrl+B)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>Navegador Web</span>
+      </div>
+
       <!-- Flujo de Mensajes -->
       <div class="chat-stream" id="chatStream">
-        <!-- Mensaje de inicio con el resultado idéntico de la captura -->
         <div class="message-row">
           <div class="user-bubble-wrap">
             <div class="user-thumbnail-preview" title="Imagen adjunta">
@@ -1825,12 +1892,16 @@
       <!-- Pestañas de Navegación -->
       <div class="browser-tab-bar">
         <div class="browser-tabs-row" id="browserTabsRow">
-          <div class="browser-tab" id="tabGroq" data-url="https://console.groq.com/keys">
+          <div class="browser-tab active" id="tabSearchHome" data-url="http://127.0.0.1:8765/">
+            <span>🌐 Navegador Web</span>
+            <span class="browser-tab-close">✕</span>
+          </div>
+          <div class="browser-tab" id="tabGroq" data-url="http://127.0.0.1:8765/browse?url=https%3A%2F%2Fconsole.groq.com%2Fkeys">
             <span>🔥 API Keys - GroqCloud</span>
             <span class="browser-tab-close">✕</span>
           </div>
-          <div class="browser-tab active" id="tabAIStudio" data-url="https://aistudio.google.com/welcome">
-            <span>✨ Google AI Studio | Build with t...</span>
+          <div class="browser-tab" id="tabHackerNews" data-url="http://127.0.0.1:8765/browse?url=https%3A%2F%2Fnews.ycombinator.com">
+            <span>⚡ Hacker News</span>
             <span class="browser-tab-close">✕</span>
           </div>
           <button class="btn-new-tab" id="btnNewBrowserTab" title="Nueva pestaña">+</button>
@@ -1842,7 +1913,7 @@
               <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
             </svg>
           </div>
-          <div class="icon-nav-btn" id="btnSidecarClose" title="Ocultar navegador sidecar">
+          <div class="icon-nav-btn" id="btnSidecarClose" title="Plegar navegador sidecar">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -1853,6 +1924,12 @@
 
       <!-- Barra de Dirección URL & Controles de Navegador -->
       <div class="browser-nav-bar">
+        <button class="browser-nav-btn" id="btnBrowserHome" title="Inicio / Buscador">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </button>
         <button class="browser-nav-btn" id="btnBrowserBack" title="Atrás">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </button>
@@ -1864,26 +1941,26 @@
         </button>
 
         <div class="browser-url-input-wrap">
-          <span class="lock-icon" title="Conexión Segura">
+          <span class="lock-icon" title="Motor Web Desbloqueado">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
           </span>
           <input
             type="text"
             class="browser-url-input"
             id="browserUrlInput"
-            value="https://aistudio.google.com/welcome"
-            placeholder="Introduce URL o término de búsqueda..."
+            value="http://127.0.0.1:8765/"
+            placeholder="Buscar en la web, escribir URL o nombre de sitio (ej: youtube, wikipedia)..."
           />
         </div>
 
-        <button class="browser-nav-btn" id="btnBrowserSnapshot" title="Capturar instantánea web para el agente">
+        <button class="browser-nav-btn" id="btnBrowserSnapshot" title="Inyectar página actual al agente en el chat">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
             <circle cx="12" cy="13" r="4"></circle>
           </svg>
         </button>
 
-        <button class="browser-nav-btn" id="btnBrowserOpenExternal" title="Abrir en navegador externo del sistema (Chrome/Edge)">
+        <button class="browser-nav-btn" id="btnBrowserOpenExternal" title="Abrir en Chrome/Edge externo">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
             <polyline points="15 3 21 3 21 9"></polyline>
@@ -1894,11 +1971,13 @@
 
       <!-- Barra de Marcadores Rápidos -->
       <div class="browser-bookmarks-bar">
-        <div class="bookmark-pill" data-url="https://aistudio.google.com/welcome">✨ Google AI Studio</div>
-        <div class="bookmark-pill" data-url="https://console.groq.com/keys">🔥 GroqCloud Keys</div>
-        <div class="bookmark-pill" data-url="https://openrouter.ai/models">🌐 OpenRouter</div>
-        <div class="bookmark-pill" data-url="https://github.com/juandiegohernandezangarita13-png/mmae-agent">🐙 GitHub Repo</div>
-        <div class="bookmark-pill" data-url="http://localhost:8000">💻 Localhost Preview</div>
+        <div class="bookmark-pill" data-target="http://127.0.0.1:8765/">🔍 Buscar en la Web</div>
+        <div class="bookmark-pill" data-target="https://news.ycombinator.com">⚡ Hacker News</div>
+        <div class="bookmark-pill" data-target="https://es.wikipedia.org">📚 Wikipedia</div>
+        <div class="bookmark-pill" data-target="https://console.groq.com/keys">🔥 GroqCloud Keys</div>
+        <div class="bookmark-pill" data-target="https://aistudio.google.com/welcome">✨ Google AI Studio</div>
+        <div class="bookmark-pill" data-target="https://github.com/juandiegohernandezangarita13-png/mmae-agent">🐙 GitHub Repo</div>
+        <div class="bookmark-pill" data-target="http://localhost:8000">💻 Localhost Preview</div>
       </div>
 
       <!-- Viewport / Iframe con renderizado interactivo -->
@@ -1906,24 +1985,24 @@
         <iframe
           class="browser-iframe"
           id="browserIframe"
-          src="about:blank"
+          src="http://127.0.0.1:8765/"
           sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
         ></iframe>
 
-        <!-- Fallback interactivo para páginas externas protegidas contra X-Frame-Options -->
+        <!-- Fallback interactivo por si el usuario lo requiere -->
         <div class="browser-hub-overlay" id="browserHubOverlay">
           <div class="browser-hub-card">
-            <div style="font-size: 32px;" id="hubIcon">✨</div>
-            <h3 style="color:#ffffff; font-size:16px;" id="hubTitle">Google AI Studio</h3>
+            <div style="font-size: 32px;" id="hubIcon">🌐</div>
+            <h3 style="color:#ffffff; font-size:16px;" id="hubTitle">Navegador Web</h3>
             <p style="font-size:12.5px; color:#9aa0a6;" id="hubDesc">
-              Esta plataforma web protege su entorno contra incrustaciones en marcos. Puedes abrirla directamente con 1-clic en tu navegador predeterminado de Windows o ver tus vistas previas locales.
+              El motor proxy local está listo para explorar páginas web y búsquedas en tiempo real.
             </p>
             <div style="display:flex; gap:10px; width:100%;">
               <button class="btn-launch-ext" id="btnHubLaunchExternal" style="flex:1; justify-content:center;">
-                <span>Abrir en Navegador ↗</span>
+                <span>Abrir Externo ↗</span>
               </button>
               <button class="btn-ide" id="btnHubShowLocal" style="flex:1; justify-content:center;">
-                <span>Ver Previa Local</span>
+                <span>Volver al Inicio</span>
               </button>
             </div>
           </div>
@@ -1932,6 +2011,9 @@
     </aside>
 
   </div>
+
+  <!-- AVISO TOAST FLOTANTE -->
+  <div class="toast-notice" id="toastNotice"></div>
 
   <!-- MODAL DE CONFIGURACIÓN -->
   <div class="modal-backdrop" id="modalSettings">
@@ -1942,11 +2024,15 @@
       </div>
       <div class="modal-body">
         <p><strong>Proveedor LLM Activo:</strong> <span id="cfgActiveProvider" style="color:#60a5fa;">Groq LPU (526 t/s)</span></p>
-        <p><strong>Ajuste Fino LoRA:</strong> 374 muestras reales compiladas en <code>data/fine_tuning/</code>.</p>
+        <p><strong>Ajuste Fino LoRA:</strong> 374 muestras compiladas en <code>data/fine_tuning/</code>.</p>
+        <p><strong>Motor de Navegación:</strong> Proxy Web local activo en puerto 8765 (desbloqueo de iframe).</p>
         <p><strong>QA Security Shield:</strong> Centinelas activos (Protección contra inyección de prompts y verificación sandbox).</p>
-        <div style="margin-top:10px;">
+        <div style="margin-top:10px; display:flex; gap:10px;">
+          <button class="btn-ide" onclick="if(window.pywebview&&window.pywebview.api) window.pywebview.api.open_ide();">
+            💻 Abrir en VS Code
+          </button>
           <button class="btn-ide" onclick="if(window.pywebview&&window.pywebview.api) window.pywebview.api.open_workspace_folder();">
-            📂 Abrir Carpeta del Proyecto
+            📂 Abrir en Explorador
           </button>
         </div>
       </div>
@@ -1959,11 +2045,16 @@
   <script>
     "use strict";
 
+    var PROXY_PORT = 8765;
+    var PROXY_BASE = "http://127.0.0.1:" + PROXY_PORT;
+
     // Elementos DOM
     var chatStream = document.getElementById("chatStream");
     var promptInput = document.getElementById("promptInput");
     var btnSend = document.getElementById("btnSend");
     var btnStop = document.getElementById("btnStop");
+    var btnNewConversation = document.getElementById("btnNewConversation");
+    var btnOpenIDE = document.getElementById("btnOpenIDE");
     var currentModelLabel = document.getElementById("currentModelLabel");
     var titlebarModelBadge = document.getElementById("titlebarModelBadge");
     var modelSelectorPill = document.getElementById("modelSelectorPill");
@@ -1974,24 +2065,32 @@
     var btnToggleSidecar = document.getElementById("btnToggleSidecar");
     var btnSidecarClose = document.getElementById("btnSidecarClose");
     var btnSidecarFullscreen = document.getElementById("btnSidecarFullscreen");
+    var sidecarDockTab = document.getElementById("sidecarDockTab");
     var splitDivider = document.getElementById("splitDivider");
     var browserUrlInput = document.getElementById("browserUrlInput");
     var browserIframe = document.getElementById("browserIframe");
     var browserHubOverlay = document.getElementById("browserHubOverlay");
-    var hubTitle = document.getElementById("hubTitle");
-    var hubDesc = document.getElementById("hubDesc");
-    var hubIcon = document.getElementById("hubIcon");
     var filePickerInput = document.getElementById("filePickerInput");
     var btnAttach = document.getElementById("btnAttach");
     var attachmentBadge = document.getElementById("attachmentBadge");
     var attachmentImg = document.getElementById("attachmentImg");
     var attachmentName = document.getElementById("attachmentName");
     var attachmentRemoveBtn = document.getElementById("attachmentRemoveBtn");
+    var toastNotice = document.getElementById("toastNotice");
 
     var currentThoughtBlock = null;
     var attachedImageBase64 = null;
     var isSidecarFullscreen = false;
     var isDraggingSplitter = false;
+
+    // Mostrar aviso flotante temporal
+    function showTemporaryNotice(text) {
+      toastNotice.textContent = text;
+      toastNotice.style.display = "block";
+      setTimeout(function () {
+        toastNotice.style.display = "none";
+      }, 2500);
+    }
 
     // Auto-ajuste de altura del input
     promptInput.addEventListener("input", function () {
@@ -2014,6 +2113,51 @@
         window.pywebview.api.stop_agent();
       }
       setWorking(false);
+    });
+
+    // ------------------------------------------------------------------
+    // 1. NUEVA CONVERSACIÓN (FUNCIONAMIENTO COMPLETO)
+    // ------------------------------------------------------------------
+    function startNewConversation() {
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.new_conversation) {
+        window.pywebview.api.new_conversation();
+      }
+      chatStream.innerHTML = `
+        <div class="message-row">
+          <div class="assistant-bubble">
+            <p><strong>✨ Nueva conversación iniciada.</strong></p>
+            <p>Entorno listo con <strong>Groq LPU (526 tokens/s)</strong> y herramientas de desarrollo autónomo activas.</p>
+            <p>¿Qué objetivo deseas programar o investigar hoy?</p>
+          </div>
+        </div>
+      `;
+      document.getElementById("chatTitle").textContent = "Nueva Sesión";
+      document.getElementById("sidebarConvTitle").textContent = "Nueva Sesión";
+      promptInput.value = "";
+      promptInput.style.height = "auto";
+      promptInput.focus();
+      showTemporaryNotice("Nueva conversación iniciada");
+    }
+
+    btnNewConversation.addEventListener("click", startNewConversation);
+
+    // ------------------------------------------------------------------
+    // 2. OPEN IDE (VS CODE DIRECTO)
+    // ------------------------------------------------------------------
+    btnOpenIDE.addEventListener("click", function () {
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.open_ide) {
+        window.pywebview.api.open_ide().then(function (res) {
+          if (res && res.success) {
+            showTemporaryNotice("Abriendo espacio de trabajo en " + (res.ide || "IDE") + "...");
+          } else if (window.pywebview.api.open_workspace_folder) {
+            window.pywebview.api.open_workspace_folder();
+          }
+        }).catch(function () {
+          if (window.pywebview.api.open_workspace_folder) window.pywebview.api.open_workspace_folder();
+        });
+      } else if (window.pywebview && window.pywebview.api && window.pywebview.api.open_workspace_folder) {
+        window.pywebview.api.open_workspace_folder();
+      }
     });
 
     function setWorking(working) {
@@ -2155,21 +2299,32 @@
     }
 
     // ------------------------------------------------------------------
-    // CONTROL DE SIDEBAR Y SIDECAR BROWSER (DESPLEGABLE / COLLAPSIBLE)
+    // 3. CONTROL DE PLEGADO Y REPLEGADO (COLLAPSIBLE / DESPLEGABLE)
     // ------------------------------------------------------------------
     sidebarToggleBtn.addEventListener("click", function () {
       sidebar.classList.toggle("collapsed");
     });
 
     function toggleBrowserSidecar() {
-      browserSidecar.classList.toggle("collapsed");
-      var isOpen = !browserSidecar.classList.contains("collapsed");
-      btnToggleSidecar.classList.toggle("active", isOpen);
-      splitDivider.style.display = isOpen ? "block" : "none";
+      var isCurrentlyCollapsed = browserSidecar.classList.contains("collapsed");
+      if (isCurrentlyCollapsed) {
+        // Desplegar
+        browserSidecar.classList.remove("collapsed");
+        btnToggleSidecar.classList.add("active");
+        splitDivider.style.display = "block";
+        sidecarDockTab.style.display = "none";
+      } else {
+        // Plegar
+        browserSidecar.classList.add("collapsed");
+        btnToggleSidecar.classList.remove("active");
+        splitDivider.style.display = "none";
+        sidecarDockTab.style.display = "flex";
+      }
     }
 
     btnToggleSidecar.addEventListener("click", toggleBrowserSidecar);
     btnSidecarClose.addEventListener("click", toggleBrowserSidecar);
+    sidecarDockTab.addEventListener("click", toggleBrowserSidecar);
 
     btnSidecarFullscreen.addEventListener("click", function () {
       isSidecarFullscreen = !isSidecarFullscreen;
@@ -2207,43 +2362,53 @@
     });
 
     // ------------------------------------------------------------------
-    // CONTROL DE NAVEGACIÓN EN EL NAVEGADOR SIDECAR
+    // 4. MOTOR DE NAVEGACIÓN Y BÚSQUEDA WEB REAL (SIN BLOQUEO DE IFRAME)
     // ------------------------------------------------------------------
-    function navigateToUrl(url) {
-      url = (url || "").trim();
-      if (!url) return;
-      if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("about:")) {
-        url = "https://" + url;
+    function navigateToUrl(rawInput) {
+      var input = (rawInput || "").trim();
+      if (!input) {
+        input = PROXY_BASE + "/";
       }
-      browserUrlInput.value = url;
 
-      // Determinamos si es una URL con bloqueo X-Frame-Options conocido
-      if (url.includes("aistudio.google.com")) {
-        showBrowserHub("✨", "Google AI Studio", "Plataforma de desarrollo y prototipado con Gemini 2.5 y Groq LPU.", url);
-      } else if (url.includes("console.groq.com")) {
-        showBrowserHub("🔥", "GroqCloud Console", "Consola de administración de claves y métricas de inferencia a 526 t/s.", url);
-      } else {
-        browserHubOverlay.style.display = "none";
-        browserIframe.src = url;
+      var targetIframeUrl = "";
+
+      // 1. Ya apunta al proxy local o localhost
+      if (input.startsWith(PROXY_BASE) || input.startsWith("http://127.0.0.1:" + PROXY_PORT) || input.startsWith("http://localhost:8000")) {
+        targetIframeUrl = input;
+      }
+      // 2. Búsqueda explícita con '?' o texto con espacios o sin punto
+      else if (input.startsWith("?") || input.includes(" ") || (!input.includes(".") && !input.startsWith("http"))) {
+        var query = input.startsWith("?") ? input.substring(1).trim() : input;
+        targetIframeUrl = PROXY_BASE + "/search?q=" + encodeURIComponent(query);
+      }
+      // 3. Atajo para sitios populares sin .com (youtube, github, google, wikipedia)
+      else if (!input.includes(".") && ["youtube", "google", "github", "wikipedia", "reddit"].indexOf(input.toLowerCase()) !== -1) {
+        targetIframeUrl = PROXY_BASE + "/browse?url=" + encodeURIComponent("https://www." + input.toLowerCase() + ".com");
+      }
+      // 4. URL estándar: se enruta a través del proxy desbloqueador
+      else {
+        var fullUrl = input;
+        if (!fullUrl.startsWith("http://") && !fullUrl.startsWith("https://") && !fullUrl.startsWith("about:")) {
+          fullUrl = "https://" + fullUrl;
+        }
+        targetIframeUrl = PROXY_BASE + "/browse?url=" + encodeURIComponent(fullUrl);
+      }
+
+      browserUrlInput.value = input;
+      browserHubOverlay.style.display = "none";
+      browserIframe.src = targetIframeUrl;
+
+      // Asegurar que el sidecar esté desplegado
+      if (browserSidecar.classList.contains("collapsed")) {
+        toggleBrowserSidecar();
       }
     }
 
-    function showBrowserHub(icon, title, desc, url) {
-      hubIcon.textContent = icon;
-      hubTitle.textContent = title;
-      hubDesc.textContent = desc;
-      browserHubOverlay.style.display = "flex";
-      document.getElementById("btnHubLaunchExternal").onclick = function () {
-        if (window.pywebview && window.pywebview.api && window.pywebview.api.open_external_url) {
-          window.pywebview.api.open_external_url(url);
-        } else {
-          window.open(url, "_blank");
-        }
-      };
-      document.getElementById("btnHubShowLocal").onclick = function () {
-        browserHubOverlay.style.display = "none";
-        browserIframe.src = "about:blank";
-      };
+    function updateActiveTabTitle(title) {
+      var activeTab = document.querySelector(".browser-tab.active span:first-child");
+      if (activeTab) {
+        activeTab.textContent = title;
+      }
     }
 
     browserUrlInput.addEventListener("keydown", function (e) {
@@ -2252,29 +2417,41 @@
       }
     });
 
+    document.getElementById("btnBrowserHome").addEventListener("click", function () {
+      navigateToUrl(PROXY_BASE + "/");
+    });
+
     document.getElementById("btnBrowserReload").addEventListener("click", function () {
       navigateToUrl(browserUrlInput.value);
     });
 
     document.getElementById("btnBrowserOpenExternal").addEventListener("click", function () {
-      var url = browserUrlInput.value;
+      var raw = browserUrlInput.value;
+      var extUrl = raw;
+      if (raw.includes("/browse?url=")) {
+        extUrl = decodeURIComponent(raw.split("/browse?url=")[1]);
+      } else if (!raw.startsWith("http://") && !raw.startsWith("https://")) {
+        extUrl = "https://duckduckgo.com/?q=" + encodeURIComponent(raw);
+      }
       if (window.pywebview && window.pywebview.api && window.pywebview.api.open_external_url) {
-        window.pywebview.api.open_external_url(url);
+        window.pywebview.api.open_external_url(extUrl);
       } else {
-        window.open(url, "_blank");
+        window.open(extUrl, "_blank");
       }
     });
 
     document.getElementById("btnBrowserSnapshot").addEventListener("click", function () {
-      promptInput.value += ` [Contexto de Página Web Activa: ${browserUrlInput.value}]`;
+      var currentUrl = browserUrlInput.value;
+      promptInput.value += ` [Investigar contenido de la página web: ${currentUrl}]`;
       promptInput.focus();
+      showTemporaryNotice("Contexto web añadido al prompt");
     });
 
     // Marcadores rápidos
     document.querySelectorAll(".bookmark-pill").forEach(function (pill) {
       pill.addEventListener("click", function () {
-        var url = this.getAttribute("data-url");
-        navigateToUrl(url);
+        var target = this.getAttribute("data-target");
+        navigateToUrl(target);
       });
     });
 
@@ -2296,12 +2473,38 @@
     document.getElementById("btnNewBrowserTab").addEventListener("click", function () {
       var newTab = document.createElement("div");
       newTab.className = "browser-tab active";
-      newTab.setAttribute("data-url", "https://openrouter.ai/models");
+      newTab.setAttribute("data-url", PROXY_BASE + "/");
       newTab.innerHTML = `<span>🌐 Nueva Pestaña</span><span class="browser-tab-close">✕</span>`;
       document.querySelectorAll(".browser-tab").forEach(function (t) { t.classList.remove("active"); });
       document.getElementById("browserTabsRow").insertBefore(newTab, document.getElementById("btnNewBrowserTab"));
-      navigateToUrl("https://openrouter.ai/models");
+      navigateToUrl(PROXY_BASE + "/");
     });
+
+    // ------------------------------------------------------------------
+    // SINCRONIZACIÓN EN VIVO CUANDO EL AGENTE BUSCA O NAVEGA
+    // ------------------------------------------------------------------
+    window.onAgentWebSearch = function (query) {
+      if (browserSidecar.classList.contains("collapsed")) {
+        toggleBrowserSidecar();
+      }
+      browserUrlInput.value = query;
+      navigateToUrl("?" + query);
+      updateActiveTabTitle("🔍 " + query);
+    };
+
+    window.onAgentNavigateBrowser = function (url) {
+      if (browserSidecar.classList.contains("collapsed")) {
+        toggleBrowserSidecar();
+      }
+      browserUrlInput.value = url;
+      navigateToUrl(url);
+      try {
+        var domain = new URL(url).hostname;
+        updateActiveTabTitle("🌐 " + domain);
+      } catch (e) {
+        updateActiveTabTitle("🌐 " + url.substring(0, 16));
+      }
+    };
 
     // ------------------------------------------------------------------
     // SELECTOR DE MODELOS (POPUP MENÚ)
@@ -2324,6 +2527,7 @@
         if (window.pywebview && window.pywebview.api && window.pywebview.api.set_active_model) {
           window.pywebview.api.set_active_model(modelId);
         }
+        showTemporaryNotice("Modelo activo: " + title);
       });
     });
 
@@ -2420,12 +2624,6 @@
     document.getElementById("winCloseBtn").addEventListener("click", function () {
       if (window.pywebview && window.pywebview.api && window.pywebview.api.close_app) {
         window.pywebview.api.close_app();
-      }
-    });
-
-    document.getElementById("btnOpenIDE").addEventListener("click", function () {
-      if (window.pywebview && window.pywebview.api && window.pywebview.api.open_workspace_folder) {
-        window.pywebview.api.open_workspace_folder();
       }
     });
 

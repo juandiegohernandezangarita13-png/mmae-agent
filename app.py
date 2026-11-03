@@ -108,6 +108,16 @@ class JarvisBridge:
         safe_args = json.dumps(json.dumps(arguments, indent=2, ensure_ascii=False))
         self._eval_js(f"window.onAgentToolCall && window.onAgentToolCall({safe_name}, {safe_args});")
 
+        # Sincronización en vivo del Navegador Sidecar cuando el agente busca o navega en la web
+        if tool_name == "search_web" and isinstance(arguments, dict):
+            q_val = arguments.get("query", "")
+            if q_val:
+                self._eval_js(f"window.onAgentWebSearch && window.onAgentWebSearch({json.dumps(q_val)});")
+        elif tool_name in ("browser_navigate_and_act", "fetch_web_page") and isinstance(arguments, dict):
+            url_val = arguments.get("url", "")
+            if url_val:
+                self._eval_js(f"window.onAgentNavigateBrowser && window.onAgentNavigateBrowser({json.dumps(url_val)});")
+
         # Puerta de aprobación para acciones sensibles (modo seguro de la Isla).
         if self._needs_approval(tool_name):
             if not self._request_approval(tool_name, arguments):
@@ -701,6 +711,55 @@ class JarvisBridge:
         except Exception:
             return False
 
+    def open_ide(self) -> Dict[str, Any]:
+        """Abre el espacio de trabajo en el IDE preferido (VS Code, Cursor) o en el explorador."""
+        try:
+            import shutil
+            import subprocess
+            workspace_str = str(self._config.workspace_dir)
+
+            # 1. Buscar ejecutable de VS Code en PATH y rutas estándar de Windows
+            code_bin = shutil.which("code") or shutil.which("code.cmd")
+            if not code_bin:
+                local_appdata = os.environ.get("LOCALAPPDATA", "")
+                candidate = os.path.join(local_appdata, "Programs", "Microsoft VS Code", "bin", "code.cmd")
+                if os.path.exists(candidate):
+                    code_bin = candidate
+
+            if code_bin:
+                subprocess.Popen([code_bin, workspace_str], shell=True)
+                return {"success": True, "ide": "VS Code", "path": workspace_str}
+
+            # 2. Intentar Cursor
+            cursor_bin = shutil.which("cursor") or shutil.which("cursor.cmd")
+            if cursor_bin:
+                subprocess.Popen([cursor_bin, workspace_str], shell=True)
+                return {"success": True, "ide": "Cursor", "path": workspace_str}
+
+            # 3. Fallback: Explorador de Windows
+            os.startfile(workspace_str)
+            return {"success": True, "ide": "Explorer", "path": workspace_str}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def new_conversation(self) -> Dict[str, Any]:
+        """Reinicia la memoria de conversación para una nueva sesión limpia."""
+        self._agent.messages = []
+        self._chat_history = []
+        self._current_task = ""
+        self._tool_in_progress = False
+        return {"success": True}
+
+    def web_search(self, query: str) -> Dict[str, Any]:
+        """Ejecuta una búsqueda real en la web usando DuckDuckGo."""
+        try:
+            from jev.tools.web import WebSearchTool
+            tool = WebSearchTool()
+            res = tool.execute(query=query, max_results=8)
+            return {"success": res.success, "results": res.data if res.data else [], "raw": res.output}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
     def open_workspace_folder(self) -> bool:
         """Abre la carpeta de trabajo en el explorador de archivos de Windows."""
         try:
@@ -732,6 +791,14 @@ def main():
         enable_dpi_awareness()
     except Exception:
         pass
+
+    # Iniciar servidor proxy local para el navegador web Sidecar (desbloquea X-Frame-Options)
+    try:
+        from jev.ui.web_sidecar_server import start_sidecar_proxy_server
+        start_sidecar_proxy_server()
+    except Exception:
+        pass
+
     config = AgentConfig()
     bridge = JarvisBridge(config)
 
