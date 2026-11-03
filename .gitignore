@@ -16,6 +16,7 @@ OpenRouter
 temp_mmae/
 repos/
 tools/free-claude-code/
+tools/freellmapi/
 workspace/
 tmp*/
 EBWebView/

@@ -118,7 +118,16 @@ class LocalLLMClient:
         return sanitized
 
     def _get_endpoint_and_headers(self, model: str = "") -> Tuple[str, Dict[str, str]]:
-        if model.startswith("ollama/"):
+        if model.startswith("groq/") or (self.config.llm_provider == "groq" and getattr(self.config, "groq_api_key", "")):
+            url = "https://api.groq.com/openai/v1/chat/completions"
+            headers = {
+                "Authorization": f"Bearer {getattr(self.config, 'groq_api_key', '')}",
+                "Content-Type": "application/json"
+            }
+        elif model.startswith("freellmapi/") or self.config.llm_provider == "freellmapi":
+            url = f"{getattr(self.config, 'freellmapi_base_url', 'http://localhost:3001/v1').rstrip('/')}/chat/completions"
+            headers = {"Content-Type": "application/json"}
+        elif model.startswith("ollama/"):
             url = f"{self.config.ollama_base_url.rstrip('/')}/v1/chat/completions"
             headers = {"Content-Type": "application/json"}
         elif "gemini" in model.lower() and getattr(self.config, "gemini_api_key", ""):
@@ -374,6 +383,11 @@ Sé analítico, preciso y estructurado."""
         if ollama_fallback not in models_to_try:
             models_to_try.append(ollama_fallback)
 
+        # Si existe clave de Groq (inferencia ultra-rápida en nube LPU a 500 tokens/s gratuita):
+        if getattr(self.config, "groq_api_key", ""):
+            groq_models = ["groq/llama-3.3-70b-versatile", "groq/qwen-2.5-coder-32b", "groq/llama-3.1-8b-instant"]
+            models_to_try = [m for m in groq_models if m not in models_to_try] + models_to_try
+
         last_error = None
         max_retries = max(getattr(self.config, "llm_max_retries", 2), 2)
 
@@ -416,13 +430,18 @@ Sé analítico, preciso y estructurado."""
 
             # Determinar endpoint y cabeceras
             url, headers = self._get_endpoint_and_headers(model_candidate)
-            is_cloud = ("googleapis.com" in url) or ("openrouter.ai" in url)
+            is_cloud = ("googleapis.com" in url) or ("openrouter.ai" in url) or ("groq.com" in url)
 
             effective_messages = messages if is_cloud else self._prune_messages_for_local_inference(messages)
             effective_messages = self.sanitize_messages_for_tool_calling(effective_messages)
 
             # Normalizar nombre de modelo si tiene prefijos internos
-            clean_model = model_candidate.replace("open_router/", "").replace("ollama/", "")
+            clean_model = (
+                model_candidate.replace("open_router/", "")
+                .replace("ollama/", "")
+                .replace("groq/", "")
+                .replace("freellmapi/", "")
+            )
 
             payload: Dict[str, Any] = {
                 "model": clean_model,

@@ -85,6 +85,8 @@ class AgentConfig:
     fcc_base_url: str = os.getenv("FCC_BASE_URL", "http://127.0.0.1:8082")
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
     openrouter_api_key: str = os.getenv("OPENROUTER_API_KEY", "")
+    groq_api_key: str = os.getenv("GROQ_API_KEY", "")
+    freellmapi_base_url: str = os.getenv("FREELLMAPI_BASE_URL", "http://localhost:3001/v1")
 
     # --- Modelos del Pipeline Híbrido y Roles Multi-IA ---
     thinker_model: str = os.getenv(
