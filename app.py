@@ -630,6 +630,100 @@ class JarvisBridge:
             "fcc_model": model_label
         }
 
+    def get_available_models(self) -> List[Dict[str, Any]]:
+        """Devuelve los modelos disponibles ordenados por velocidad y capacidad."""
+        active = getattr(self._config, "executor_model", "qwen/qwen3.8-27b")
+        return [
+            {
+                "id": "qwen/qwen3.8-27b",
+                "name": "Qwen 3.8 27B (Groq LPU 526 t/s)",
+                "provider": "Groq LPU",
+                "badge": "526 t/s",
+                "is_active": "qwen3.8" in active
+            },
+            {
+                "id": "openai/gpt-oss-120b",
+                "name": "GPT-OSS 120B (Groq Razonador)",
+                "provider": "Groq LPU",
+                "badge": "120B Frontier",
+                "is_active": "gpt-oss-120b" in active
+            },
+            {
+                "id": "gemini-2.5-flash",
+                "name": "Gemini 2.5 Flash",
+                "provider": "Google Cloud",
+                "badge": "Multimodal",
+                "is_active": "gemini-2.5" in active
+            },
+            {
+                "id": "gemini-flash-lite-latest",
+                "name": "Gemini Flash Lite Latest",
+                "provider": "Google Cloud",
+                "badge": "Flash Lite",
+                "is_active": "gemini-flash-lite" in active
+            },
+            {
+                "id": "ollama/qwen2.5-coder:latest",
+                "name": "Qwen 2.5 Coder 7B (Ollama Local)",
+                "provider": "Ollama",
+                "badge": "Local CPU/GPU",
+                "is_active": "ollama" in active
+            },
+            {
+                "id": "fcc/open_router/meta-llama/llama-3.3-70b-instruct:free",
+                "name": "Llama 3.3 70B (Free Claude Code)",
+                "provider": "OpenRouter",
+                "badge": "1.3B Pool",
+                "is_active": "llama-3.3" in active
+            }
+        ]
+
+    def set_active_model(self, model_id: str) -> Dict[str, Any]:
+        """Cambia en caliente el modelo activo utilizado por el agente."""
+        model_id = str(model_id).strip()
+        if not model_id:
+            return {"success": False, "error": "Modelo inválido"}
+        self._config.model_name = model_id
+        self._config.executor_model = model_id
+        if "groq" in model_id.lower() or model_id.startswith("qwen/") or model_id.startswith("openai/"):
+            self._config.llm_provider = "groq"
+        elif "gemini" in model_id.lower():
+            self._config.llm_provider = "gemini"
+        elif "ollama" in model_id.lower():
+            self._config.llm_provider = "ollama"
+        return {"success": True, "active_model": model_id, "provider": self._config.llm_provider}
+
+    def open_external_url(self, url: str) -> bool:
+        """Abre una URL en el navegador predeterminado del sistema operativo."""
+        try:
+            import webbrowser
+            return webbrowser.open(url)
+        except Exception:
+            return False
+
+    def open_workspace_folder(self) -> bool:
+        """Abre la carpeta de trabajo en el explorador de archivos de Windows."""
+        try:
+            import os
+            os.startfile(str(self._config.workspace_dir))
+            return True
+        except Exception:
+            return False
+
+    def window_minimize(self):
+        if self._window:
+            try:
+                self._window.minimize()
+            except Exception:
+                pass
+
+    def window_toggle_maximize(self):
+        if self._window:
+            try:
+                self._window.toggle_fullscreen()
+            except Exception:
+                pass
+
 
 def main():
     try:
@@ -654,7 +748,7 @@ def main():
         window_width, window_height = 1380, 860
 
     window = webview.create_window(
-        title="MMAE // Claude Edition",
+        title="Antigravity 2.0 // MMAE - Multi-Model Autonomous Engine",
         url=str(html_path.resolve()),
         js_api=bridge,
         width=window_width,

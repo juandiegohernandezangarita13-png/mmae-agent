@@ -90,7 +90,7 @@ def _focus_existing_instance(classic: bool = False) -> bool:
         return False
     try:
         user32 = ctypes.windll.user32
-        titles = ("MMAE // Claude Edition",) if classic else ("MMAE Companion Widget", "JEV Island")
+        titles = ("Antigravity 2.0 // MMAE - Multi-Model Autonomous Engine", "MMAE // Claude Edition") if classic else ("MMAE Companion Widget", "JEV Island")
         for title in titles:
             hwnd = user32.FindWindowW(None, title)
             if not hwnd:
