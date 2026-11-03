@@ -580,6 +580,37 @@
       color: #ffffff;
     }
 
+    /* Pestaña flotante de reapertura de la Barra Lateral Izquierda */
+    .sidebar-dock-tab {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #18191d;
+      border: 1px solid var(--border-medium);
+      border-left: none;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 6px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      z-index: 95;
+      color: #60a5fa;
+      font-size: 11px;
+      font-weight: 600;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      box-shadow: 4px 0 16px rgba(0, 0, 0, 0.55);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .sidebar-dock-tab:hover {
+      background: #2563eb;
+      color: #ffffff;
+    }
+
     /* ==================================================================
        VISTA 1: CHAT / CONVERSATION STREAM
        ================================================================== */
@@ -1715,6 +1746,12 @@
     <main class="main-chat-container">
       <header class="chat-header">
         <div class="breadcrumb-row">
+          <div class="icon-nav-btn" id="btnOpenSidebar" title="Mostrar barra lateral (Ctrl+\)" style="display: none; margin-right: 8px; cursor: pointer; border-radius: 6px; padding: 4px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              <line x1="9" y1="3" x2="9" y2="21"></line>
+            </svg>
+          </div>
           <span class="breadcrumb-item" id="breadcrumbProject">bable</span>
           <span class="breadcrumb-sep">/</span>
           <span class="breadcrumb-current" id="chatTitle">Nueva Sesión</span>
@@ -1736,6 +1773,14 @@
           </button>
         </div>
       </header>
+
+      <!-- Pestaña lateral flotante cuando la barra izquierda está plegada -->
+      <div class="sidebar-dock-tab" id="sidebarDockTab" title="Desplegar Barra Lateral (Ctrl+\)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+        <span>Barra Lateral</span>
+      </div>
 
       <!-- Pestaña lateral flotante cuando el navegador está plegado -->
       <div class="sidecar-dock-tab" id="sidecarDockTab" title="Desplegar Navegador Web (Ctrl+B)">
@@ -1790,13 +1835,13 @@
                   class="chat-rendered-img"
                   src="http://127.0.0.1:8765/image?name=gen_1793700103350.jpg"
                   alt="Perfume Nitro - Frasco de Lujo"
-                  onclick="openImageInExternal('http://127.0.0.1:8765/image?name=gen_1793700103350.jpg')"
+                  onclick="openImageInBableBrowser('gen_1793700103350.jpg', 'Frasco de perfume Nitro')"
                 />
                 <div class="chat-img-caption">
                   <span class="img-badge">✨ Generada con Flux</span>
                   <span>Frasco de perfume Nitro (1024x1024)</span>
-                  <button class="btn-download-img" onclick="openImageInExternal('http://127.0.0.1:8765/image?name=gen_1793700103350.jpg')">
-                    Ver Completa ↗
+                  <button class="btn-download-img" onclick="openImageInBableBrowser('gen_1793700103350.jpg', 'Frasco de perfume Nitro')">
+                    Ver en Navegador Bable ↗
                   </button>
                 </div>
               </div>
@@ -2330,12 +2375,27 @@
       });
     }
 
-    function openImageInExternal(url) {
-      if (window.pywebview && window.pywebview.api && window.pywebview.api.open_external_url) {
-        window.pywebview.api.open_external_url(url);
-      } else {
-        window.open(url, "_blank");
+    function openImageInBableBrowser(url, altTitle) {
+      var filename = "";
+      if (url && url.includes("name=")) {
+        var m = url.match(/name=([^&]+)/);
+        if (m) filename = decodeURIComponent(m[1]);
       }
+      if (!filename && url) {
+        filename = url.split("/").pop().split("?")[0];
+      }
+      if (!filename || filename.length < 3) filename = "gen_1793700103350.jpg";
+
+      // 1. Asegurar que el Navegador Bable esté desplegado en el lado derecho
+      if (browserSidecar.classList.contains("collapsed")) {
+        toggleBrowserSidecar();
+      }
+
+      // 2. Cargar el visor web interactivo en el iframe del navegador Bable
+      var viewerUrl = "http://127.0.0.1:8765/image-viewer?name=" + encodeURIComponent(filename) + "&prompt=" + encodeURIComponent(altTitle || filename);
+      browserIframe.src = viewerUrl;
+      browserUrlInput.value = "bable://images/" + filename;
+      showTemporaryNotice("Imagen cargada en el Navegador de Bable");
     }
 
     // Formateador de Markdown con soporte completo para imágenes generadas e imágenes locales
@@ -2359,11 +2419,11 @@
       out = out.replace(imgRegex, function (match, alt, url) {
         return `
           <div class="chat-img-card">
-            <img class="chat-rendered-img" src="${url}" alt="${escapeHtml(alt)}" onclick="openImageInExternal('${url}')"/>
+            <img class="chat-rendered-img" src="${url}" alt="${escapeHtml(alt)}" onclick="openImageInBableBrowser('${url}', '${escapeHtml(alt)}')"/>
             <div class="chat-img-caption">
-              <span class="img-badge">✨ Imagen</span>
+              <span class="img-badge">✨ Imagen Bable</span>
               <span>${escapeHtml(alt)}</span>
-              <button class="btn-download-img" onclick="openImageInExternal('${url}')">Abrir ↗</button>
+              <button class="btn-download-img" onclick="openImageInBableBrowser('${url}', '${escapeHtml(alt)}')">Ver en Navegador ↗</button>
             </div>
           </div>
         `;
@@ -2393,27 +2453,65 @@
         <div class="assistant-bubble">
           <p><strong>🎨 Imagen generada para:</strong> <em>"${escapeHtml(promptVal)}"</em></p>
           <div class="chat-img-card">
-            <img class="chat-rendered-img" src="${imgUri}" alt="${escapeHtml(promptVal)}" onclick="openImageInExternal('${imgUri}')"/>
+            <img class="chat-rendered-img" src="${imgUri}" alt="${escapeHtml(promptVal)}" onclick="openImageInBableBrowser('${imgUri}', '${escapeHtml(promptVal)}')"/>
             <div class="chat-img-caption">
               <span class="img-badge">Flux 1024x1024</span>
               <span>${escapeHtml(promptVal.substring(0, 40))}...</span>
-              <button class="btn-download-img" onclick="openImageInExternal('${imgUri}')">Ver Completa ↗</button>
+              <button class="btn-download-img" onclick="openImageInBableBrowser('${imgUri}', '${escapeHtml(promptVal)}')">Ver en Navegador ↗</button>
             </div>
           </div>
         </div>
       `;
       chatStream.appendChild(row);
       scrollToBottom();
-      showTemporaryNotice("¡Imagen renderizada en el chat!");
+      openImageInBableBrowser(imgUri, promptVal);
+      showTemporaryNotice("¡Imagen renderizada en el chat y abierta en el Navegador de Bable!");
     };
+
+    // ------------------------------------------------------------------
+    // CONTROL DE LA BARRA LATERAL IZQUIERDA (PLEGAR / DESPLEGAR)
+    // ------------------------------------------------------------------
+    function toggleSidebar(forceState) {
+      if (typeof forceState === "boolean") {
+        sidebar.classList.toggle("collapsed", !forceState);
+      } else {
+        sidebar.classList.toggle("collapsed");
+      }
+      var isCollapsed = sidebar.classList.contains("collapsed");
+      var btnOpenSidebar = document.getElementById("btnOpenSidebar");
+      var sidebarDockTab = document.getElementById("sidebarDockTab");
+      if (btnOpenSidebar) {
+        btnOpenSidebar.style.display = isCollapsed ? "inline-flex" : "none";
+      }
+      if (sidebarDockTab) {
+        sidebarDockTab.style.display = isCollapsed ? "flex" : "none";
+      }
+    }
+
+    // Iniciar con la barra lateral izquierda desplegada
+    sidebar.classList.remove("collapsed");
+
+    sidebarToggleBtn.addEventListener("click", function () {
+      toggleSidebar();
+    });
+
+    var btnOpenSidebar = document.getElementById("btnOpenSidebar");
+    if (btnOpenSidebar) {
+      btnOpenSidebar.addEventListener("click", function () {
+        toggleSidebar(true);
+      });
+    }
+
+    var sidebarDockTab = document.getElementById("sidebarDockTab");
+    if (sidebarDockTab) {
+      sidebarDockTab.addEventListener("click", function () {
+        toggleSidebar(true);
+      });
+    }
 
     // ------------------------------------------------------------------
     // CONTROL DEL NAVEGADOR SIDECAR (PLEGAR / DESPLEGAR)
     // ------------------------------------------------------------------
-    sidebarToggleBtn.addEventListener("click", function () {
-      sidebar.classList.toggle("collapsed");
-    });
-
     function toggleBrowserSidecar() {
       var isCurrentlyCollapsed = browserSidecar.classList.contains("collapsed");
       if (isCurrentlyCollapsed) {
@@ -2632,7 +2730,7 @@
     });
 
     document.getElementById("optToggleBrowser").addEventListener("click", toggleBrowserSidecar);
-    document.getElementById("optToggleSidebar").addEventListener("click", function () { sidebar.classList.toggle("collapsed"); });
+    document.getElementById("optToggleSidebar").addEventListener("click", function () { toggleSidebar(); });
     document.getElementById("btnSettings").addEventListener("click", function () { document.getElementById("modalSettings").classList.add("show"); });
 
     function closeModal(id) { document.getElementById(id).classList.remove("show"); }
@@ -2641,6 +2739,9 @@
       if (e.ctrlKey && e.key === "b") {
         e.preventDefault();
         toggleBrowserSidecar();
+      } else if (e.ctrlKey && (e.key === "\\" || e.key === "|" || e.code === "Backslash")) {
+        e.preventDefault();
+        toggleSidebar();
       } else if (e.key === "Escape") {
         closeAllMenus();
         closeModal("modalSettings");
