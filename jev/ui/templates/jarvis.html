@@ -1874,6 +1874,348 @@
       color: var(--text-dim);
       cursor: pointer;
       font-size: 18px;
+      line-height: 1;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .modal-close-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* ==================================================================
+       MENU CONTEXTUAL FLOTANTE (ESTILO ANTIGRAVITY 2.0)
+       ================================================================== */
+    .floating-context-menu {
+      position: fixed;
+      display: none;
+      z-index: 9999;
+      min-width: 200px;
+      background: #18191f;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.2);
+      padding: 5px;
+      flex-direction: column;
+      gap: 2px;
+      animation: menuFadeIn 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes menuFadeIn {
+      from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .context-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 11px;
+      border-radius: 5px;
+      color: #cbd5e1;
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+      user-select: none;
+    }
+
+    .context-menu-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+    }
+
+    .context-menu-item.danger {
+      color: #f87171;
+    }
+
+    .context-menu-item.danger:hover {
+      background: rgba(239, 68, 68, 0.18);
+      color: #ef4444;
+    }
+
+    .context-menu-item svg {
+      flex-shrink: 0;
+      opacity: 0.9;
+    }
+
+    .context-menu-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.07);
+      margin: 4px 0;
+    }
+
+    /* ==================================================================
+       APARTADO DE AJUSTE / CONFIGURACIÓN ROBUSTO (ANTIGRAVITY 2.0 STYLE)
+       ================================================================== */
+    .settings-modal-card {
+      width: 94%;
+      max-width: 900px;
+      height: 620px;
+      background: #18191f;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);
+      display: flex;
+      overflow: hidden;
+      padding: 0;
+      position: relative;
+    }
+
+    .settings-sidebar {
+      width: 220px;
+      background: #121316;
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px 10px;
+      flex-shrink: 0;
+      user-select: none;
+      overflow-y: auto;
+    }
+
+    .settings-nav-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 10px 10px 4px 10px;
+    }
+
+    .settings-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      color: #94a3b8;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+
+    .settings-nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #f1f5f9;
+    }
+
+    .settings-nav-item.active {
+      background: rgba(255, 255, 255, 0.09);
+      color: #ffffff;
+      font-weight: 500;
+    }
+
+    .settings-user-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: 10px;
+    }
+
+    .settings-user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 12px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .settings-main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 24px 32px;
+      position: relative;
+      background: #18191f;
+    }
+
+    .settings-close-float {
+      position: absolute;
+      top: 18px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+      z-index: 10;
+    }
+    .settings-close-float:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .settings-panel {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .settings-panel.active {
+      display: flex;
+    }
+
+    .settings-header-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 2px;
+    }
+
+    .settings-header-subtitle {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+
+    .settings-group-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+    }
+
+    .settings-group-subtitle {
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+
+    .settings-group-subtitle a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+    .settings-group-subtitle a:hover {
+      text-decoration: underline;
+    }
+
+    .settings-card-group {
+      background: #131418;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      gap: 16px;
+    }
+
+    .settings-row:last-child {
+      border-bottom: none;
+    }
+
+    .settings-row-text {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .settings-row-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #f1f5f9;
+    }
+
+    .settings-row-desc {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .settings-select {
+      background: #1e2025;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      color: #ffffff;
+      font-size: 12.5px;
+      padding: 6px 12px;
+      cursor: pointer;
+      outline: none;
+      min-width: 140px;
+      transition: border-color 0.15s;
+    }
+    .settings-select:focus {
+      border-color: #3b82f6;
+    }
+
+    .settings-btn-action {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      color: #f1f5f9;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 14px;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .settings-btn-action:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .settings-segmented-control {
+      display: inline-flex;
+      background: #101114;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 2px;
+    }
+
+    .segmented-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+
+    .segmented-btn.active {
+      background: #2563eb;
+      color: #ffffff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
+
+    .settings-tip-box {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 8px;
+      padding: 0 4px;
+    }
+    .settings-tip-box code {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #cbd5e1;
+      font-size: 11.5px;
     }
   </style>
 </head>
@@ -2562,23 +2904,340 @@
   <!-- AVISO TOAST FLOTANTE -->
   <div class="toast-notice" id="toastNotice"></div>
 
-  <!-- MODAL DE CONFIGURACIÓN -->
+  <!-- MENU CONTEXTUAL FLOTANTE (ESTILO ANTIGRAVITY 2.0) -->
+  <div class="floating-context-menu" id="floatingContextMenu"></div>
+
+  <!-- MODAL DE CONFIGURACIÓN Y AJUSTES (ESTILO COMPLETO ANTIGRAVITY 2.0) -->
   <div class="modal-backdrop" id="modalSettings">
-    <div class="modal-card">
-      <div class="modal-header">
-        <span style="font-weight:600; font-size:16px;">⚙ Configuración de Bable</span>
-        <button class="modal-close-btn" onclick="closeModal('modalSettings')">✕</button>
-      </div>
-      <div style="font-size:13px; color:var(--text-muted); line-height:1.6; display:flex; flex-direction:column; gap:10px;">
-        <p><strong>Proyecto Activo:</strong> <span style="color:#60a5fa;">bable (IA_Automejorable)</span></p>
-        <p><strong>Motor LLM Activo:</strong> <span style="color:#34d399;">Groq LPU (526 tokens/s)</span></p>
-        <p><strong>Ajuste Fino LoRA:</strong> 374 muestras compiladas en <code>data/fine_tuning/</code>.</p>
-        <p><strong>Generación de Imágenes:</strong> Flux & SDXL integrado con renderizado directo en el chat.</p>
-        <div style="margin-top:10px; display:flex; gap:10px;">
-          <button class="btn-ide" onclick="launchIDE()">💻 Abrir en VS Code</button>
-          <button class="btn-ide" onclick="if(window.pywebview&&window.pywebview.api) window.pywebview.api.open_workspace_folder();">📂 Abrir en Explorador</button>
+    <div class="settings-modal-card">
+      <button class="settings-close-float" onclick="closeModal('modalSettings')" title="Cerrar (Esc)">✕</button>
+
+      <!-- BARRA LATERAL DE AJUSTES -->
+      <aside class="settings-sidebar">
+        <div>
+          <div class="settings-nav-section-title">Settings</div>
+          <div class="settings-nav-item active" data-tab="general" onclick="switchSettingsTab('general')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>General</span>
+          </div>
+          <div class="settings-nav-item" data-tab="application" onclick="switchSettingsTab('application')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            <span>Application</span>
+          </div>
+          <div class="settings-nav-item" data-tab="appearance" onclick="switchSettingsTab('appearance')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>
+            <span>Appearance</span>
+          </div>
+          <div class="settings-nav-item" data-tab="shortcuts" onclick="switchSettingsTab('shortcuts')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="6" y1="8" x2="6" y2="8"></line><line x1="10" y1="8" x2="10" y2="8"></line><line x1="14" y1="8" x2="14" y2="8"></line><line x1="18" y1="8" x2="18" y2="8"></line><line x1="6" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="18" y2="12"></line><line x1="9" y1="16" x2="15" y2="16"></line></svg>
+            <span>Shortcuts</span>
+          </div>
+          <div class="settings-nav-item" data-tab="notifications" onclick="switchSettingsTab('notifications')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span>Notifications</span>
+          </div>
+          <div class="settings-nav-item" data-tab="models" onclick="switchSettingsTab('models')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <span>Models</span>
+          </div>
+
+          <div class="settings-nav-section-title">Projects</div>
+          <div id="settingsProjectsList">
+            <!-- Dinámico con IA_Automejorable, Radar de Bounties, etc. -->
+          </div>
+
+          <div class="settings-nav-section-title">Not in Project</div>
+          <div class="settings-nav-item" data-tab="conversations" onclick="switchSettingsTab('conversations')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Conversations</span>
+          </div>
         </div>
-      </div>
+
+        <div>
+          <div class="settings-nav-item" onclick="showTemporaryNotice('Enviando telemetría y feedback a Diego Hernández...')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            <span>Give Feedback</span>
+          </div>
+
+          <div class="settings-user-card">
+            <div class="settings-user-avatar">DH</div>
+            <div style="overflow:hidden;">
+              <div style="font-size:12.5px; font-weight:600; color:#f1f5f9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Diego Hernández</div>
+              <div style="font-size:11px; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">juandiegohernandezan...</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTENIDO PRINCIPAL DE AJUSTES -->
+      <main class="settings-main-content">
+        <!-- PANEL: GENERAL (SCREENSHOT 1) -->
+        <div class="settings-panel active" id="panelSettingsGeneral">
+          <div>
+            <h2 class="settings-header-title">General</h2>
+            <p class="settings-header-subtitle">Configure agent execution, queued message delivery, and permissions.</p>
+          </div>
+
+          <div>
+            <h3 class="settings-group-title">Global Permissions</h3>
+            <p class="settings-group-subtitle">Configure global allowed and denied resource permissions. <a href="javascript:void(0)" onclick="showTemporaryNotice('Permisos administrados por la sandbox de Bable')">Learn more</a>.</p>
+
+            <div class="settings-card-group">
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <span class="settings-row-label">Permission Preset</span>
+                  <span class="settings-row-desc">Controls the actions the agent can take.</span>
+                </div>
+                <select class="settings-select" id="settingPermissionPreset">
+                  <option value="turbo" selected>Turbo</option>
+                  <option value="safe">Safe (Ask confirmation)</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <span class="settings-row-label">Tool Permissions</span>
+                  <span class="settings-row-desc">Modify permissions for file, terminal, and MCP tools.</span>
+                </div>
+                <button class="settings-btn-action" onclick="showTemporaryNotice('180 herramientas locales y MCP activas')">Open</button>
+              </div>
+
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <span class="settings-row-label">Network Access Rules</span>
+                  <span class="settings-row-desc">Configure allowed and denied URLs for reading.</span>
+                </div>
+                <button class="settings-btn-action" onclick="showTemporaryNotice('Acceso a red global habilitado')">Open</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="settings-group-title">Agent Behavior</h3>
+            <div class="settings-card-group">
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <span class="settings-row-label">Plan Review Policy</span>
+                  <span class="settings-row-desc">Whether the agent asks you to review its documents. Modified in 3 projects ∨</span>
+                </div>
+                <select class="settings-select" id="settingPlanPolicy">
+                  <option value="always" selected>Always Proceed</option>
+                  <option value="ask">Ask First</option>
+                  <option value="never">Auto-Audit DAG</option>
+                </select>
+              </div>
+            </div>
+            <div class="settings-tip-box">
+              Type <code>/</code> and select <code>plan</code> to have the agent generate a plan.
+            </div>
+          </div>
+
+          <div>
+            <h3 class="settings-group-title">Execution</h3>
+            <div class="settings-card-group">
+              <div class="settings-row">
+                <div class="settings-row-text">
+                  <span class="settings-row-label">Queued Messages</span>
+                  <span class="settings-row-desc">Configure when follow-up messages are sent. Keyboard shortcuts ⓘ</span>
+                </div>
+                <div class="settings-segmented-control" id="ctrlQueuedMessages">
+                  <button class="segmented-btn" data-val="queue" onclick="setQueuedMessages('queue')">Queue</button>
+                  <button class="segmented-btn active" data-val="immediate" onclick="setQueuedMessages('immediate')">Send Immediately</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL: APPLICATION -->
+        <div class="settings-panel" id="panelSettingsApplication">
+          <div>
+            <h2 class="settings-header-title">Application</h2>
+            <p class="settings-header-subtitle">Espacio de trabajo, integración con el sistema operativo y entorno de desarrollo.</p>
+          </div>
+          <div class="settings-card-group">
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-label">Espacio de trabajo activo</span>
+                <span class="settings-row-desc">Carpeta raíz donde el agente lee y escribe archivos de código y artefactos.</span>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="settings-btn-action" onclick="launchIDE()">Abrir en VS Code</button>
+                <button class="settings-btn-action" onclick="if(window.pywebview&&window.pywebview.api) window.pywebview.api.open_workspace_folder();">Explorador</button>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-label">Recarga en caliente (Hot Reload)</span>
+                <span class="settings-row-desc">Permite actualizar el código Python del agente sin reiniciar la terminal.</span>
+              </div>
+              <span class="installed-badge">Activo</span>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-label">Limpiar almacenamiento local</span>
+                <span class="settings-row-desc">Restablece la memoria de la interfaz al estado original si es necesario.</span>
+              </div>
+              <button class="settings-btn-action" onclick="clearBableCache()" style="color:#f87171;">Limpiar Caché</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL: APPEARANCE -->
+        <div class="settings-panel" id="panelSettingsAppearance">
+          <div>
+            <h2 class="settings-header-title">Appearance</h2>
+            <p class="settings-header-subtitle">Personaliza la interfaz holográfica, colores y contraste.</p>
+          </div>
+          <div class="settings-card-group">
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-label">Tema Visual</span>
+                <span class="settings-row-desc">Paleta de colores del entorno de trabajo.</span>
+              </div>
+              <select class="settings-select" id="settingThemeSelect" onchange="showTemporaryNotice('Tema aplicado: ' + this.value)">
+                <option value="antigravity_dark" selected>Antigravity 2.0 Dark</option>
+                <option value="pitch_black">Pitch Black OLED</option>
+                <option value="slate">Deep Slate</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-label">Color de Acento</span>
+                <span class="settings-row-desc">Resaltado de botones principales y foco.</span>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <div style="width:22px; height:22px; border-radius:50%; background:#2563eb; cursor:pointer; border:2px solid #fff;" title="Azul Antigravity" onclick="showTemporaryNotice('Acento: Azul')"></div>
+                <div style="width:22px; height:22px; border-radius:50%; background:#06b6d4; cursor:pointer; border:1px solid rgba(255,255,255,0.2);" title="Cyan Groq" onclick="showTemporaryNotice('Acento: Cyan')"></div>
+                <div style="width:22px; height:22px; border-radius:50%; background:#8b5cf6; cursor:pointer; border:1px solid rgba(255,255,255,0.2);" title="Púrpura Mythos" onclick="showTemporaryNotice('Acento: Púrpura')"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL: SHORTCUTS -->
+        <div class="settings-panel" id="panelSettingsShortcuts">
+          <div>
+            <h2 class="settings-header-title">Shortcuts</h2>
+            <p class="settings-header-subtitle">Atajos de teclado rápidos para operar Bable sin ratón.</p>
+          </div>
+          <div class="settings-card-group">
+            <div class="settings-row">
+              <span class="settings-row-label">Plegar / Desplegar barra lateral</span>
+              <kbd style="background:rgba(255,255,255,0.08); padding:3px 8px; border-radius:4px; font-size:12px; font-family:monospace;">Ctrl + \</kbd>
+            </div>
+            <div class="settings-row">
+              <span class="settings-row-label">Plegar / Desplegar navegador web</span>
+              <kbd style="background:rgba(255,255,255,0.08); padding:3px 8px; border-radius:4px; font-size:12px; font-family:monospace;">Ctrl + B</kbd>
+            </div>
+            <div class="settings-row">
+              <span class="settings-row-label">Enviar mensaje al agente</span>
+              <kbd style="background:rgba(255,255,255,0.08); padding:3px 8px; border-radius:4px; font-size:12px; font-family:monospace;">Enter</kbd>
+            </div>
+            <div class="settings-row">
+              <span class="settings-row-label">Salto de línea en el prompt</span>
+              <kbd style="background:rgba(255,255,255,0.08); padding:3px 8px; border-radius:4px; font-size:12px; font-family:monospace;">Shift + Enter</kbd>
+            </div>
+            <div class="settings-row">
+              <span class="settings-row-label">Nueva conversación limpia</span>
+              <kbd style="background:rgba(255,255,255,0.08); padding:3px 8px; border-radius:4px; font-size:12px; font-family:monospace;">Ctrl + N</kbd>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL: NOTIFICATIONS -->
+        <div class="settings-panel" id="panelSettingsNotifications">
+          <div>
+            <h2 class="settings-header-title">Notifications</h2>
+            <p class="settings-header-subtitle">Alertas sonoras, de voz y de finalización de tareas en segundo plano.</p>
+          </div>
+          <div class="settings-card-group">
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-label">Síntesis de voz (TTS)</span>
+                <span class="settings-row-desc">Lee en voz alta las respuestas finales del agente.</span>
+              </div>
+              <input type="checkbox" id="checkVoiceTTS" style="width:18px; height:18px; cursor:pointer;" onchange="toggleVoiceAudio(this.checked)">
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-label">Aviso sonoro al completar tarea</span>
+                <span class="settings-row-desc">Reproduce un timbre suave cuando termina una tarea autónoma.</span>
+              </div>
+              <input type="checkbox" checked style="width:18px; height:18px; cursor:pointer;">
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL: MODELS -->
+        <div class="settings-panel" id="panelSettingsModels">
+          <div>
+            <h2 class="settings-header-title">Models</h2>
+            <p class="settings-header-subtitle">Configuración de modelos LLM, proveedores de inferencia y claves API.</p>
+          </div>
+          <div class="settings-card-group">
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-label">Motor Principal Activo</span>
+                <span class="settings-row-desc">Inferencia de ultra-alta velocidad (526 tokens/segundo).</span>
+              </div>
+              <span class="installed-badge" style="background:rgba(52,211,153,0.15); color:#34d399; border-color:rgba(52,211,153,0.3);">Groq LPU (Llama 3.3 70B)</span>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-label">Modelo Multimodal / Visión</span>
+                <span class="settings-row-desc">Para comprensión de imágenes y capturas de pantalla.</span>
+              </div>
+              <span class="installed-badge">Gemini 3.8 Flash</span>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-label">Ajuste Fino LoRA Local</span>
+                <span class="settings-row-desc">374 muestras compiladas en <code>data/fine_tuning/</code>.</span>
+              </div>
+              <button class="settings-btn-action" onclick="showTemporaryNotice('LoRA adaptadores listos para exportación GGUF')">Ver Métricas</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL: PROJECT SETTINGS (DINÁMICO SEGÚN PROYECTO SELECCIONADO) -->
+        <div class="settings-panel" id="panelSettingsProject">
+          <div>
+            <h2 class="settings-header-title" id="settingProjectTitle">IA_Automejorable</h2>
+            <p class="settings-header-subtitle">Configuración y rutas específicas del proyecto.</p>
+          </div>
+          <div class="settings-card-group">
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-label">Ruta en disco</span>
+                <span class="settings-row-desc" id="settingProjectPath">c:\Users\juand\OneDrive\Desktop\IA_Automejorable</span>
+              </div>
+              <button class="settings-btn-action" onclick="if(window.pywebview&&window.pywebview.api) window.pywebview.api.open_workspace_folder();">Abrir</button>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-label">Permisos del Proyecto</span>
+                <span class="settings-row-desc">Nivel de autonomía para este espacio de trabajo.</span>
+              </div>
+              <select class="settings-select">
+                <option selected>Turbo (Sin restricciones)</option>
+                <option>Confirmar cambios destructivos</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-label">Acciones del Proyecto</span>
+                <span class="settings-row-desc">Administrar este proyecto o eliminarlo de la lista.</span>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button class="settings-btn-action" onclick="renameCurrentProjectFromSettings()">Renombrar</button>
+                <button class="settings-btn-action" style="color:#f87171;" onclick="deleteCurrentProjectFromSettings()">Eliminar Proyecto</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   </div>
 
@@ -3360,7 +4019,7 @@
           <span class="btn-action-icon" title="Nueva conversación en este proyecto" onclick="createNewConversation('${project.id}', event)">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </span>
-          <span class="btn-action-icon" title="Opciones de proyecto" onclick="showProjectMenu('${project.id}', event)">
+          <span class="btn-action-icon" title="Opciones de proyecto" onclick="showProjectContextMenu('${project.id}', event)">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
           </span>
         `;
@@ -3390,7 +4049,7 @@
               <span class="conv-title" title="${escapeHtml(conv.title)}">${escapeHtml(conv.title)}</span>
               <span class="conv-time">${isActConv ? 'activo' : escapeHtml(conv.time || '1h')}</span>
               <div class="conv-actions">
-                <span class="btn-action-icon" title="Opciones" onclick="showConvMenu('${conv.id}', event)">
+                <span class="btn-action-icon" title="Opciones" onclick="showConvContextMenu('${conv.id}', event)">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
                 </span>
                 <span class="btn-action-icon" title="${conv.pinned ? 'Desfijar' : 'Fijar'}" onclick="pinConversation('${conv.id}', event)">
@@ -3553,22 +4212,178 @@
       showTemporaryNotice("Conversación eliminada");
     }
 
-    function showConvMenu(convId, event) {
+    // ------------------------------------------------------------------
+    // MENÚ CONTEXTUAL FLOTANTE (ESTILO ANTIGRAVITY 2.0)
+    // ------------------------------------------------------------------
+    var floatingContextMenu = document.getElementById("floatingContextMenu");
+
+    function closeContextMenu() {
+      if (floatingContextMenu) {
+        floatingContextMenu.style.display = "none";
+        floatingContextMenu.innerHTML = "";
+      }
+    }
+
+    document.addEventListener("click", function (e) {
+      if (!e.target.closest("#floatingContextMenu") && !e.target.closest(".btn-action-icon")) {
+        closeContextMenu();
+      }
+    });
+
+    function positionContextMenu(rect) {
+      floatingContextMenu.style.display = "flex";
+      var menuWidth = 210;
+      var menuHeight = 160;
+
+      var top = rect.bottom + 4;
+      var left = rect.left;
+
+      if (top + menuHeight > window.innerHeight) {
+        top = Math.max(10, rect.top - menuHeight - 4);
+      }
+      if (left + menuWidth > window.innerWidth) {
+        left = Math.max(10, window.innerWidth - menuWidth - 12);
+      }
+
+      floatingContextMenu.style.top = top + "px";
+      floatingContextMenu.style.left = left + "px";
+    }
+
+    function showProjectContextMenu(projectId, event) {
       if (event) {
         event.stopPropagation();
         event.preventDefault();
       }
+
+      var btn = event.currentTarget || event.target.closest(".btn-action-icon");
+      var rect = btn.getBoundingClientRect();
+
+      floatingContextMenu.innerHTML = `
+        <div class="context-menu-item" onclick="contextCopyProjectName('${escapeHtml(projectId)}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <span>Copy Project Name</span>
+        </div>
+        <div class="context-menu-item" onclick="contextOpenProjectSettings('${escapeHtml(projectId)}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span>Project Settings</span>
+        </div>
+        <div class="context-menu-item" onclick="contextShowInExplorer()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#EAB308" stroke="#CA8A04" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+          <span>Show in File Explorer</span>
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item danger" onclick="contextDeleteProject('${escapeHtml(projectId)}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          <span>Delete Project</span>
+        </div>
+      `;
+
+      positionContextMenu(rect);
+    }
+
+    function showConvContextMenu(convId, event) {
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+
       var conv = conversationsData.find(function (c) { return c.id === convId; });
       if (!conv) return;
 
-      var choice = prompt("Opciones para \"" + conv.title + "\":\n1: Renombrar conversación\n2: " + (conv.pinned ? "Desfijar" : "Fijar (Pin)") + " conversación\n3: Eliminar conversación\n(Escribe 1, 2 o 3):", "1");
-      if (choice === "1") {
-        renameConversation(convId);
-      } else if (choice === "2") {
-        pinConversation(convId);
-      } else if (choice === "3") {
-        deleteConversation(convId);
+      var btn = event.currentTarget || event.target.closest(".btn-action-icon");
+      var rect = btn.getBoundingClientRect();
+
+      floatingContextMenu.innerHTML = `
+        <div class="context-menu-item" onclick="contextCopyConvTitle('${escapeHtml(conv.title)}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <span>Copy Conversation Title</span>
+        </div>
+        <div class="context-menu-item" onclick="contextRenameConv('${conv.id}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          <span>Rename</span>
+        </div>
+        <div class="context-menu-item" onclick="contextPinConv('${conv.id}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="${conv.pinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-2l-2-2V5h1V3H6v2h1v8l-2 2v2z"></path></svg>
+          <span>${conv.pinned ? 'Unpin' : 'Pin to Top'}</span>
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item danger" onclick="contextDeleteConv('${conv.id}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          <span>Delete Conversation</span>
+        </div>
+      `;
+
+      positionContextMenu(rect);
+    }
+
+    function contextCopyProjectName(name) {
+      closeContextMenu();
+      navigator.clipboard.writeText(name).then(function () {
+        showTemporaryNotice("✓ Nombre del proyecto copiado al portapapeles");
+      });
+    }
+
+    function contextCopyConvTitle(title) {
+      closeContextMenu();
+      navigator.clipboard.writeText(title).then(function () {
+        showTemporaryNotice("✓ Título copiado al portapapeles");
+      });
+    }
+
+    function contextShowInExplorer() {
+      closeContextMenu();
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.open_workspace_folder) {
+        window.pywebview.api.open_workspace_folder();
+        showTemporaryNotice("Abriendo carpeta en el Explorador...");
       }
+    }
+
+    function contextOpenProjectSettings(projectId) {
+      closeContextMenu();
+      openProjectSettings(projectId);
+    }
+
+    function contextDeleteProject(projectId) {
+      closeContextMenu();
+      if (projectsData.length <= 1) {
+        showTemporaryNotice("No se puede eliminar el único proyecto existente.");
+        return;
+      }
+      if (!confirm("¿Eliminar el proyecto \"" + projectId + "\" y todas sus conversaciones?")) {
+        return;
+      }
+
+      projectsData = projectsData.filter(function (p) { return p.id !== projectId; });
+      conversationsData = conversationsData.filter(function (c) { return c.projectId !== projectId; });
+
+      if (currentProjectId === projectId) {
+        currentProjectId = projectsData[0].id;
+        var remaining = conversationsData.filter(function (c) { return c.projectId === currentProjectId; });
+        if (remaining.length > 0) {
+          switchConversation(remaining[0].id);
+        } else {
+          createNewConversation(currentProjectId);
+        }
+      } else {
+        saveCurrentConversationState();
+        renderProjectsTree();
+      }
+      showTemporaryNotice("Proyecto eliminado");
+    }
+
+    function contextRenameConv(convId) {
+      closeContextMenu();
+      renameConversation(convId);
+    }
+
+    function contextPinConv(convId) {
+      closeContextMenu();
+      pinConversation(convId);
+    }
+
+    function contextDeleteConv(convId) {
+      closeContextMenu();
+      deleteConversation(convId);
     }
 
     function renameConversation(convId, event) {
@@ -3597,34 +4412,148 @@
       showTemporaryNotice(conv.pinned ? "📌 Conversación fijada" : "Conversación desfijada");
     }
 
-    function showProjectMenu(projectId, event) {
-      if (event) {
-        event.stopPropagation();
-        event.preventDefault();
-      }
-      var choice = prompt("Opciones para el proyecto \"" + projectId + "\":\n1: Nueva conversación aquí\n2: Renombrar proyecto\n(Escribe 1 o 2):", "1");
-      if (choice === "1") {
-        createNewConversation(projectId);
-      } else if (choice === "2") {
-        var newName = prompt("Nuevo nombre para el proyecto:", projectId);
-        if (newName && newName.trim().length > 0) {
-          var clean = newName.trim();
-          var proj = projectsData.find(function (p) { return p.id === projectId; });
-          if (proj) {
-            proj.id = clean;
-            proj.name = clean;
-          }
-          conversationsData.forEach(function (c) {
-            if (c.projectId === projectId) c.projectId = clean;
+    // ------------------------------------------------------------------
+    // AJUSTES ROBUSTOS (ANTIGRAVITY 2.0 STYLE)
+    // ------------------------------------------------------------------
+    var selectedSettingsProjectId = "IA_Automejorable";
+
+    function openSettingsModal(defaultTab) {
+      renderSettingsProjectsList();
+      switchSettingsTab(defaultTab || "general");
+      document.getElementById("modalSettings").classList.add("show");
+    }
+
+    function renderSettingsProjectsList() {
+      var listEl = document.getElementById("settingsProjectsList");
+      if (!listEl) return;
+      listEl.innerHTML = "";
+
+      var displayed = projectsData.slice(0, 3);
+      displayed.forEach(function (p) {
+        var item = document.createElement("div");
+        item.className = "settings-nav-item";
+        item.setAttribute("data-tab", "proj_" + p.id);
+        item.onclick = function () { openProjectSettings(p.id); };
+        item.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+          <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.name)}</span>
+        `;
+        listEl.appendChild(item);
+      });
+
+      if (projectsData.length > 3) {
+        var showAll = document.createElement("div");
+        showAll.className = "settings-nav-item";
+        showAll.style.fontSize = "12px";
+        showAll.style.color = "#60a5fa";
+        showAll.textContent = "Show All (" + projectsData.length + ")";
+        showAll.onclick = function () {
+          listEl.innerHTML = "";
+          projectsData.forEach(function (p) {
+            var item = document.createElement("div");
+            item.className = "settings-nav-item";
+            item.setAttribute("data-tab", "proj_" + p.id);
+            item.onclick = function () { openProjectSettings(p.id); };
+            item.innerHTML = `
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.name)}</span>
+            `;
+            listEl.appendChild(item);
           });
-          if (currentProjectId === projectId) {
-            currentProjectId = clean;
-            document.getElementById("breadcrumbProject").textContent = clean;
-          }
-          saveCurrentConversationState();
-          renderProjectsTree();
-          showTemporaryNotice("Proyecto renombrado");
+        };
+        listEl.appendChild(showAll);
+      }
+    }
+
+    function openProjectSettings(projectId) {
+      selectedSettingsProjectId = projectId;
+      var titleEl = document.getElementById("settingProjectTitle");
+      if (titleEl) titleEl.textContent = projectId;
+      var pathEl = document.getElementById("settingProjectPath");
+      if (pathEl) {
+        pathEl.textContent = "c:\\Users\\juand\\OneDrive\\Desktop\\" + projectId;
+      }
+      openSettingsModal("project");
+    }
+
+    function switchSettingsTab(tabName) {
+      document.querySelectorAll(".settings-nav-item").forEach(function (el) {
+        var target = el.getAttribute("data-tab");
+        el.classList.toggle("active", target === tabName || (tabName === "project" && target === "proj_" + selectedSettingsProjectId));
+      });
+
+      document.querySelectorAll(".settings-panel").forEach(function (panel) {
+        panel.classList.remove("active");
+      });
+
+      if (tabName === "general") {
+        document.getElementById("panelSettingsGeneral").classList.add("active");
+      } else if (tabName === "application") {
+        document.getElementById("panelSettingsApplication").classList.add("active");
+      } else if (tabName === "appearance") {
+        document.getElementById("panelSettingsAppearance").classList.add("active");
+      } else if (tabName === "shortcuts") {
+        document.getElementById("panelSettingsShortcuts").classList.add("active");
+      } else if (tabName === "notifications") {
+        document.getElementById("panelSettingsNotifications").classList.add("active");
+      } else if (tabName === "models") {
+        document.getElementById("panelSettingsModels").classList.add("active");
+      } else if (tabName === "project") {
+        document.getElementById("panelSettingsProject").classList.add("active");
+      } else if (tabName === "conversations") {
+        document.getElementById("panelSettingsGeneral").classList.add("active");
+        showTemporaryNotice("Configuración global de conversaciones");
+      }
+    }
+
+    function setQueuedMessages(mode) {
+      document.querySelectorAll("#ctrlQueuedMessages .segmented-btn").forEach(function (btn) {
+        btn.classList.toggle("active", btn.getAttribute("data-val") === mode);
+      });
+      showTemporaryNotice(mode === "queue" ? "Mensajes: En cola" : "Mensajes: Envío Inmediato");
+    }
+
+    function renameCurrentProjectFromSettings() {
+      if (!selectedSettingsProjectId) return;
+      var newName = prompt("Nuevo nombre para el proyecto:", selectedSettingsProjectId);
+      if (newName && newName.trim().length > 0) {
+        var clean = newName.trim();
+        var proj = projectsData.find(function (p) { return p.id === selectedSettingsProjectId; });
+        if (proj) {
+          proj.id = clean;
+          proj.name = clean;
         }
+        conversationsData.forEach(function (c) {
+          if (c.projectId === selectedSettingsProjectId) c.projectId = clean;
+        });
+        if (currentProjectId === selectedSettingsProjectId) {
+          currentProjectId = clean;
+          document.getElementById("breadcrumbProject").textContent = clean;
+        }
+        selectedSettingsProjectId = clean;
+        document.getElementById("settingProjectTitle").textContent = clean;
+        saveCurrentConversationState();
+        renderProjectsTree();
+        renderSettingsProjectsList();
+        showTemporaryNotice("Proyecto renombrado a: " + clean);
+      }
+    }
+
+    function deleteCurrentProjectFromSettings() {
+      if (!selectedSettingsProjectId) return;
+      contextDeleteProject(selectedSettingsProjectId);
+      switchSettingsTab("general");
+      renderSettingsProjectsList();
+    }
+
+    function clearBableCache() {
+      if (confirm("¿Limpiar caché local de Bable y restablecer sesiones iniciales?")) {
+        localStorage.removeItem("bable_conversations");
+        localStorage.removeItem("bable_projects");
+        localStorage.removeItem("bable_active_conv_id");
+        localStorage.removeItem("bable_active_project_id");
+        showTemporaryNotice("Caché limpiada. Recargando...");
+        setTimeout(function () { window.location.reload(); }, 400);
       }
     }
 
@@ -4176,7 +5105,7 @@
 
     document.getElementById("optToggleBrowser").addEventListener("click", toggleBrowserSidecar);
     document.getElementById("optToggleSidebar").addEventListener("click", function () { toggleSidebar(); });
-    document.getElementById("btnSettings").addEventListener("click", function () { document.getElementById("modalSettings").classList.add("show"); });
+    document.getElementById("btnSettings").addEventListener("click", function () { openSettingsModal("general"); });
 
     function closeModal(id) { document.getElementById(id).classList.remove("show"); }
 
