@@ -273,13 +273,16 @@ class SidecarProxyHandler(BaseHTTPRequestHandler):
             self._respond_json({"success": False, "error": "No soportado"}, status=400)
 
     def _respond_json(self, data: Dict[str, Any], status: int = 200):
-        body = json.dumps(data, ensure_ascii=False).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            body = json.dumps(data, ensure_ascii=False).encode("utf-8")
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(body)
+        except Exception:
+            pass
 
     def _handle_image(self, img_name: str):
         """Sirve imágenes generadas por el agente de forma segura y directa."""
@@ -958,14 +961,17 @@ class SidecarProxyHandler(BaseHTTPRequestHandler):
             self._respond_html(error_html, status=502)
 
     def _respond_html(self, html_content: str, status: int = 200):
-        data = html_content.encode("utf-8", errors="replace")
-        self.send_response(status)
-        self.send_header("Content-Type", "text/html; charset=utf-8")
-        self.send_header("Content-Length", str(len(data)))
-        # DESBLOQUEO TOTAL: sin X-Frame-Options ni CSP restrictivo
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.end_headers()
-        self.wfile.write(data)
+        try:
+            data = html_content.encode("utf-8", errors="replace")
+            self.send_response(status)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            # DESBLOQUEO TOTAL: sin X-Frame-Options ni CSP restrictivo
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(data)
+        except Exception:
+            pass
 
 
 def start_sidecar_proxy_server(port: int = SERVER_PORT) -> int:
