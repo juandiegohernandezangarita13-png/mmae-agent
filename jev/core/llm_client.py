@@ -329,16 +329,28 @@ Sé analítico, preciso y estructurado."""
             if getattr(self.config, "use_free_model_cascade", True) and self._has_valid_openrouter_key():
                 cascade = [c.id for c in self.free_router.get_ranked_candidates()]
                 models_to_try += [m for m in cascade if m not in models_to_try]
+            if getattr(self.config, "enable_fcc_fallback", True):
+                fcc_target = "fcc/" + getattr(self.config, "fcc_model", "open_router/meta-llama/llama-3.3-70b-instruct:free")
+                if fcc_target not in models_to_try:
+                    models_to_try.append(fcc_target)
         elif self.config.llm_provider == "gemini" and getattr(self.config, "gemini_api_key", ""):
             # Rotación round-robin del pool Flash (reparte la cuota por minuto entre 5 modelos)
             models_to_try = self._gemini_rotation()
             models_to_try += [m for m in self._openrouter_tail() if m not in models_to_try]
+            if getattr(self.config, "enable_fcc_fallback", True):
+                fcc_target = "fcc/" + getattr(self.config, "fcc_model", "open_router/meta-llama/llama-3.3-70b-instruct:free")
+                if fcc_target not in models_to_try:
+                    models_to_try.append(fcc_target)
         elif self.config.llm_provider in ("ollama", "lmstudio"):
             target_model = self.config.model_name
             models_to_try = [target_model] + [m for m in self.config.fallback_models if m != target_model]
             if getattr(self.config, "use_free_model_cascade", True):
                 cascade = [c.id for c in self.free_router.get_ranked_candidates()]
                 models_to_try += [m for m in cascade if m not in models_to_try]
+            if getattr(self.config, "enable_fcc_fallback", True):
+                fcc_target = "fcc/" + getattr(self.config, "fcc_model", "open_router/meta-llama/llama-3.3-70b-instruct:free")
+                if fcc_target not in models_to_try:
+                    models_to_try.append(fcc_target)
         else:
             if getattr(self.config, "use_free_model_cascade", True):
                 cascade = [c.id for c in self.free_router.get_ranked_candidates()]
@@ -346,15 +358,20 @@ Sé analítico, preciso y estructurado."""
             else:
                 target_model = self.config.model_name
                 models_to_try = [target_model] + [m for m in self.config.fallback_models if m != target_model]
+            if getattr(self.config, "enable_fcc_fallback", True):
+                fcc_target = "fcc/" + getattr(self.config, "fcc_model", "open_router/meta-llama/llama-3.3-70b-instruct:free")
+                if fcc_target not in models_to_try:
+                    models_to_try.append(fcc_target)
 
         last_error = None
         max_retries = max(getattr(self.config, "llm_max_retries", 2), 2)
 
         for model_candidate in models_to_try:
-            # 0. Soporte para Claude Code (Free-Claude-Code local daemon)
-            if self.config.llm_provider in ("claude_code", "fcc"):
+            # 0. Soporte para Claude Code (Free-Claude-Code local daemon) y fallback automático fcc/
+            if self.config.llm_provider in ("claude_code", "fcc") or model_candidate.startswith("fcc/"):
+                actual_model = model_candidate.replace("fcc/", "") if model_candidate.startswith("fcc/") else model_candidate
                 from jev.core.claude_code_bridge import ClaudeCodeBridge
-                bridge = ClaudeCodeBridge(default_model=model_candidate)
+                bridge = ClaudeCodeBridge(default_model=actual_model)
                 sys_content = None
                 chat_msgs = []
                 for m in messages:
@@ -365,7 +382,7 @@ Sé analítico, preciso y estructurado."""
                 res = bridge.send_message(
                     messages=chat_msgs,
                     system=sys_content,
-                    model=model_candidate if "/" in model_candidate else None,
+                    model=actual_model if "/" in actual_model else None,
                     max_tokens=getattr(self.config, "max_tokens", 2048),
                     temperature=self.config.temperature,
                     tools=tools

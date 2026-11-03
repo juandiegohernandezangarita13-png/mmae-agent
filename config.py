@@ -119,6 +119,7 @@ class AgentConfig:
         "qwen2.5-coder:latest"
     ])
     use_free_model_cascade: bool = os.getenv("JEV_USE_FREE_CASCADE", "true").lower() in ("true", "1", "yes")
+    enable_fcc_fallback: bool = os.getenv("JEV_ENABLE_FCC_FALLBACK", "true").lower() in ("true", "1", "yes")
     hybrid_mode: bool = os.getenv("JEV_HYBRID_MODE", "true").lower() in ("true", "1", "yes")
 
     # --- Interfaz de Pantalla y Periféricos ---
