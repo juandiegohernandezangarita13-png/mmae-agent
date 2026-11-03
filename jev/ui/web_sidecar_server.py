@@ -15,7 +15,7 @@ import re
 import json
 import queue
 import urllib.parse
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 import threading
 from typing import Optional, List, Dict, Any
 from pathlib import Path
@@ -26,7 +26,7 @@ WebSearchTool = None
 
 
 SERVER_PORT = 8765
-_SERVER_INSTANCE: Optional[HTTPServer] = None
+_SERVER_INSTANCE: Optional[ThreadingHTTPServer] = None
 _BRIDGE_INSTANCE: Optional[Any] = None
 _SSE_QUEUES: List[queue.Queue] = []
 _QUEUES_LOCK = threading.Lock()
@@ -969,7 +969,7 @@ class SidecarProxyHandler(BaseHTTPRequestHandler):
 
 
 def start_sidecar_proxy_server(port: int = SERVER_PORT) -> int:
-    """Inicia el servidor proxy del Sidecar y acceso móvil en segundo plano si no está ya activo."""
+    """Inicia el servidor proxy del Sidecar y acceso móvil multihilo en segundo plano si no está ya activo."""
     global _SERVER_INSTANCE
     if _SERVER_INSTANCE is not None:
         return port
@@ -977,15 +977,14 @@ def start_sidecar_proxy_server(port: int = SERVER_PORT) -> int:
     def _run_server():
         global _SERVER_INSTANCE
         try:
-            HTTPServer.allow_reuse_address = True
-            server = HTTPServer(("0.0.0.0", port), SidecarProxyHandler)
+            ThreadingHTTPServer.allow_reuse_address = True
+            server = ThreadingHTTPServer(("0.0.0.0", port), SidecarProxyHandler)
             _SERVER_INSTANCE = server
             server.serve_forever()
         except OSError:
-            # Si el puerto está en uso, intentar vincular en localhost
             try:
-                HTTPServer.allow_reuse_address = True
-                server = HTTPServer(("127.0.0.1", port), SidecarProxyHandler)
+                ThreadingHTTPServer.allow_reuse_address = True
+                server = ThreadingHTTPServer(("127.0.0.1", port), SidecarProxyHandler)
                 _SERVER_INSTANCE = server
                 server.serve_forever()
             except Exception:
@@ -1000,5 +999,5 @@ def start_sidecar_proxy_server(port: int = SERVER_PORT) -> int:
 
 if __name__ == "__main__":
     print(f"Bable Sidecar Web Engine iniciando en http://127.0.0.1:{SERVER_PORT}...")
-    server = HTTPServer(("127.0.0.1", SERVER_PORT), SidecarProxyHandler)
+    server = ThreadingHTTPServer(("0.0.0.0", SERVER_PORT), SidecarProxyHandler)
     server.serve_forever()

@@ -3483,41 +3483,46 @@
   <script>
     "use strict";
 
+    var PROXY_PORT = 8765;
+    var PROXY_BASE = (window.location && window.location.protocol && window.location.protocol.startsWith("http"))
+      ? window.location.origin
+      : ("http://127.0.0.1:" + PROXY_PORT);
+
     // ------------------------------------------------------------------
     // POLYFILL Y CLIENTE HTTP/SSE PARA NAVEGACIÓN MÓVIL Y REMOTA
     // ------------------------------------------------------------------
     if (!window.pywebview || !window.pywebview.api) {
-      console.log("📱 [Bable Mobile Remote]: Inicializando polyfill HTTP + SSE...");
+      console.log("📱 [Bable Mobile Remote]: Inicializando polyfill HTTP + SSE sobre " + PROXY_BASE + "...");
       window.pywebview = {
         api: {
           execute_task: function(prompt, imgB64) {
-            return fetch('/api/task', {
+            return fetch(PROXY_BASE + '/api/task', {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
               body: JSON.stringify({prompt: prompt, images: imgB64 ? [imgB64] : []})
             }).then(function(r) { return r.json(); });
           },
           new_conversation: function() {
-            return fetch('/api/new-conversation', {method: 'POST'}).then(function(r) { return r.json(); });
+            return fetch(PROXY_BASE + '/api/new-conversation', {method: 'POST'}).then(function(r) { return r.json(); });
           },
           get_projects_and_conversations: function() {
-            return fetch('/api/projects').then(function(r) { return r.json(); });
+            return fetch(PROXY_BASE + '/api/projects').then(function(r) { return r.json(); });
           },
           start_remote_tunnel: function() {
-            return fetch('/api/tunnel/start', {method: 'POST'}).then(function(r) { return r.json(); });
+            return fetch(PROXY_BASE + '/api/tunnel/start', {method: 'POST'}).then(function(r) { return r.json(); });
           },
           stop_remote_tunnel: function() {
-            return fetch('/api/tunnel/stop', {method: 'POST'}).then(function(r) { return r.json(); });
+            return fetch(PROXY_BASE + '/api/tunnel/stop', {method: 'POST'}).then(function(r) { return r.json(); });
           },
           get_remote_tunnel_status: function() {
-            return fetch('/api/tunnel/status').then(function(r) { return r.json(); });
+            return fetch(PROXY_BASE + '/api/tunnel/status').then(function(r) { return r.json(); });
           },
           reload_agent: function() {
             window.location.reload();
             return Promise.resolve({success: true});
           },
           restart_app: function() {
-            return fetch('/api/restart', {method: 'POST'}).then(function() {
+            return fetch(PROXY_BASE + '/api/restart', {method: 'POST'}).then(function() {
               setTimeout(function() { window.location.reload(); }, 1500);
             });
           },
@@ -3532,7 +3537,7 @@
 
       // Receptor Server-Sent Events en tiempo real en navegadores de celular
       try {
-        var sseSource = new EventSource('/api/events');
+        var sseSource = new EventSource(PROXY_BASE + '/api/events');
         sseSource.onmessage = function(event) {
           try {
             var payload = JSON.parse(event.data);
@@ -3553,9 +3558,6 @@
         console.warn("SSE no disponible en este cliente:", err);
       }
     }
-
-    var PROXY_PORT = 8765;
-    var PROXY_BASE = "http://127.0.0.1:" + PROXY_PORT;
 
     // Elementos DOM
     var chatStream = document.getElementById("chatStream");
