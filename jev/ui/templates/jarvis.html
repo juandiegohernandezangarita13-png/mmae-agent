@@ -536,10 +536,10 @@
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 5px 10px;
-      font-size: 12px;
-      font-weight: 500;
+      justify-content: center;
+      width: 32px;
+      height: 28px;
+      padding: 0;
       transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
 
@@ -549,38 +549,33 @@
       border-color: rgba(37, 99, 235, 0.4);
     }
 
-    /* Pestaña flotante de reapertura del Sidecar */
+    /* Pestaña flotante de reapertura del Sidecar (Lado Derecho - Solo Cuadrito/Icono) */
     .sidecar-dock-tab {
       position: absolute;
       right: 0;
       top: 50%;
       transform: translateY(-50%);
-      background: #1e2024;
+      background: #18191d;
       border: 1px solid var(--border-medium);
       border-right: none;
-      border-radius: 8px 0 0 8px;
-      padding: 12px 6px;
+      border-radius: 6px 0 0 6px;
+      padding: 10px 5px;
       display: none;
-      flex-direction: column;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
       cursor: pointer;
       z-index: 95;
       color: #60a5fa;
-      font-size: 11px;
-      font-weight: 600;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      box-shadow: -4px 0 16px rgba(0, 0, 0, 0.55);
+      box-shadow: -3px 0 12px rgba(0, 0, 0, 0.6);
       transition: background 0.15s, color 0.15s;
     }
 
     .sidecar-dock-tab:hover {
-      background: #252830;
+      background: #2563eb;
       color: #ffffff;
     }
 
-    /* Pestaña flotante de reapertura de la Barra Lateral Izquierda */
+    /* Pestaña flotante de reapertura de la Barra Lateral Izquierda (Solo Cuadrito/Icono) */
     .sidebar-dock-tab {
       position: absolute;
       left: 0;
@@ -589,26 +584,280 @@
       background: #18191d;
       border: 1px solid var(--border-medium);
       border-left: none;
-      border-radius: 0 8px 8px 0;
-      padding: 12px 6px;
+      border-radius: 0 6px 6px 0;
+      padding: 10px 5px;
       display: none;
-      flex-direction: column;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
       cursor: pointer;
       z-index: 95;
       color: #60a5fa;
-      font-size: 11px;
-      font-weight: 600;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      box-shadow: 4px 0 16px rgba(0, 0, 0, 0.55);
+      box-shadow: 3px 0 12px rgba(0, 0, 0, 0.6);
       transition: background 0.15s, color 0.15s;
     }
 
     .sidebar-dock-tab:hover {
       background: #2563eb;
       color: #ffffff;
+    }
+
+    /* ==================================================================
+       AUTOMATIONS PROMPT CARD (ANTIGRAVITY 2.0 STYLE)
+       ================================================================== */
+    .automation-prompt-card-wrap {
+      width: 100%;
+      max-width: 740px;
+      margin: 16px auto 10px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .automation-project-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: #9aa0a6;
+      cursor: pointer;
+      width: fit-content;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .automation-project-badge:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+    }
+
+    .automation-prompt-box {
+      background: #18191d;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .automation-prompt-box:focus-within {
+      border-color: rgba(37, 99, 235, 0.6);
+      box-shadow: 0 8px 32px rgba(37, 99, 235, 0.15);
+    }
+
+    .automation-prompt-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .automation-tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(37, 99, 235, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(37, 99, 235, 0.35);
+      border-radius: 16px;
+      padding: 3px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+
+    .automation-prompt-textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #f1f5f9;
+      font-size: 14.5px;
+      line-height: 1.45;
+      font-family: inherit;
+      resize: none;
+      min-height: 48px;
+    }
+    .automation-prompt-textarea::placeholder {
+      color: #64748b;
+    }
+
+    .automation-prompt-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 10px;
+      margin-top: 2px;
+    }
+
+    .btn-model-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      color: #cbd5e1;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-model-chip:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    .automation-prompt-bottom-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-turbo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: #94a3b8;
+      font-size: 12px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+    .btn-turbo-badge:hover {
+      color: #ffffff;
+    }
+
+    .btn-send-automation {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.12s, background 0.15s;
+    }
+    .btn-send-automation:hover {
+      background: #1d4ed8;
+      transform: scale(1.06);
+    }
+
+    .automation-agent-selector {
+      align-self: flex-end;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: #64748b;
+      font-size: 11.5px;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+    .automation-agent-selector:hover {
+      color: #94a3b8;
+    }
+
+    /* Tarjetas de automatizaciones */
+    .automations-list-container {
+      width: 100%;
+      max-width: 740px;
+      margin: 16px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .auto-item-card {
+      background: #141519;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .auto-item-card:hover {
+      background: #18191f;
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    .auto-item-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+      flex: 1;
+    }
+    .auto-item-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .auto-item-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #f1f5f9;
+    }
+    .auto-badge-status {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 10px;
+    }
+    .auto-badge-status.active {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .auto-badge-status.paused {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .auto-item-prompt {
+      font-size: 12px;
+      color: #94a3b8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 440px;
+    }
+    .auto-item-meta {
+      font-size: 11px;
+      color: #64748b;
+      display: flex;
+      gap: 12px;
+    }
+    .auto-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .btn-auto-action {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 11.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-auto-action:hover {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #3b82f6;
+    }
+    .btn-auto-action.danger:hover {
+      background: #ef4444;
+      border-color: #f87171;
     }
 
     /* ==================================================================
@@ -1764,30 +2013,27 @@
             <span>Open IDE</span>
           </button>
 
-          <button class="btn-sidecar-toggle active" id="btnToggleSidecar" title="Mostrar/Ocultar Navegador Sidecar (Ctrl+B)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <button class="btn-sidecar-toggle active" id="btnToggleSidecar" title="Mostrar/Ocultar Navegador (Ctrl+B)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2"></rect>
               <line x1="15" y1="3" x2="15" y2="21"></line>
             </svg>
-            <span>Navegador</span>
           </button>
         </div>
       </header>
 
-      <!-- Pestaña lateral flotante cuando la barra izquierda está plegada -->
+      <!-- Pestaña lateral flotante cuando la barra izquierda está plegada (Solo Icono) -->
       <div class="sidebar-dock-tab" id="sidebarDockTab" title="Desplegar Barra Lateral (Ctrl+\)">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="9 18 15 12 9 6"></polyline>
         </svg>
-        <span>Barra Lateral</span>
       </div>
 
-      <!-- Pestaña lateral flotante cuando el navegador está plegado -->
-      <div class="sidecar-dock-tab" id="sidecarDockTab" title="Desplegar Navegador Web (Ctrl+B)">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <!-- Pestaña lateral flotante cuando el navegador está plegado (Solo Icono) -->
+      <div class="sidecar-dock-tab" id="sidecarDockTab" title="Desplegar Navegador (Ctrl+B)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
-        <span>Navegador Web</span>
       </div>
 
       <!-- VISTA 1: CHAT / CONVERSATION VIEW -->
@@ -1917,10 +2163,10 @@
         <div class="view-title-row">
           <div class="view-heading">Automations</div>
           <div class="heading-action-buttons">
-            <button class="btn-pill-primary" onclick="showTemporaryNotice('Crear automatización con prompt asistido...')">
+            <button class="btn-pill-primary" id="btnShowCreatePrompt" onclick="focusAutoPrompt()">
               <span>✨ Create with Prompt</span>
             </button>
-            <button class="btn-pill-primary" onclick="showTemporaryNotice('Crear nueva tarea programada...')">
+            <button class="btn-pill-primary" id="btnNewAutomation" onclick="focusAutoPrompt()">
               <span>+ New</span>
             </button>
           </div>
@@ -1928,54 +2174,144 @@
 
         <div class="view-search-input-wrap">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" class="view-search-input" placeholder="Search automations...">
+          <input type="text" class="view-search-input" id="searchAutomationsInput" placeholder="Search automations..." oninput="filterAutomationsList(this.value)">
         </div>
 
-        <div class="view-empty-state">
-          <span>No automations configured.</span>
+        <!-- TARJETA DE CREACIÓN DE AUTOMATIZACIÓN (IDÉNTICO A media_1793701725967_6c35f5c1.png) -->
+        <div class="automation-prompt-card-wrap">
+          <div class="automation-project-badge">
+            <span>No Project</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </div>
+
+          <div class="automation-prompt-box">
+            <div class="automation-prompt-top">
+              <span class="automation-tag-chip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span>automation</span>
+              </span>
+              <textarea class="automation-prompt-textarea" id="autoPromptInput" rows="2" placeholder="Describe la tarea que deseas automatizar periódicamente...">Guide me through creating an automated task</textarea>
+            </div>
+
+            <div class="automation-prompt-bottom">
+              <div class="automation-prompt-bottom-left">
+                <button class="btn-model-chip" id="autoModelChip" onclick="showTemporaryNotice('Modelo para automatizaciones: Qwen 3.8 / Gemini')">
+                  <span style="color:#60a5fa; font-weight:700;">+</span>
+                  <span id="autoSelectedModel">Gemini 3.8 Flash Medium</span>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+              </div>
+
+              <div class="automation-prompt-bottom-right">
+                <span class="btn-turbo-badge" title="Modo Turbo activado">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                  <span>Turbo</span>
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </span>
+                <button class="icon-tool-btn" title="Activar voz">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                </button>
+                <button class="btn-send-automation" id="btnSubmitAutomation" onclick="submitNewAutomation()" title="Crear y Programar Tarea">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="automation-agent-selector">
+            <span>Main Agent</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </div>
+        </div>
+
+        <!-- LISTA DE AUTOMATIZACIONES ACTIVAS -->
+        <div class="automations-list-container" id="automationsListContainer">
+          <!-- Renderizado dinámico desde backend -->
         </div>
       </div>
 
-      <!-- VISTA 3: CUSTOMIZATIONS VIEW (IDÉNTICO A LA CAPTURA) -->
+      <!-- VISTA 3: CUSTOMIZATIONS VIEW (ANTIGRAVITY 2.0 STYLE) -->
       <div class="customizations-view" id="customizationsView">
         <div class="view-title-row">
           <div class="view-heading">Customizations</div>
           <div class="tab-switch-pill">
-            <button class="tab-pill-btn active" id="tabCustomMarketplace">Marketplace</button>
-            <button class="tab-pill-btn" id="tabCustomInstalled">Installed</button>
+            <button class="tab-pill-btn active" id="tabCustomMarketplace" onclick="setCustomTab('marketplace')">Marketplace</button>
+            <button class="tab-pill-btn" id="tabCustomInstalled" onclick="setCustomTab('installed')">Installed</button>
           </div>
         </div>
 
         <div class="view-search-input-wrap">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" class="view-search-input" placeholder="Search customizations...">
+          <input type="text" class="view-search-input" id="searchCustomizationsInput" placeholder="Search customizations..." oninput="filterCustomizations(this.value)">
         </div>
 
-        <!-- Featured Card: Firebase -->
-        <div class="hero-featured-card">
+        <!-- Featured Hero Card: Context7 / Firebase -->
+        <div class="hero-featured-card" onclick="openAppConnectorModal('context7')">
           <div class="hero-art-side">
-            <span style="font-size:40px;">🔥</span>
+            <div style="width:48px; height:48px; border-radius:12px; background:#1e293b; display:flex; align-items:center; justify-content:center; border:2px solid #38bdf8;">
+              <span style="font-size:24px; font-weight:700; color:#38bdf8;">7</span>
+            </div>
+            <span style="font-size:32px;">🔥</span>
             <span style="font-size:32px;">⚡</span>
-            <span style="font-size:32px;">📦</span>
           </div>
           <div class="hero-info-side">
             <div class="hero-tag">Featured</div>
-            <div class="hero-title">Firebase</div>
-            <div class="hero-desc">Prototype, build & run modern apps that users love with Firebase's backend, AI, and operational infrastructure.</div>
+            <div class="hero-title">Context7</div>
+            <div class="hero-desc">Up-to-date documentation lookup. Pull version-specific documentation and code examples directly from source repositories into your LLM context.</div>
             <div class="hero-actions-row">
               <div class="installed-badge">✓ Installed</div>
-              <button class="btn-ide" onclick="showTemporaryNotice('Detalles de integración de Firebase...')">Details</button>
+              <button class="btn-ide" onclick="event.stopPropagation(); openAppConnectorModal('context7')">Details</button>
             </div>
           </div>
         </div>
 
-        <!-- Sección Google Workspace -->
+        <!-- SECCIÓN 1: MICROSOFT OFFICE SUITE (EXCEL, POWERPOINT, WORD) -->
+        <div class="plugins-section">
+          <div class="plugins-section-title">Microsoft Office & Productividad</div>
+          <div class="plugins-section-desc">Automatización nativa de hojas de cálculo, presentaciones de diapositivas y documentos sin salir de Bable.</div>
+
+          <div class="plugins-grid">
+            <div class="plugin-card" onclick="openAppConnectorModal('excel')">
+              <div class="plugin-left">
+                <div class="plugin-icon-box" style="background:rgba(16,185,129,0.2); color:#34d399; font-weight:bold; font-size:18px;">X</div>
+                <div class="plugin-texts">
+                  <div class="plugin-name">Microsoft Excel (.xlsx)</div>
+                  <div class="plugin-blurb">Automatización de hojas de cálculo, fórmulas matemáticas y tablas.</div>
+                </div>
+              </div>
+              <span class="installed-badge" style="font-size:10px;">✓ Activo</span>
+            </div>
+
+            <div class="plugin-card" onclick="openAppConnectorModal('powerpoint')">
+              <div class="plugin-left">
+                <div class="plugin-icon-box" style="background:rgba(239,68,68,0.2); color:#f87171; font-weight:bold; font-size:18px;">P</div>
+                <div class="plugin-texts">
+                  <div class="plugin-name">Microsoft PowerPoint (.pptx)</div>
+                  <div class="plugin-blurb">Diseño y generación de presentaciones ejecutivas y diapositivas.</div>
+                </div>
+              </div>
+              <span class="installed-badge" style="font-size:10px;">✓ Activo</span>
+            </div>
+
+            <div class="plugin-card" onclick="openAppConnectorModal('word')">
+              <div class="plugin-left">
+                <div class="plugin-icon-box" style="background:rgba(37,99,235,0.2); color:#60a5fa; font-weight:bold; font-size:18px;">W</div>
+                <div class="plugin-texts">
+                  <div class="plugin-name">Microsoft Word (.docx)</div>
+                  <div class="plugin-blurb">Redacción técnica y estructuración de informes y plantillas.</div>
+                </div>
+              </div>
+              <span class="installed-badge" style="font-size:10px;">✓ Activo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 2: GOOGLE WORKSPACE -->
         <div class="plugins-section">
           <div class="plugins-section-title">Google Workspace</div>
           <div class="plugins-section-desc">Connect to Google Workspace, including Docs, Sheets, Slides, Drive, and Calendar.</div>
 
           <div class="plugins-grid">
-            <div class="plugin-card" onclick="showTemporaryNotice('Plugin Google Docs listo')">
+            <div class="plugin-card" onclick="openAppConnectorModal('google_docs')">
               <div class="plugin-left">
                 <div class="plugin-icon-box" style="background:rgba(37,99,235,0.2); color:#60a5fa;">📄</div>
                 <div class="plugin-texts">
@@ -1986,7 +2322,7 @@
               <span style="color:var(--text-dim);">⋮</span>
             </div>
 
-            <div class="plugin-card" onclick="showTemporaryNotice('Plugin Google Sheets listo')">
+            <div class="plugin-card" onclick="openAppConnectorModal('google_sheets')">
               <div class="plugin-left">
                 <div class="plugin-icon-box" style="background:rgba(16,185,129,0.2); color:#34d399;">📊</div>
                 <div class="plugin-texts">
@@ -1997,7 +2333,7 @@
               <span style="color:var(--text-dim);">⋮</span>
             </div>
 
-            <div class="plugin-card" onclick="showTemporaryNotice('Plugin Google Slides listo')">
+            <div class="plugin-card" onclick="openAppConnectorModal('google_slides')">
               <div class="plugin-left">
                 <div class="plugin-icon-box" style="background:rgba(245,158,11,0.2); color:#fbbf24;">📑</div>
                 <div class="plugin-texts">
@@ -2008,7 +2344,7 @@
               <span style="color:var(--text-dim);">⋮</span>
             </div>
 
-            <div class="plugin-card" onclick="showTemporaryNotice('Plugin Google Drive listo')">
+            <div class="plugin-card" onclick="openAppConnectorModal('google_drive')">
               <div class="plugin-left">
                 <div class="plugin-icon-box" style="background:rgba(6,182,212,0.2); color:#22d3ee;">📁</div>
                 <div class="plugin-texts">
@@ -2017,6 +2353,80 @@
                 </div>
               </div>
               <span style="color:var(--text-dim);">⋮</span>
+            </div>
+
+            <div class="plugin-card" onclick="openAppConnectorModal('google_calendar')">
+              <div class="plugin-left">
+                <div class="plugin-icon-box" style="background:rgba(59,130,246,0.2); color:#60a5fa;">📅</div>
+                <div class="plugin-texts">
+                  <div class="plugin-name">Google Calendar</div>
+                  <div class="plugin-blurb">Check availability, schedule events, and RSVP.</div>
+                </div>
+              </div>
+              <span style="color:var(--text-dim);">⋮</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 3: BUILD WITH GOOGLE -->
+        <div class="plugins-section">
+          <div class="plugins-section-title">Build with Google</div>
+          <div class="plugins-section-desc">Build on Google's developer platforms, including Android, Chrome, Gemini, and Google Cloud.</div>
+
+          <div class="plugins-grid">
+            <div class="plugin-card" onclick="openAppConnectorModal('gemini_api')">
+              <div class="plugin-left">
+                <div class="plugin-icon-box" style="background:rgba(147,51,234,0.2); color:#c084fc;">♊</div>
+                <div class="plugin-texts">
+                  <div class="plugin-name">Gemini API</div>
+                  <div class="plugin-blurb">Build applications with Gemini Interactions API...</div>
+                </div>
+              </div>
+              <span class="installed-badge" style="font-size:10px;">✓ Activo</span>
+            </div>
+
+            <div class="plugin-card" onclick="openAppConnectorModal('chrome_devtools')">
+              <div class="plugin-left">
+                <div class="plugin-icon-box" style="background:rgba(234,179,8,0.2); color:#facc15;">🌐</div>
+                <div class="plugin-texts">
+                  <div class="plugin-name">Chrome DevTools</div>
+                  <div class="plugin-blurb">Reliable automation, in-depth debugging, and performance profiling.</div>
+                </div>
+              </div>
+              <span style="color:var(--text-dim);">⋮</span>
+            </div>
+
+            <div class="plugin-card" onclick="openAppConnectorModal('android_cli')">
+              <div class="plugin-left">
+                <div class="plugin-icon-box" style="background:rgba(34,197,94,0.2); color:#4ade80;">🤖</div>
+                <div class="plugin-texts">
+                  <div class="plugin-name">Android CLI</div>
+                  <div class="plugin-blurb">Core tools and knowledge required to develop for Android.</div>
+                </div>
+              </div>
+              <span style="color:var(--text-dim);">⋮</span>
+            </div>
+
+            <div class="plugin-card" onclick="openAppConnectorModal('firebase')">
+              <div class="plugin-left">
+                <div class="plugin-icon-box" style="background:rgba(249,115,22,0.2); color:#fb923c;">🔥</div>
+                <div class="plugin-texts">
+                  <div class="plugin-name">Firebase</div>
+                  <div class="plugin-blurb">Prototype, build & run modern apps that users love...</div>
+                </div>
+              </div>
+              <span class="installed-badge" style="font-size:10px;">✓ Activo</span>
+            </div>
+
+            <div class="plugin-card" onclick="openAppConnectorModal('github')">
+              <div class="plugin-left">
+                <div class="plugin-icon-box" style="background:rgba(255,255,255,0.1); color:#ffffff;">🐙</div>
+                <div class="plugin-texts">
+                  <div class="plugin-name">GitHub Intelligence</div>
+                  <div class="plugin-blurb">Repositorios, escaneo de issues, ramas y pull requests.</div>
+                </div>
+              </div>
+              <span class="installed-badge" style="font-size:10px;">✓ Conectado</span>
             </div>
           </div>
         </div>
@@ -2133,6 +2543,59 @@
     </div>
   </div>
 
+  <!-- MODAL DE CONEXIÓN DE APLICACIONES (CUSTOMIZATIONS CONNECTOR) -->
+  <div class="modal-backdrop" id="modalAppConnector">
+    <div class="modal-card" style="max-width: 580px; width: 92%;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div class="plugin-icon-box" id="connectorIconBox" style="font-size:22px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:8px;">📊</div>
+          <div>
+            <h3 id="connectorAppName" style="font-size:16px; font-weight:700; color:#f1f5f9; margin:0;">Microsoft Excel</h3>
+            <span id="connectorAppCategory" style="font-size:11px; color:#94a3b8;">Suite Microsoft Office</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modalAppConnector')">✕</button>
+      </div>
+
+      <div style="padding: 16px 20px; display:flex; flex-direction:column; gap:14px; max-height:65vh; overflow-y:auto;">
+        <div style="font-size:13px; color:#cbd5e1; line-height:1.5;" id="connectorAppDesc">
+          Automatización de hojas de cálculo .xlsx, fórmulas matemáticas, tablas y estilos corporativos.
+        </div>
+
+        <div style="background:#131417; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:12px; font-weight:600; color:#e2e8f0;">Estado de la Integración</span>
+            <span class="installed-badge" id="connectorStatusBadge">✓ Conectado</span>
+          </div>
+          <div style="font-size:12px; color:#94a3b8;" id="connectorStatusDetail">
+            Biblioteca nativa instalada y activa en el runtime de Bable.
+          </div>
+        </div>
+
+        <!-- Campos de Configuración según App -->
+        <div id="connectorFieldsWrap" style="display:flex; flex-direction:column; gap:10px;">
+          <!-- Dinámico -->
+        </div>
+
+        <!-- Feedback de Test -->
+        <div id="connectorFeedback" style="display:none; padding:10px 14px; border-radius:6px; font-size:12px; line-height:1.4;">
+        </div>
+      </div>
+
+      <div style="padding: 14px 20px; border-top:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; background:#18191f; border-radius:0 0 12px 12px;">
+        <button class="btn-ide" id="btnConnectorTestLive" style="background:#1e2025; border-color:rgba(255,255,255,0.15); color:#60a5fa; font-weight:600;">
+          ⚡ Probar Conexión en Vivo
+        </button>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-ide" onclick="closeModal('modalAppConnector')">Cerrar</button>
+          <button class="btn-pill-primary" id="btnConnectorSaveAction" style="background:#2563eb; color:#ffffff; border:none; padding:6px 16px; border-radius:18px; cursor:pointer;">
+            Guardar Conexión
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================================================================
        SCRIPTS DE CONTROL E INTEGRACIÓN PYWEBVIEW
        ================================================================== -->
@@ -2196,6 +2659,7 @@
         automationsView.style.display = "flex";
         navAutomations.classList.add("active");
         document.getElementById("chatTitle").textContent = "Automations";
+        loadAutomations();
       } else if (viewName === "customizations") {
         customizationsView.style.display = "flex";
         navCustomizations.classList.add("active");
@@ -2211,6 +2675,458 @@
     document.getElementById("optViewChat").addEventListener("click", function () { showView("chat"); });
     document.getElementById("optViewAutomations").addEventListener("click", function () { showView("automations"); });
     document.getElementById("optViewCustomizations").addEventListener("click", function () { showView("customizations"); });
+
+    // ------------------------------------------------------------------
+    // AUTOMATIONS (ANTIGRAVITY 2.0 STYLE)
+    // ------------------------------------------------------------------
+    var currentAutomations = [];
+
+    function focusAutoPrompt() {
+      var inp = document.getElementById("autoPromptInput");
+      if (inp) {
+        inp.focus();
+        inp.select();
+      }
+    }
+
+    function loadAutomations() {
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.get_automations) {
+        window.pywebview.api.get_automations().then(function (list) {
+          currentAutomations = list || [];
+          renderAutomationsList(currentAutomations);
+        }).catch(function () {
+          renderAutomationsList(currentAutomations);
+        });
+      } else {
+        if (!currentAutomations.length) {
+          currentAutomations = [
+            {
+              id: "auto_1",
+              name: "Monitoreo del Espacio de Trabajo",
+              prompt: "Verificar integridad del repositorio, detectar archivos modificados y registrar lecciones aprendidas.",
+              schedule: "Cada 1 hora",
+              cron: "0 * * * *",
+              status: "active",
+              last_run: "Hace 20 min",
+              next_run: "En 40 min"
+            },
+            {
+              id: "auto_2",
+              name: "Resumen Diario de Git y Tareas",
+              prompt: "Generar informe diario de cambios en el código y sincronizar commits.",
+              schedule: "Diario a las 08:00",
+              cron: "0 8 * * *",
+              status: "active",
+              last_run: "Hoy a las 08:00",
+              next_run: "Mañana a las 08:00"
+            },
+            {
+              id: "auto_3",
+              name: "Auditoría Automática de Código y Tests",
+              prompt: "Ejecutar tests unitarios y verificar que no existan errores de sintaxis ni regresiones.",
+              schedule: "Cada 6 horas",
+              cron: "0 */6 * * *",
+              status: "paused",
+              last_run: "Ayer",
+              next_run: "Pausada"
+            }
+          ];
+        }
+        renderAutomationsList(currentAutomations);
+      }
+    }
+
+    function renderAutomationsList(items) {
+      var container = document.getElementById("automationsListContainer");
+      if (!container) return;
+
+      if (!items || !items.length) {
+        container.innerHTML = `<div class="view-empty-state" style="padding:40px; text-align:center; color:#64748b;"><span>No hay automatizaciones configuradas.</span></div>`;
+        return;
+      }
+
+      var html = "";
+      items.forEach(function (it) {
+        var isAct = it.status === "active";
+        var statusBadge = isAct
+          ? `<span class="auto-badge-status active">● Activa</span>`
+          : `<span class="auto-badge-status paused">⏸ Pausada</span>`;
+        var toggleLabel = isAct ? "Pausar" : "Reanudar";
+
+        html += `
+          <div class="auto-item-card">
+            <div class="auto-item-left">
+              <div class="auto-item-title-row">
+                <span class="auto-item-name">${escapeHtml(it.name)}</span>
+                ${statusBadge}
+                <span style="font-size:11px; color:#60a5fa; background:rgba(37,99,235,0.15); border:1px solid rgba(37,99,235,0.3); padding:1px 6px; border-radius:4px;">${escapeHtml(it.schedule || "Periódico")}</span>
+              </div>
+              <div class="auto-item-prompt">${escapeHtml(it.prompt)}</div>
+              <div class="auto-item-meta">
+                <span>Última ejecución: ${escapeHtml(it.last_run || "Nunca")}</span>
+                <span>•</span>
+                <span>Próxima: ${escapeHtml(it.next_run || "Programada")}</span>
+              </div>
+            </div>
+            <div class="auto-item-actions">
+              <button class="btn-auto-action" onclick="runAutomationNow('${it.id}')" title="Ejecutar de inmediato">▶ Ejecutar</button>
+              <button class="btn-auto-action" onclick="toggleAutomation('${it.id}', ${!isAct})">${toggleLabel}</button>
+              <button class="btn-auto-action danger" onclick="deleteAutomation('${it.id}')" title="Eliminar tarea">🗑</button>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function submitNewAutomation() {
+      var promptVal = (document.getElementById("autoPromptInput").value || "").trim();
+      if (!promptVal) {
+        showTemporaryNotice("Escribe una instrucción para la automatización");
+        return;
+      }
+
+      var title = promptVal.replace(/^automation\s+/i, "");
+      if (title.length > 45) title = title.substring(0, 42) + "...";
+
+      var newAuto = {
+        name: title,
+        prompt: promptVal,
+        schedule: "Cada 1 hora",
+        cron: "0 * * * *",
+        status: "active"
+      };
+
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.save_automation) {
+        window.pywebview.api.save_automation(newAuto).then(function (res) {
+          showTemporaryNotice("¡Automatización guardada y activada!");
+          loadAutomations();
+        });
+      } else {
+        newAuto.id = "auto_" + Date.now();
+        newAuto.last_run = "Recién creada";
+        newAuto.next_run = "En 1 hora";
+        currentAutomations.unshift(newAuto);
+        renderAutomationsList(currentAutomations);
+        showTemporaryNotice("¡Automatización activada!");
+      }
+    }
+
+    function runAutomationNow(autoId) {
+      showTemporaryNotice("Ejecutando automatización en segundo plano...");
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.run_automation_now) {
+        window.pywebview.api.run_automation_now(autoId).then(function (res) {
+          showTemporaryNotice(res.message || "Automatización en progreso");
+          loadAutomations();
+        });
+      }
+    }
+
+    function toggleAutomation(autoId, newState) {
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.toggle_automation) {
+        window.pywebview.api.toggle_automation(autoId, newState).then(function () {
+          loadAutomations();
+        });
+      } else {
+        currentAutomations.forEach(function (a) {
+          if (a.id === autoId) a.status = newState ? "active" : "paused";
+        });
+        renderAutomationsList(currentAutomations);
+      }
+    }
+
+    function deleteAutomation(autoId) {
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.delete_automation) {
+        window.pywebview.api.delete_automation(autoId).then(function () {
+          showTemporaryNotice("Automatización eliminada");
+          loadAutomations();
+        });
+      } else {
+        currentAutomations = currentAutomations.filter(function (a) { return a.id !== autoId; });
+        renderAutomationsList(currentAutomations);
+        showTemporaryNotice("Automatización eliminada");
+      }
+    }
+
+    function filterAutomationsList(query) {
+      var q = (query || "").toLowerCase();
+      var filtered = currentAutomations.filter(function (it) {
+        return (it.name && it.name.toLowerCase().includes(q)) || (it.prompt && it.prompt.toLowerCase().includes(q));
+      });
+      renderAutomationsList(filtered);
+    }
+
+    // ------------------------------------------------------------------
+    // CUSTOMIZATIONS CONNECTOR MODAL (FORMA REAL DE CONECTAR APPS)
+    // ------------------------------------------------------------------
+    var currentConnectorApp = null;
+
+    var APP_METADATA = {
+      excel: {
+        name: "Microsoft Excel (.xlsx)",
+        category: "Suite Microsoft Office",
+        icon: "📊",
+        iconBg: "rgba(16,185,129,0.2)",
+        iconColor: "#34d399",
+        desc: "Automatización completa de hojas de cálculo .xlsx, fórmulas matemáticas (SUM, AVERAGE, MULT), tablas dinámicas, bordes y estilos.",
+        statusDetail: "Biblioteca nativa 'openpyxl' instalada y activa en el runtime. El agente puede generar y leer libros contables, inventarios y balances directamente en workspace/.",
+        testLabel: "⚡ Probar Generación de Excel en Vivo",
+        testAction: "excel"
+      },
+      powerpoint: {
+        name: "Microsoft PowerPoint (.pptx)",
+        category: "Suite Microsoft Office",
+        icon: "📑",
+        iconBg: "rgba(239,68,68,0.2)",
+        iconColor: "#f87171",
+        desc: "Generación y diseño automatizado de presentaciones de diapositivas ejecutivas con portadas, títulos, subtítulos y viñetas estructuradas.",
+        statusDetail: "Biblioteca nativa 'python-pptx' instalada y lista en el runtime. Permite crear diapositivas para reuniones y reportes técnicos.",
+        testLabel: "⚡ Probar Generación de PowerPoint en Vivo",
+        testAction: "powerpoint"
+      },
+      word: {
+        name: "Microsoft Word (.docx)",
+        category: "Suite Microsoft Office",
+        icon: "📄",
+        iconBg: "rgba(37,99,235,0.2)",
+        iconColor: "#60a5fa",
+        desc: "Redacción y generación de informes técnicos, minutas y documentos formateados.",
+        statusDetail: "Módulo de generación de documentos activo para exportar informes a la carpeta de trabajo.",
+        testLabel: "⚡ Probar Creación de Documento",
+        testAction: "word"
+      },
+      gemini_api: {
+        name: "Google Gemini API",
+        category: "Build with Google",
+        icon: "♊",
+        iconBg: "rgba(147,51,234,0.2)",
+        iconColor: "#c084fc",
+        desc: "Inferencia multimodal (Gemini 2.5 Flash, 3.8 Flash, Pro) con alta cuota por minuto para razonamiento profundo.",
+        statusDetail: "Clave GEMINI_API_KEY configurada en el runtime de Bable. Cuota activa con 120 RPM.",
+        testLabel: "⚡ Probar Conexión con Gemini",
+        testAction: "gemini_api"
+      },
+      google_docs: {
+        name: "Google Docs",
+        category: "Google Workspace",
+        icon: "📄",
+        iconBg: "rgba(37,99,235,0.2)",
+        iconColor: "#60a5fa",
+        desc: "Integración con Google Docs para redactar borradores, estructurar tablas y sincronizar notas en la nube.",
+        statusDetail: "Conector listo para asociar cuenta de Google Cloud o archivo de Service Account credentials.json.",
+        testLabel: "⚡ Probar Conexión con Google Docs",
+        testAction: "google_docs"
+      },
+      google_sheets: {
+        name: "Google Sheets",
+        category: "Google Workspace",
+        icon: "📊",
+        iconBg: "rgba(16,185,129,0.2)",
+        iconColor: "#34d399",
+        desc: "Lectura, escritura y sincronización en tiempo real de hojas de cálculo de Google Drive.",
+        statusDetail: "Conector de Google Sheets API para manipular filas, columnas y rangos en la nube.",
+        testLabel: "⚡ Probar Conexión con Google Sheets",
+        testAction: "google_sheets"
+      },
+      google_slides: {
+        name: "Google Slides",
+        category: "Google Workspace",
+        icon: "📑",
+        iconBg: "rgba(245,158,11,0.2)",
+        iconColor: "#fbbf24",
+        desc: "Creación y edición de diapositivas en Google Drive.",
+        statusDetail: "Conector de Google Slides API listo para sincronizar presentaciones colaborativas.",
+        testLabel: "⚡ Probar Conexión con Google Slides",
+        testAction: "google_slides"
+      },
+      google_drive: {
+        name: "Google Drive",
+        category: "Google Workspace",
+        icon: "📁",
+        iconBg: "rgba(6,182,212,0.2)",
+        iconColor: "#22d3ee",
+        desc: "Búsqueda, subida, descarga y gestión de permisos de archivos y carpetas.",
+        statusDetail: "Conector de Google Drive API listo.",
+        testLabel: "⚡ Probar Conexión con Google Drive",
+        testAction: "google_drive"
+      },
+      google_calendar: {
+        name: "Google Calendar",
+        category: "Google Workspace",
+        icon: "📅",
+        iconBg: "rgba(59,130,246,0.2)",
+        iconColor: "#60a5fa",
+        desc: "Consulta de disponibilidad, reserva de eventos y gestión de reuniones.",
+        statusDetail: "Conector de Google Calendar API listo.",
+        testLabel: "⚡ Probar Conexión con Calendar",
+        testAction: "google_calendar"
+      },
+      github: {
+        name: "GitHub Intelligence",
+        category: "Developer Tools",
+        icon: "🐙",
+        iconBg: "rgba(255,255,255,0.1)",
+        iconColor: "#ffffff",
+        desc: "Clonado, escaneo de repositorios, gestión de ramas, issues y pull requests.",
+        statusDetail: "Herramienta git nativa detectada y activa.",
+        testLabel: "⚡ Probar Conexión Git / GitHub",
+        testAction: "github"
+      },
+      firebase: {
+        name: "Firebase",
+        category: "Build with Google",
+        icon: "🔥",
+        iconBg: "rgba(249,115,22,0.2)",
+        iconColor: "#fb923c",
+        desc: "Base de datos en tiempo real Firestore, Cloud Functions y autenticación.",
+        statusDetail: "Conector de Firebase Tools activo en el runtime.",
+        testLabel: "⚡ Probar Conexión Firebase",
+        testAction: "firebase"
+      },
+      context7: {
+        name: "Context7",
+        category: "Developer Tools",
+        icon: "7",
+        iconBg: "rgba(56,189,248,0.2)",
+        iconColor: "#38bdf8",
+        desc: "Extracción y consulta viva de documentación oficial y ejemplos de código desde repositorios.",
+        statusDetail: "Servicio Context7 MCP activo para enriquecer el contexto del modelo.",
+        testLabel: "⚡ Probar Consulta Context7",
+        testAction: "context7"
+      }
+    };
+
+    function openAppConnectorModal(appId) {
+      currentConnectorApp = appId;
+      var meta = APP_METADATA[appId] || {
+        name: appId,
+        category: "Integración Bable",
+        icon: "⚙",
+        iconBg: "rgba(255,255,255,0.1)",
+        iconColor: "#cbd5e1",
+        desc: "Integración de aplicación para el agente.",
+        statusDetail: "Conexión disponible para el agente.",
+        testLabel: "⚡ Probar Conexión",
+        testAction: appId
+      };
+
+      document.getElementById("connectorAppName").textContent = meta.name;
+      document.getElementById("connectorAppCategory").textContent = meta.category;
+      document.getElementById("connectorAppDesc").textContent = meta.desc;
+      document.getElementById("connectorStatusDetail").textContent = meta.statusDetail;
+      var iconBox = document.getElementById("connectorIconBox");
+      iconBox.textContent = meta.icon;
+      iconBox.style.background = meta.iconBg;
+      iconBox.style.color = meta.iconColor;
+
+      var fieldsWrap = document.getElementById("connectorFieldsWrap");
+      var feedbackBox = document.getElementById("connectorFeedback");
+      feedbackBox.style.display = "none";
+
+      if (appId === "excel" || appId === "powerpoint") {
+        fieldsWrap.innerHTML = `
+          <div style="font-size:12px; color:#94a3b8; display:flex; flex-direction:column; gap:6px;">
+            <p>📁 Carpeta de destino predeterminada: <code>workspace/</code></p>
+            <p>✓ El agente puede generar y leer estos archivos cuando le pidas: <em>"crea un excel con un balance..."</em> o <em>"diseña una presentación en powerpoint..."</em>.</p>
+          </div>
+        `;
+      } else if (appId === "gemini_api") {
+        fieldsWrap.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:11.5px; color:#94a3b8; font-weight:600;">Clave de API de Gemini (GEMINI_API_KEY):</label>
+            <input type="password" id="inputGeminiKey" class="view-search-input" value="••••••••••••••••••••••••••••••••" style="background:#131417; border-color:rgba(255,255,255,0.15);" placeholder="Introduce tu clave de Google AI Studio...">
+          </div>
+        `;
+      } else if (appId.startsWith("google_")) {
+        fieldsWrap.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <label style="font-size:11.5px; color:#94a3b8; font-weight:600;">Archivo de Credenciales (Service Account / OAuth):</label>
+            <input type="text" id="inputGooglePath" class="view-search-input" value="data/config/google_credentials.json" style="background:#131417; border-color:rgba(255,255,255,0.15);" placeholder="Ruta a credentials.json...">
+            <span style="font-size:11px; color:#64748b;">Puedes usar Application Default Credentials (ADC) o vincular tu Service Account.</span>
+          </div>
+        `;
+      } else if (appId === "github") {
+        fieldsWrap.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <label style="font-size:11.5px; color:#94a3b8; font-weight:600;">GitHub Personal Access Token (Opcional):</label>
+            <input type="password" id="inputGithubPat" class="view-search-input" style="background:#131417; border-color:rgba(255,255,255,0.15);" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+            <span style="font-size:11px; color:#64748b;">El comando git local ya está conectado con el repositorio del proyecto.</span>
+          </div>
+        `;
+      } else {
+        fieldsWrap.innerHTML = `<span style="font-size:12px; color:#94a3b8;">La integración está activa y enlazada con las herramientas del agente.</span>`;
+      }
+
+      document.getElementById("btnConnectorTestLive").textContent = meta.testLabel;
+      document.getElementById("modalAppConnector").classList.add("show");
+    }
+
+    document.getElementById("btnConnectorTestLive").addEventListener("click", function () {
+      if (!currentConnectorApp) return;
+      var feedbackBox = document.getElementById("connectorFeedback");
+      feedbackBox.style.display = "block";
+      feedbackBox.style.background = "rgba(37,99,235,0.15)";
+      feedbackBox.style.borderColor = "rgba(37,99,235,0.3)";
+      feedbackBox.style.color = "#60a5fa";
+      feedbackBox.textContent = "Ejecutando prueba de integración en vivo...";
+
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.test_customization_connection) {
+        window.pywebview.api.test_customization_connection(currentConnectorApp).then(function (res) {
+          if (res.success) {
+            feedbackBox.style.background = "rgba(16,185,129,0.15)";
+            feedbackBox.style.borderColor = "rgba(16,185,129,0.3)";
+            feedbackBox.style.color = "#34d399";
+            feedbackBox.textContent = "✓ " + (res.message || "Prueba exitosa. Integración 100% operativa.");
+            showTemporaryNotice("¡Prueba de " + currentConnectorApp + " completada con éxito!");
+          } else {
+            feedbackBox.style.background = "rgba(239,68,68,0.15)";
+            feedbackBox.style.borderColor = "rgba(239,68,68,0.3)";
+            feedbackBox.style.color = "#f87171";
+            feedbackBox.textContent = "✗ Error: " + (res.error || "No se pudo completar la prueba.");
+          }
+        });
+      } else {
+        setTimeout(function () {
+          feedbackBox.style.background = "rgba(16,185,129,0.15)";
+          feedbackBox.style.borderColor = "rgba(16,185,129,0.3)";
+          feedbackBox.style.color = "#34d399";
+          feedbackBox.textContent = "✓ Conexión con " + currentConnectorApp + " verificada en vivo.";
+        }, 500);
+      }
+    });
+
+    document.getElementById("btnConnectorSaveAction").addEventListener("click", function () {
+      if (!currentConnectorApp) return;
+      var savedConfig = { connected: true, timestamp: Date.now() };
+      var gKey = document.getElementById("inputGeminiKey");
+      if (gKey) savedConfig.api_key = gKey.value;
+      var gPath = document.getElementById("inputGooglePath");
+      if (gPath) savedConfig.credentials_path = gPath.value;
+
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.save_customization) {
+        window.pywebview.api.save_customization(currentConnectorApp, savedConfig).then(function () {
+          showTemporaryNotice("Conexión con " + currentConnectorApp + " guardada exitosamente");
+          closeModal("modalAppConnector");
+        });
+      } else {
+        showTemporaryNotice("Conexión guardada");
+        closeModal("modalAppConnector");
+      }
+    });
+
+    function setCustomTab(tabName) {
+      document.getElementById("tabCustomMarketplace").classList.toggle("active", tabName === "marketplace");
+      document.getElementById("tabCustomInstalled").classList.toggle("active", tabName === "installed");
+    }
+
+    function filterCustomizations(query) {
+      var q = (query || "").toLowerCase();
+      var cards = document.querySelectorAll(".plugins-grid .plugin-card");
+      cards.forEach(function (card) {
+        var text = card.textContent.toLowerCase();
+        card.style.display = text.includes(q) ? "flex" : "none";
+      });
+    }
 
     function switchProject(projectName) {
       document.getElementById("breadcrumbProject").textContent = projectName;

@@ -40,6 +40,7 @@ from jev.tools.cli_anything import CLIAnythingTool
 from jev.tools.voice_notification_tool import VoiceNotificationTool
 from jev.tools.skill_finder import FindSkillTool
 from jev.tools.soup_fine_tuner_tool import SoupFineTunerTool
+from jev.tools.office_tools import ExcelTool, PowerPointTool
 from jev.tools.ui_inspector import UIInspectorTool
 from jev.tools.desktop_app_operator import DesktopAppLiveOperatorTool
 from jev.tools.viewport import Render3DSceneTool, ExecuteViewportScriptTool
@@ -145,6 +146,10 @@ def build_default_registry(config: Optional[Any] = None) -> tuple[ToolRegistry, 
 
     # Orquestador de fine-tuning local con Soup (LoRA / QLoRA 4-bit)
     registry.register(SoupFineTunerTool())
+
+    # Suite Microsoft Office (Excel y PowerPoint nativos)
+    registry.register(ExcelTool())
+    registry.register(PowerPointTool())
 
     # Tareas programadas en segundo plano
     registry.register(ScheduleTaskTool())
