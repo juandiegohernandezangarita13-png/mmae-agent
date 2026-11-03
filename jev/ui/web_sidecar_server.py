@@ -22,10 +22,7 @@ from pathlib import Path
 
 import httpx
 
-try:
-    from jev.tools.web import WebSearchTool
-except ImportError:
-    WebSearchTool = None
+WebSearchTool = None
 
 
 SERVER_PORT = 8765
