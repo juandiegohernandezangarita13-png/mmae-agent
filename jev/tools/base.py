@@ -158,7 +158,22 @@ class ToolRegistry:
                     )
 
         try:
-            return tool.execute(**arguments)
+            raw_res = tool.execute(**arguments)
+            if isinstance(raw_res, ToolResult):
+                return raw_res
+            elif isinstance(raw_res, str):
+                return ToolResult(success=True, output=raw_res)
+            elif isinstance(raw_res, dict):
+                return ToolResult(
+                    success=raw_res.get("success", raw_res.get("status") != "error"),
+                    output=raw_res.get("output", json.dumps(raw_res, ensure_ascii=False, indent=2)),
+                    error=raw_res.get("error", raw_res.get("message")),
+                    data=raw_res
+                )
+            elif raw_res is None:
+                return ToolResult(success=True, output="Acción completada.")
+            else:
+                return ToolResult(success=True, output=str(raw_res))
         except TypeError as te:
             return ToolResult(
                 success=False,

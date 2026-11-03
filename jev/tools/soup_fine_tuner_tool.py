@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import json
 from typing import Any, Dict, Optional
-from jev.tools.base import BaseTool
+from jev.tools.base import BaseTool, ToolResult
 from core.fine_tuning.dataset_preparer import DatasetPreparer
 from core.fine_tuning.soup_pipeline import SoupPipeline
 
@@ -68,7 +68,7 @@ class SoupFineTunerTool(BaseTool):
             "required": ["action"]
         }
 
-    def execute(self, **kwargs) -> str:
+    def execute(self, **kwargs) -> ToolResult:
         action = kwargs.get("action", "").lower().strip()
         base_model = kwargs.get("base_model", "Qwen/Qwen2.5-Coder-1.5B-Instruct")
         epochs = int(kwargs.get("epochs", 3))
@@ -77,16 +77,18 @@ class SoupFineTunerTool(BaseTool):
 
         if action == "status":
             available = self.pipeline.is_available()
-            return json.dumps({
+            res = {
                 "soup_cli_installed": available,
                 "soup_binary": self.pipeline.soup_bin,
                 "workspace_dir": str(self.pipeline.workspace_dir),
                 "ready_for_training": available
-            }, ensure_ascii=False, indent=2)
+            }
+            return ToolResult(success=True, output=json.dumps(res, ensure_ascii=False, indent=2), data=res)
 
         elif action == "prepare_dataset":
             res = self.preparer.build_tool_calling_dataset(min_steps=1)
-            return json.dumps(res, ensure_ascii=False, indent=2)
+            is_ok = res.get("status") == "success"
+            return ToolResult(success=is_ok, output=json.dumps(res, ensure_ascii=False, indent=2), data=res)
 
         elif action == "profile":
             data_res = self.preparer.build_tool_calling_dataset(min_steps=1)
@@ -96,7 +98,8 @@ class SoupFineTunerTool(BaseTool):
                 epochs=epochs
             )
             prof_res = self.pipeline.profile_hardware(cfg_path)
-            return json.dumps(prof_res, ensure_ascii=False, indent=2)
+            is_ok = prof_res.get("status") != "error"
+            return ToolResult(success=is_ok, output=json.dumps(prof_res, ensure_ascii=False, indent=2), data=prof_res)
 
         elif action == "train":
             data_res = self.preparer.build_tool_calling_dataset(min_steps=1)
@@ -109,10 +112,12 @@ class SoupFineTunerTool(BaseTool):
                 config_path=cfg_path,
                 wait=not async_train
             )
-            return json.dumps(train_res, ensure_ascii=False, indent=2)
+            is_ok = train_res.get("status") in ("started", "completed")
+            return ToolResult(success=is_ok, output=json.dumps(train_res, ensure_ascii=False, indent=2), data=train_res)
 
         elif action == "export":
             export_res = self.pipeline.export_model(export_format=export_format)
-            return json.dumps(export_res, ensure_ascii=False, indent=2)
+            is_ok = export_res.get("status") == "success"
+            return ToolResult(success=is_ok, output=json.dumps(export_res, ensure_ascii=False, indent=2), data=export_res)
 
-        return json.dumps({"status": "error", "message": f"Acción desconocida: {action}"})
+        return ToolResult(success=False, output="", error=f"Acción desconocida: '{action}'. Válidas: status, prepare_dataset, profile, train, export")
