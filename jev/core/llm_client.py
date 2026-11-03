@@ -210,6 +210,21 @@ Sé analítico, preciso y estructurado."""
     # ------------------------------------------------------------------
     _rr_index: int = 0
     _cooldowns: Dict[str, float] = {}
+    _last_gemini_call_time: float = 0.0
+
+    def _throttle_gemini_pacing(self) -> None:
+        """
+        Garantiza que la cadencia de peticiones a Gemini no supere los 15 RPM
+        gratuitos del API (espaciado dinámico de ~4 segundos entre llamadas).
+        Evita saturar el bucket y previene los errores Rate Limit (429).
+        """
+        min_interval = float(getattr(self.config, "gemini_pacing_seconds", 4.0))
+        now = time.time()
+        elapsed = now - LocalLLMClient._last_gemini_call_time
+        if elapsed < min_interval:
+            wait_s = min_interval - elapsed
+            self._sleep_fn(wait_s)
+        LocalLLMClient._last_gemini_call_time = time.time()
 
     def _has_valid_openrouter_key(self) -> bool:
         """Verifica si existe una clave real de OpenRouter (no mock ni vacía)."""
@@ -225,7 +240,7 @@ Sé analítico, preciso y estructurado."""
         return max(0.0, cls._cooldowns.get(model, 0.0) - time.time())
 
     @staticmethod
-    def _parse_retry_delay(text: str, default: float = 30.0) -> float:
+    def _parse_retry_delay(text: str, default: float = 45.0) -> float:
         """Extrae el 'retryDelay' (p.ej. '17s') que devuelve Gemini en un 429."""
         m = re.search(r'retry(?:Delay)?\W+(\d+(?:\.\d+)?)s', text or "", re.IGNORECASE)
         if m:
@@ -276,7 +291,7 @@ Sé analítico, preciso y estructurado."""
         Envoltorio resiliente: si TODOS los modelos devuelven cuota agotada (429/503),
         espera al primer modelo que se libere y reintenta (hasta 3 rondas) en vez de fallar.
         """
-        rounds = int(getattr(self.config, "llm_quota_rounds", 3))
+        rounds = int(getattr(self.config, "llm_quota_rounds", 15))
         last_exc: Optional[Exception] = None
         for rnd in range(rounds):
             try:
@@ -284,12 +299,13 @@ Sé analítico, preciso y estructurado."""
             except RuntimeError as exc:
                 last_exc = exc
                 msg = str(exc)
-                if not any(k in msg for k in ("429", "Rate Limit", "503", "quota")) or rnd == rounds - 1:
+                if not any(k in msg for k in ("429", "Rate Limit", "503", "quota", "exhausted", "RESOURCE_EXHAUSTED")) or rnd == rounds - 1:
                     break
                 pending = [self._cooldown_left(m) for m in self._cooldowns]
-                wait = min([p for p in pending if p > 0] or [5.0])
-                wait = max(2.0, min(wait, 25.0))
-                logger.warning(f"Cuota agotada en todo el pool. Esperando {wait:.0f}s (ronda {rnd + 1}/{rounds})...")
+                wait = min([p for p in pending if p > 0] or [10.0])
+                # Progresión adaptativa para liberar la ventana de 1 minuto del API
+                wait = max(10.0, min(wait, 65.0))
+                logger.warning(f"Cuota agotada en el pool de Gemini. Esperando {wait:.0f}s para liberar ventana (ronda {rnd + 1}/{rounds})...")
                 self._sleep_fn(wait)
         raise last_exc if last_exc else RuntimeError("Fallo desconocido del LLM")
 
@@ -394,6 +410,8 @@ Sé analítico, preciso y estructurado."""
             # Reintentos con backoff exponencial
             for attempt in range(max_retries + 1):
                 try:
+                    if "googleapis.com" in url:
+                        self._throttle_gemini_pacing()
                     with httpx.Client(timeout=self.timeout) as client:
                         response = client.post(url, json=payload, headers=headers)
 

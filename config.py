@@ -74,6 +74,8 @@ class AgentConfig:
     safe_mode: bool = False
     max_iterations: int = int(os.getenv("JEV_MAX_ITERATIONS", "20"))
     temperature: float = 0.2
+    llm_quota_rounds: int = int(os.getenv("JEV_QUOTA_ROUNDS", "15"))
+    gemini_pacing_seconds: float = float(os.getenv("JEV_GEMINI_PACING", "4.0"))
 
     # --- Proveedores de Inferencia y Conexiones ---
     llm_provider: str = os.getenv("JEV_LLM_PROVIDER", "gemini" if os.getenv("GEMINI_API_KEY") else "ollama")

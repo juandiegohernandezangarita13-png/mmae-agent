@@ -829,24 +829,39 @@ Tu espacio de trabajo principal es: {self.config.workspace_dir}
             if step_count == 1:
                 self.on_thought(f"⚡ [MoAE Router]: Expertos activados: {' + '.join(active_experts)}")
 
-            try:
-                executor = getattr(self.config, "executor_model", None)
-                response: LLMResponse = self.llm.chat(
-                    messages=self.messages,
-                    tools=routed_tools,
-                    override_model=executor
-                )
-            except Exception as e:
-                error_msg = f"Error comunicando con el LLM: {str(e)}"
-                self.on_thought(f"[Error de LLM]: {error_msg}")
-                self.memory.record_episode(
-                    task=user_goal,
-                    success=False,
-                    steps_count=step_count,
-                    tools_used=tools_used,
-                    summary=f"Fallo de conexión LLM: {error_msg}"
-                )
-                return f"No se pudo completar la tarea debido a un error de conexión: {str(e)}"
+            # Llamada al modelo con tolerancia a fallos transitorios de cuota y red
+            max_llm_step_attempts = 4
+            response: Optional[LLMResponse] = None
+            for llm_attempt in range(max_llm_step_attempts):
+                try:
+                    executor = getattr(self.config, "executor_model", None)
+                    response = self.llm.chat(
+                        messages=self.messages,
+                        tools=routed_tools,
+                        override_model=executor
+                    )
+                    break
+                except Exception as e:
+                    error_msg = f"Error comunicando con el LLM: {str(e)}"
+                    is_transient = any(k in error_msg.lower() for k in ("429", "rate limit", "quota", "exhausted", "timeout", "conexión"))
+                    if is_transient and llm_attempt < max_llm_step_attempts - 1:
+                        wait_recovery = (llm_attempt + 1) * 20.0
+                        self.on_thought(
+                            f"⏳ [Cuota/Red Saturada]: {error_msg}. Pausando {wait_recovery:.0f}s antes de reintentar paso "
+                            f"(intento {llm_attempt + 1}/{max_llm_step_attempts})..."
+                        )
+                        time.sleep(wait_recovery)
+                        continue
+                    else:
+                        self.on_thought(f"[Error de LLM]: {error_msg}")
+                        self.memory.record_episode(
+                            task=user_goal,
+                            success=False,
+                            steps_count=step_count,
+                            tools_used=tools_used,
+                            summary=f"Fallo de conexión LLM: {error_msg}"
+                        )
+                        return f"No se pudo completar la tarea debido a un error de conexión: {str(e)}"
 
             content = response.content or ""
             if content:
