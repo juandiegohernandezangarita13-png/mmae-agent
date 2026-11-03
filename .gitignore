@@ -33,3 +33,4 @@ vault.db
 # Archivos de caché del sistema operativo
 .DS_Store
 Thumbs.db
+bin/*.exe

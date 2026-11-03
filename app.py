@@ -80,6 +80,13 @@ class JarvisBridge:
         self._pending_approval: Optional[Dict[str, Any]] = None
         self._chat_history: List[Dict[str, str]] = []
 
+        # Registro en el servidor web/móvil para acceso remoto
+        try:
+            from jev.ui.web_sidecar_server import set_bridge_instance
+            set_bridge_instance(self)
+        except Exception:
+            pass
+
     def set_window(self, window):
         self._window = window
 
@@ -98,6 +105,11 @@ class JarvisBridge:
         self._last_thought = (text or "").strip()[:400]
         safe_text = json.dumps(text)
         self._eval_js(f"window.onAgentThought && window.onAgentThought({safe_text});")
+        try:
+            from jev.ui.web_sidecar_server import broadcast_sse
+            broadcast_sse("thought", {"text": text})
+        except Exception:
+            pass
 
     def _on_tool_call(self, tool_name: str, arguments: dict):
         self._last_tool = tool_name
@@ -107,6 +119,11 @@ class JarvisBridge:
         safe_name = json.dumps(tool_name)
         safe_args = json.dumps(json.dumps(arguments, indent=2, ensure_ascii=False))
         self._eval_js(f"window.onAgentToolCall && window.onAgentToolCall({safe_name}, {safe_args});")
+        try:
+            from jev.ui.web_sidecar_server import broadcast_sse
+            broadcast_sse("tool_call", {"tool": tool_name, "args": arguments})
+        except Exception:
+            pass
 
         # Sincronización en vivo del Navegador Sidecar cuando el agente busca o navega en la web
         if tool_name == "search_web" and isinstance(arguments, dict):
@@ -148,6 +165,11 @@ class JarvisBridge:
         safe_res = json.dumps(out)
         safe_success = "true" if result.success else "false"
         self._eval_js(f"window.onAgentToolResult && window.onAgentToolResult({safe_name}, {safe_res}, {safe_success});")
+        try:
+            from jev.ui.web_sidecar_server import broadcast_sse
+            broadcast_sse("tool_result", {"tool": tool_name, "output": out, "success": result.success})
+        except Exception:
+            pass
 
         # Renderizado reactivo en el Lienzo de Visualización Dual (Split-Screen / Viewport 3D / Web Preview)
         if result.success and result.data:
@@ -465,6 +487,11 @@ class JarvisBridge:
 
                 safe_final = json.dumps(final_answer)
                 self._eval_js(f"window.onAgentFinish && window.onAgentFinish({safe_final});")
+                try:
+                    from jev.ui.web_sidecar_server import broadcast_sse
+                    broadcast_sse("finish", {"reply": final_answer})
+                except Exception:
+                    pass
 
                 # Actualizar estado del Escudo QA en la interfaz
                 shield_info = self._qa_auditor.get_shield_status()
@@ -1192,6 +1219,51 @@ class JarvisBridge:
             "success": True,
             "message": f"Conexión con '{app_id}' verificada y activa en el catálogo de Bable."
         }
+
+    def start_remote_tunnel(self) -> Dict[str, Any]:
+        """Inicia el túnel Cloudflare seguro para acceso desde el celular fuera de casa."""
+        try:
+            from jev.core.remote_tunnel import CloudflareTunnelManager
+            return CloudflareTunnelManager.get_instance().start_tunnel(port=8765)
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def stop_remote_tunnel(self) -> Dict[str, Any]:
+        """Detiene el túnel Cloudflare."""
+        try:
+            from jev.core.remote_tunnel import CloudflareTunnelManager
+            return CloudflareTunnelManager.get_instance().stop_tunnel()
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def get_remote_tunnel_status(self) -> Dict[str, Any]:
+        """Consulta el estado del túnel remoto."""
+        try:
+            from jev.core.remote_tunnel import CloudflareTunnelManager
+            return CloudflareTunnelManager.get_instance().get_status()
+        except Exception as e:
+            return {"active": False, "error": str(e)}
+
+    def reload_agent(self) -> Dict[str, Any]:
+        """Recarga la configuración del agente y notifica a la interfaz."""
+        try:
+            self._on_thought("⚡ [Recarga Rápida]: Recargando componentes y configuración de Bable...")
+            return {"success": True, "message": "Agente recargado"}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def restart_app(self):
+        """Reinicia la aplicación Bable de forma transparente."""
+        try:
+            import subprocess
+            py_exe = sys.executable
+            main_script = str(Path(__file__).resolve())
+            subprocess.Popen([py_exe, main_script] + sys.argv[1:])
+            if self._window:
+                self._window.destroy()
+            os._exit(0)
+        except Exception:
+            pass
 
 
 def main():

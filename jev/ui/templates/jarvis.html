@@ -604,6 +604,28 @@
       to { transform: rotate(360deg); }
     }
 
+    .btn-mobile-remote {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: var(--radius-sm);
+      color: #34d399;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn-mobile-remote:hover {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: #10b981;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
     .btn-ide {
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--border-subtle);
@@ -2217,6 +2239,85 @@
       color: #cbd5e1;
       font-size: 11.5px;
     }
+
+    /* ==========================================================================
+       RESPONSIVE DESIGN PARA DISPOSITIVOS MÓVILES (SAFARI / CHROME EN CELULAR)
+       ========================================================================== */
+    @media (max-width: 768px) {
+      .app-container {
+        flex-direction: column !important;
+        position: relative !important;
+        overflow: hidden !important;
+      }
+      .sidebar {
+        position: fixed !important;
+        top: 36px !important;
+        left: -290px !important;
+        bottom: 0 !important;
+        width: 275px !important;
+        z-index: 1000 !important;
+        transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 10px 0 35px rgba(0, 0, 0, 0.85) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
+      }
+      .sidebar.mobile-open {
+        left: 0 !important;
+      }
+      .sidebar-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        top: 36px;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+      }
+      .sidebar-backdrop.show {
+        display: block !important;
+      }
+      .sidecar-pane {
+        display: none !important;
+      }
+      .sidecar-tab-collapsed {
+        display: none !important;
+      }
+      .main-chat-container {
+        width: 100% !important;
+        flex: 1 !important;
+        min-width: 100% !important;
+      }
+      .chat-header {
+        padding: 8px 12px !important;
+      }
+      .chat-header-actions .btn-ide,
+      .chat-header-actions .btn-sidecar-toggle {
+        display: none !important;
+      }
+      #btnOpenSidebar {
+        display: inline-flex !important;
+      }
+      .input-outer-wrap {
+        padding: 8px 10px 14px 10px !important;
+      }
+      .chat-feed {
+        padding: 12px 10px !important;
+      }
+      .settings-modal-card {
+        flex-direction: column !important;
+        height: 90vh !important;
+        width: 95% !important;
+      }
+      .settings-sidebar {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 140px !important;
+        overflow-x: auto !important;
+        display: flex !important;
+        flex-direction: row !important;
+        border-right: none !important;
+        border-bottom: 1px solid var(--border-subtle) !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2386,7 +2487,15 @@
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
             </svg>
-            <span>Actualizar Agente</span>
+            <span>Actualizar Bable</span>
+          </button>
+
+          <button class="btn-mobile-remote" id="btnMobileRemote" onclick="openRemoteAccessModal()" title="Conectar desde el celular (4G/5G)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+              <line x1="12" y1="18" x2="12.01" y2="18"></line>
+            </svg>
+            <span>Acceso Móvil</span>
           </button>
 
           <button class="btn-ide" id="btnOpenIDE" title="Abrir espacio de trabajo directamente en VS Code (code .)">
@@ -3294,11 +3403,156 @@
     </div>
   </div>
 
+  <!-- BACKDROP MÓVIL PARA SIDEBAR DRAWER -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleMobileSidebar()"></div>
+
+  <!-- MODAL DE ACCESO REMOTO MÓVIL (MÉTODO 2: CLOUDFLARE TUNNEL) -->
+  <div class="modal-backdrop" id="modalRemoteAccess">
+    <div class="modal-card" style="max-width: 540px; width: 92%; background: #18191f; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 14px; box-shadow: 0 20px 50px rgba(0,0,0,0.7); overflow: hidden;">
+      <div class="modal-header" style="padding: 16px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(37, 99, 235, 0.2); border: 1px solid rgba(37, 99, 235, 0.4); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+            📱
+          </div>
+          <div>
+            <h3 style="font-size: 15px; font-weight: 700; color: #f1f5f9; margin: 0;">Conexión Móvil Remota</h3>
+            <span style="font-size: 11px; color: #94a3b8;">Usa Bable desde tu teléfono en cualquier lugar (4G/5G)</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modalRemoteAccess')" style="background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer;">✕</button>
+      </div>
+
+      <div style="padding: 20px; display: flex; flex-direction: column; gap: 16px; max-height: 75vh; overflow-y: auto;">
+        
+        <!-- Estado del Túnel -->
+        <div style="background: #131417; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div id="remoteStatusIndicator" style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);"></div>
+            <div>
+              <div style="font-size: 13px; font-weight: 600; color: #f1f5f9;" id="remoteStatusTitle">Túnel Desconectado</div>
+              <div style="font-size: 11px; color: #94a3b8;" id="remoteStatusSubtitle">Listo para crear conexión segura</div>
+            </div>
+          </div>
+          <button id="btnToggleTunnel" onclick="toggleTunnelAction()" style="background: #2563eb; color: #fff; border: none; padding: 7px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;">
+            ⚡ Iniciar Túnel
+          </button>
+        </div>
+
+        <!-- Vista QR y Enlace Directo -->
+        <div id="tunnelDetailsBox" style="display: none; background: #131417; border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 10px; padding: 16px; text-align: center;">
+          <div style="font-size: 12px; font-weight: 600; color: #93c5fd; margin-bottom: 12px;">
+            📸 Escanea con la cámara de tu iPhone o Android:
+          </div>
+          <div style="background: #ffffff; padding: 12px; border-radius: 10px; display: inline-block; margin-bottom: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.4);">
+            <img id="tunnelQrImage" src="" alt="Código QR Túnel" style="width: 180px; height: 180px; display: block;" />
+          </div>
+
+          <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">URL Segura Cloudflare:</div>
+          <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+            <input type="text" id="tunnelUrlInput" readonly style="flex: 1; max-width: 360px; background: #1c1d22; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 7px 12px; color: #38bdf8; font-size: 12px; font-family: monospace; outline: none;" />
+            <button onclick="copyTunnelUrl()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 7px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">
+              📋 Copiar
+            </button>
+          </div>
+        </div>
+
+        <!-- Instrucción para dejar la laptop encendida en casa -->
+        <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; padding: 12px 14px;">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: #fbbf24; margin-bottom: 6px;">
+            <span>💡</span> Cómo dejar tu Laptop encendida al irte al trabajo:
+          </div>
+          <ol style="margin: 0; padding-left: 20px; font-size: 11.5px; color: #cbd5e1; line-height: 1.6;">
+            <li>En Windows ve a: <strong>Panel de Control > Opciones de energía</strong>.</li>
+            <li>Haz clic en: <strong>«Elegir la acción del cierre de la tapa»</strong>.</li>
+            <li>En <em>«Al cerrar la tapa (con corriente alterna)»</em> selecciona: <strong>«No hacer nada»</strong>.</li>
+            <li>¡Listo! Deja la laptop conectada al cargador con la tapa cerrada; seguirá ejecutando Bable y accesible desde tu celular.</li>
+          </ol>
+        </div>
+
+      </div>
+
+      <div style="padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: flex-end; background: #141519;">
+        <button class="btn-ide" onclick="closeModal('modalRemoteAccess')" style="padding: 6px 16px; border-radius: 6px;">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================================================================
        SCRIPTS DE CONTROL E INTEGRACIÓN PYWEBVIEW
        ================================================================== -->
   <script>
     "use strict";
+
+    // ------------------------------------------------------------------
+    // POLYFILL Y CLIENTE HTTP/SSE PARA NAVEGACIÓN MÓVIL Y REMOTA
+    // ------------------------------------------------------------------
+    if (!window.pywebview || !window.pywebview.api) {
+      console.log("📱 [Bable Mobile Remote]: Inicializando polyfill HTTP + SSE...");
+      window.pywebview = {
+        api: {
+          execute_task: function(prompt, imgB64) {
+            return fetch('/api/task', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({prompt: prompt, images: imgB64 ? [imgB64] : []})
+            }).then(function(r) { return r.json(); });
+          },
+          new_conversation: function() {
+            return fetch('/api/new-conversation', {method: 'POST'}).then(function(r) { return r.json(); });
+          },
+          get_projects_and_conversations: function() {
+            return fetch('/api/projects').then(function(r) { return r.json(); });
+          },
+          start_remote_tunnel: function() {
+            return fetch('/api/tunnel/start', {method: 'POST'}).then(function(r) { return r.json(); });
+          },
+          stop_remote_tunnel: function() {
+            return fetch('/api/tunnel/stop', {method: 'POST'}).then(function(r) { return r.json(); });
+          },
+          get_remote_tunnel_status: function() {
+            return fetch('/api/tunnel/status').then(function(r) { return r.json(); });
+          },
+          reload_agent: function() {
+            window.location.reload();
+            return Promise.resolve({success: true});
+          },
+          restart_app: function() {
+            return fetch('/api/restart', {method: 'POST'}).then(function() {
+              setTimeout(function() { window.location.reload(); }, 1500);
+            });
+          },
+          open_ide: function() {
+            return Promise.resolve({success: true});
+          },
+          open_workspace_folder: function() {
+            return Promise.resolve({success: true});
+          }
+        }
+      };
+
+      // Receptor Server-Sent Events en tiempo real en navegadores de celular
+      try {
+        var sseSource = new EventSource('/api/events');
+        sseSource.onmessage = function(event) {
+          try {
+            var payload = JSON.parse(event.data);
+            var t = payload.type;
+            var d = payload.data;
+            if (t === 'thought' && window.onAgentThought) {
+              window.onAgentThought(d.text);
+            } else if (t === 'tool_call' && window.onAgentToolCall) {
+              window.onAgentToolCall(d.tool, JSON.stringify(d.args || {}));
+            } else if (t === 'tool_result' && window.onAgentToolResult) {
+              window.onAgentToolResult(d.tool, d.output || "", d.success);
+            } else if (t === 'finish' && window.onAgentFinish) {
+              window.onAgentFinish(d.reply || "");
+            }
+          } catch(e) {}
+        };
+      } catch(err) {
+        console.warn("SSE no disponible en este cliente:", err);
+      }
+    }
 
     var PROXY_PORT = 8765;
     var PROXY_BASE = "http://127.0.0.1:" + PROXY_PORT;
@@ -4872,7 +5126,11 @@
     var btnOpenSidebar = document.getElementById("btnOpenSidebar");
     if (btnOpenSidebar) {
       btnOpenSidebar.addEventListener("click", function () {
-        toggleSidebar(true);
+        if (window.innerWidth <= 768) {
+          toggleMobileSidebar();
+        } else {
+          toggleSidebar(true);
+        }
       });
     }
 
@@ -5108,6 +5366,122 @@
     document.getElementById("btnSettings").addEventListener("click", function () { openSettingsModal("general"); });
 
     function closeModal(id) { document.getElementById(id).classList.remove("show"); }
+
+    // ------------------------------------------------------------------
+    // CONTROLADOR DEL TÚNEL DE ACCESO REMOTO MÓVIL
+    // ------------------------------------------------------------------
+    var _tunnelActive = false;
+
+    function openRemoteAccessModal() {
+      var modal = document.getElementById("modalRemoteAccess");
+      if (modal) modal.classList.add("show");
+
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.get_remote_tunnel_status) {
+        window.pywebview.api.get_remote_tunnel_status().then(function (status) {
+          updateTunnelUI(status);
+          if (!status || !status.active) {
+            startTunnelAction();
+          }
+        }).catch(function (err) {
+          console.error("Error consultando túnel:", err);
+        });
+      }
+    }
+
+    function updateTunnelUI(status) {
+      var ind = document.getElementById("remoteStatusIndicator");
+      var title = document.getElementById("remoteStatusTitle");
+      var sub = document.getElementById("remoteStatusSubtitle");
+      var btn = document.getElementById("btnToggleTunnel");
+      var box = document.getElementById("tunnelDetailsBox");
+      var input = document.getElementById("tunnelUrlInput");
+      var qr = document.getElementById("tunnelQrImage");
+
+      if (status && status.active && status.url) {
+        _tunnelActive = true;
+        if (ind) {
+          ind.style.background = "#10b981";
+          ind.style.boxShadow = "0 0 10px rgba(16, 185, 129, 0.7)";
+        }
+        if (title) title.textContent = "🟢 Túnel Activo y Seguro";
+        if (sub) sub.textContent = "Conexión cifrada punto a punto con Cloudflare";
+        if (btn) {
+          btn.textContent = "Detener Túnel";
+          btn.style.background = "#ef4444";
+        }
+        if (box) box.style.display = "block";
+        if (input) input.value = status.url;
+        if (qr) qr.src = status.qr_url || ("https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" + encodeURIComponent(status.url));
+      } else {
+        _tunnelActive = false;
+        if (ind) {
+          ind.style.background = "#ef4444";
+          ind.style.boxShadow = "0 0 8px rgba(239, 68, 68, 0.6)";
+        }
+        if (title) title.textContent = "Túnel Desconectado";
+        if (sub) sub.textContent = "Haz clic en Iniciar Túnel para generar tu enlace móvil";
+        if (btn) {
+          btn.textContent = "⚡ Iniciar Túnel";
+          btn.style.background = "#2563eb";
+        }
+        if (box) box.style.display = "none";
+        if (input) input.value = "";
+      }
+    }
+
+    function startTunnelAction() {
+      var btn = document.getElementById("btnToggleTunnel");
+      if (btn) btn.textContent = "⏳ Conectando con Cloudflare...";
+      showTemporaryNotice("Generando túnel HTTPS seguro para móvil...");
+
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.start_remote_tunnel) {
+        window.pywebview.api.start_remote_tunnel().then(function (res) {
+          if (res && res.success) {
+            updateTunnelUI({ active: true, url: res.url, qr_url: res.qr_url });
+            showTemporaryNotice("✓ Túnel móvil conectado");
+          } else {
+            showTemporaryNotice("⚠️ " + ((res && res.error) || "Error al iniciar túnel"));
+            updateTunnelUI({ active: false });
+          }
+        }).catch(function (err) {
+          showTemporaryNotice("⚠️ Error de comunicación con túnel");
+          updateTunnelUI({ active: false });
+        });
+      }
+    }
+
+    function toggleTunnelAction() {
+      if (_tunnelActive) {
+        if (window.pywebview && window.pywebview.api && window.pywebview.api.stop_remote_tunnel) {
+          window.pywebview.api.stop_remote_tunnel().then(function () {
+            updateTunnelUI({ active: false });
+            showTemporaryNotice("Túnel detenido");
+          });
+        }
+      } else {
+        startTunnelAction();
+      }
+    }
+
+    function copyTunnelUrl() {
+      var input = document.getElementById("tunnelUrlInput");
+      if (input && input.value) {
+        navigator.clipboard.writeText(input.value).then(function () {
+          showTemporaryNotice("📋 Enlace de acceso copiado al portapapeles");
+        }).catch(function () {
+          input.select();
+          document.execCommand("copy");
+          showTemporaryNotice("📋 Enlace copiado");
+        });
+      }
+    }
+
+    function toggleMobileSidebar() {
+      var sb = document.getElementById("sidebar");
+      var bd = document.getElementById("sidebarBackdrop");
+      if (sb) sb.classList.toggle("mobile-open");
+      if (bd) bd.classList.toggle("show");
+    }
 
     window.addEventListener("keydown", function (e) {
       if (e.ctrlKey && e.key === "b") {

@@ -12,10 +12,12 @@ from __future__ import annotations
 import os
 import sys
 import re
+import json
+import queue
 import urllib.parse
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Any
 from pathlib import Path
 
 import httpx
@@ -28,14 +30,46 @@ except ImportError:
 
 SERVER_PORT = 8765
 _SERVER_INSTANCE: Optional[HTTPServer] = None
+_BRIDGE_INSTANCE: Optional[Any] = None
+_SSE_QUEUES: List[queue.Queue] = []
+_QUEUES_LOCK = threading.Lock()
+
+
+def set_bridge_instance(bridge: Any):
+    """Registra la instancia activa de JarvisBridge para el acceso remoto móvil y web."""
+    global _BRIDGE_INSTANCE
+    _BRIDGE_INSTANCE = bridge
+
+
+def broadcast_sse(event_type: str, data: Any):
+    """Difunde un evento en tiempo real a todos los navegadores y teléfonos conectados."""
+    msg = {"type": event_type, "data": data}
+    with _QUEUES_LOCK:
+        dead_queues = []
+        for q in _SSE_QUEUES:
+            try:
+                q.put_nowait(msg)
+            except Exception:
+                dead_queues.append(q)
+        for q in dead_queues:
+            if q in _SSE_QUEUES:
+                _SSE_QUEUES.remove(q)
 
 
 class SidecarProxyHandler(BaseHTTPRequestHandler):
-    """Manejador HTTP para búsquedas web y proxy de navegación sin restricciones de marco."""
+    """Manejador HTTP para búsquedas web, acceso móvil remoto y puente SSE con Bable."""
 
     def log_message(self, format, *args):
         # Silenciar logs ruidosos en la terminal estándar
         pass
+
+    def do_OPTIONS(self):
+        """Manejo de preflight CORS para navegadores y móviles."""
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        self.end_headers()
 
     def do_GET(self):
         try:
@@ -43,7 +77,13 @@ class SidecarProxyHandler(BaseHTTPRequestHandler):
             path = parsed.path
             query_params = urllib.parse.parse_qs(parsed.query)
 
-            if path == "/search":
+            if path in ("/", "/app", "/mobile", "/remote"):
+                # Si el iframe del sidecar pide la página de inicio del buscador
+                if path == "/" and (query_params.get("sidecar") == ["1"] or query_params.get("browser") == ["1"]):
+                    self._handle_home()
+                else:
+                    self._handle_app()
+            elif path == "/search":
                 q = query_params.get("q", [""])[0].strip()
                 self._handle_search(q)
             elif path == "/browse":
@@ -57,13 +97,18 @@ class SidecarProxyHandler(BaseHTTPRequestHandler):
                 prompt = query_params.get("prompt", [""])[0].strip()
                 self._handle_image_viewer(img_name, prompt)
             elif path == "/status":
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json")
-                self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                self.wfile.write(b'{"status": "ok", "service": "Bable Web Engine"}')
+                self._respond_json({"status": "ok", "service": "Bable Web & Remote Engine"})
+            elif path == "/api/events":
+                self._handle_sse()
+            elif path == "/api/tunnel/status":
+                self._handle_tunnel_status()
+            elif path == "/api/tunnel/start":
+                self._handle_tunnel_start()
+            elif path == "/api/tunnel/stop":
+                self._handle_tunnel_stop()
+            elif path == "/api/projects":
+                self._handle_get_projects()
             else:
-                # Página de inicio del navegador Bable
                 self._handle_home()
         except Exception as e:
             try:
@@ -73,6 +118,171 @@ class SidecarProxyHandler(BaseHTTPRequestHandler):
                 self.wfile.write(f"Error en servidor Bable: {e}".encode("utf-8"))
             except Exception:
                 pass
+
+    def do_POST(self):
+        try:
+            parsed = urllib.parse.urlparse(self.path)
+            path = parsed.path
+
+            if path == "/api/task":
+                self._handle_post_task()
+            elif path == "/api/new-conversation":
+                self._handle_post_new_conv()
+            elif path == "/api/tunnel/start":
+                self._handle_tunnel_start()
+            elif path == "/api/tunnel/stop":
+                self._handle_tunnel_stop()
+            elif path == "/api/restart":
+                self._handle_restart()
+            else:
+                self._respond_json({"error": "Ruta no encontrada"}, status=404)
+        except Exception as e:
+            self._respond_json({"error": str(e)}, status=500)
+
+    def _handle_app(self):
+        """Sirve la interfaz completa de Bable para navegadores móviles o remotos."""
+        html_path = Path(__file__).resolve().parent / "templates" / "jarvis.html"
+        if not html_path.exists():
+            html_path = Path("jev/ui/templates/jarvis.html").resolve()
+        if html_path.exists():
+            content = html_path.read_text(encoding="utf-8")
+            self._respond_html(content)
+        else:
+            self.send_response(404)
+            self.send_header("Content-Type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"jarvis.html no encontrado")
+
+    def _handle_sse(self):
+        """Streaming de eventos en tiempo real (Server-Sent Events) para móviles y web."""
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream")
+        self.send_header("Cache-Control", "no-cache")
+        self.send_header("Connection", "keep-alive")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+
+        q = queue.Queue(maxsize=100)
+        with _QUEUES_LOCK:
+            _SSE_QUEUES.append(q)
+
+        # Evento de bienvenida
+        try:
+            self.wfile.write(b"data: {\"type\": \"connected\", \"message\": \"SSE Conectado con Bable Engine\"}\n\n")
+            self.wfile.flush()
+        except Exception:
+            with _QUEUES_LOCK:
+                if q in _SSE_QUEUES:
+                    _SSE_QUEUES.remove(q)
+            return
+
+        try:
+            while True:
+                try:
+                    msg = q.get(timeout=15.0)
+                    payload = f"data: {json.dumps(msg, ensure_ascii=False)}\n\n".encode("utf-8")
+                    self.wfile.write(payload)
+                    self.wfile.flush()
+                except queue.Empty:
+                    self.wfile.write(b": ping\n\n")
+                    self.wfile.flush()
+        except Exception:
+            pass
+        finally:
+            with _QUEUES_LOCK:
+                if q in _SSE_QUEUES:
+                    _SSE_QUEUES.remove(q)
+
+    def _handle_post_task(self):
+        """Recibe una instrucción desde el teléfono o web y la entrega al agente."""
+        try:
+            length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+            payload = json.loads(body)
+            prompt = payload.get("prompt", "").strip()
+            images = payload.get("images", [])
+
+            if not prompt:
+                self._respond_json({"success": False, "error": "Prompt vacio"}, status=400)
+                return
+
+            if _BRIDGE_INSTANCE:
+                def _run():
+                    try:
+                        img = images[0] if (images and isinstance(images, list)) else None
+                        if hasattr(_BRIDGE_INSTANCE, "execute_task"):
+                            _BRIDGE_INSTANCE.execute_task(prompt, img)
+                        elif hasattr(_BRIDGE_INSTANCE, "send_task"):
+                            _BRIDGE_INSTANCE.send_task(prompt, images)
+                    except Exception as err:
+                        broadcast_sse("error", {"error": str(err)})
+
+                threading.Thread(target=_run, daemon=True).start()
+                self._respond_json({"success": True, "message": "Tarea iniciada"})
+            else:
+                self._respond_json({"success": False, "error": "Bable Bridge no disponible"}, status=503)
+        except Exception as e:
+            self._respond_json({"success": False, "error": str(e)}, status=500)
+
+    def _handle_post_new_conv(self):
+        """Inicia una conversación limpia."""
+        if _BRIDGE_INSTANCE:
+            res = _BRIDGE_INSTANCE.new_conversation()
+            self._respond_json(res if isinstance(res, dict) else {"success": True})
+        else:
+            self._respond_json({"success": False, "error": "Bridge no disponible"}, status=503)
+
+    def _handle_get_projects(self):
+        """Devuelve la lista de proyectos y conversaciones."""
+        if _BRIDGE_INSTANCE:
+            data = _BRIDGE_INSTANCE.get_projects_and_conversations()
+            self._respond_json(data if isinstance(data, dict) else {"projects": []})
+        else:
+            self._respond_json({"projects": []})
+
+    def _handle_tunnel_status(self):
+        """Devuelve el estado actual del túnel Cloudflare."""
+        try:
+            from jev.core.remote_tunnel import CloudflareTunnelManager
+            status = CloudflareTunnelManager.get_instance().get_status()
+            self._respond_json(status)
+        except Exception as e:
+            self._respond_json({"active": False, "error": str(e)})
+
+    def _handle_tunnel_start(self):
+        """Inicia el túnel Cloudflare para conexión móvil remota."""
+        try:
+            from jev.core.remote_tunnel import CloudflareTunnelManager
+            res = CloudflareTunnelManager.get_instance().start_tunnel(port=SERVER_PORT)
+            self._respond_json(res)
+        except Exception as e:
+            self._respond_json({"success": False, "error": str(e)}, status=500)
+
+    def _handle_tunnel_stop(self):
+        """Detiene el túnel Cloudflare."""
+        try:
+            from jev.core.remote_tunnel import CloudflareTunnelManager
+            res = CloudflareTunnelManager.get_instance().stop_tunnel()
+            self._respond_json(res)
+        except Exception as e:
+            self._respond_json({"success": False, "error": str(e)}, status=500)
+
+    def _handle_restart(self):
+        """Reinicia la aplicación Bable."""
+        if _BRIDGE_INSTANCE and hasattr(_BRIDGE_INSTANCE, "restart_app"):
+            threading.Thread(target=_BRIDGE_INSTANCE.restart_app, daemon=True).start()
+            self._respond_json({"success": True, "message": "Reiniciando Bable..."})
+        else:
+            self._respond_json({"success": False, "error": "No soportado"}, status=400)
+
+    def _respond_json(self, data: Dict[str, Any], status: int = 200):
+        body = json.dumps(data, ensure_ascii=False).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        self.wfile.write(body)
 
     def _handle_image(self, img_name: str):
         """Sirve imágenes generadas por el agente de forma segura y directa."""
@@ -762,7 +972,7 @@ class SidecarProxyHandler(BaseHTTPRequestHandler):
 
 
 def start_sidecar_proxy_server(port: int = SERVER_PORT) -> int:
-    """Inicia el servidor proxy del Sidecar en segundo plano si no está ya activo."""
+    """Inicia el servidor proxy del Sidecar y acceso móvil en segundo plano si no está ya activo."""
     global _SERVER_INSTANCE
     if _SERVER_INSTANCE is not None:
         return port
@@ -771,14 +981,14 @@ def start_sidecar_proxy_server(port: int = SERVER_PORT) -> int:
         global _SERVER_INSTANCE
         try:
             HTTPServer.allow_reuse_address = True
-            server = HTTPServer(("127.0.0.1", port), SidecarProxyHandler)
+            server = HTTPServer(("0.0.0.0", port), SidecarProxyHandler)
             _SERVER_INSTANCE = server
             server.serve_forever()
         except OSError:
-            # Puerto en uso, intentar puerto alternativo
+            # Si el puerto está en uso, intentar vincular en localhost
             try:
                 HTTPServer.allow_reuse_address = True
-                server = HTTPServer(("127.0.0.1", port + 1), SidecarProxyHandler)
+                server = HTTPServer(("127.0.0.1", port), SidecarProxyHandler)
                 _SERVER_INSTANCE = server
                 server.serve_forever()
             except Exception:
