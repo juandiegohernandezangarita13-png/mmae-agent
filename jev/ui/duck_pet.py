@@ -1,8 +1,10 @@
 """
-Módulo Desktop Duck Pet (Pato de Escritorio 100% Transparente).
-Implementa un compañero pixel-art animado que camina sobre la barra de tareas de Windows,
-animando físicamente los pies paso a paso sobre el fondo del escritorio (sin recuadros blancos),
-mostrando el estado de actividad del agente y abriendo la interfaz con doble clic.
+Módulo Desktop Duck Pet (Pato de Escritorio con Física, Gravedad y Conexión Antigravity 2.0).
+1. Transparencia total en Windows (sin recuadros blancos, directamente sobre el escritorio).
+2. Gravedad física real: si se arrastra hacia arriba y se suelta, cae acelerando hasta su piso.
+3. El piso es la barra de tareas de Windows.
+4. Doble clic abre o enfoca de inmediato la interfaz de Antigravity 2.0 / JARVIS (app.py).
+5. Ciclo de caminata animado paso a paso con patas alternadas y aleteo en el aire.
 """
 from __future__ import annotations
 
@@ -23,14 +25,14 @@ from config import BASE_DIR
 from jev.core.status_sync import get_agent_status
 from utils.logger import log
 
-# Paleta de colores pixel-art fiel a la imagen dibujada
+# Paleta de colores pixel-art fiel a la imagen
 PALETTE = {
     ' ': (1, 1, 1, 0),         # Color clave transparente (#010101)
-    'B': (15, 15, 20, 255),    # Negro contorno
-    'W': (255, 255, 255, 255),# Blanco plumaje
+    'B': (15, 15, 20, 255),    # Negro contorno nítido
+    'W': (255, 255, 255, 255),# Blanco plumaje puro
     'S': (220, 226, 238, 255),# Sombra plumaje
-    'O': (255, 75, 10, 255),   # Naranja pico y patas
-    'D': (210, 50, 0, 255),    # Naranja oscuro
+    'O': (255, 80, 0, 255),    # Naranja pico y patas
+    'D': (210, 55, 0, 255),    # Naranja oscuro
 }
 
 # Matrices de sprites (12 columnas x 16 filas)
@@ -161,6 +163,42 @@ SPRITES_DATA = {
         "   BOOB OB  ",
         "   BBBB BB  "
     ],
+    "FLAP": [
+        "    BBBB    ",
+        "   BWWBWB   ",
+        "  OBWWWB    ",
+        " OOBBWB     ",
+        "   BWWB     ",
+        " B BWWB B   ",
+        " BBWWWWB BB ",
+        "  BWWWWBB   ",
+        " BWWWWWWB   ",
+        " BWWWWWWWBB ",
+        "  BWWWWWWB  ",
+        "   BBBBBB   ",
+        "    BOOB    ",
+        "    BOOB    ",
+        "    BBBB    ",
+        "            "
+    ],
+    "SQUASH": [
+        "            ",
+        "            ",
+        "    BBBB    ",
+        "   BWWBWB   ",
+        "  OBWWWB    ",
+        " OOBBWB     ",
+        "   BWWB     ",
+        "  BWWWWB    ",
+        " BWWWWWWB   ",
+        " BWWWWWWWBB ",
+        "  BWWWWWWB  ",
+        "  BBBBBBBB  ",
+        " BOOB  BOOB ",
+        " BOOB  BOOB ",
+        " BBBB  BBBB ",
+        "            "
+    ],
     "QUACK_HOP": [
         "    BBBB    ",
         "   BWWBWB   ",
@@ -193,7 +231,7 @@ class _MONITORINFO(ctypes.Structure):
 
 
 def get_taskbar_work_area() -> Tuple[int, int, int, int]:
-    """Retorna (left, top, right, bottom) del área de trabajo de la pantalla principal en Windows."""
+    """Retorna (left, top, right, bottom) del área de trabajo (descuenta la barra de tareas en Windows)."""
     if sys.platform != "win32":
         return 0, 0, 1920, 1040
     try:
@@ -211,16 +249,15 @@ def get_taskbar_work_area() -> Tuple[int, int, int, int]:
 
 class DesktopDuckPet:
     """
-    Compañero Pato de Escritorio autónomo con renderizado 100% transparente en Windows.
-    Sin marcos, sin cajas blancas, caminando literalmente sobre el fondo del escritorio.
+    Pato de Escritorio animado con física de gravedad, piso real y lanzamiento de Antigravity 2.0.
     """
 
     def __init__(self, pixel_scale: int = 8) -> None:
-        self.pixel_scale = pixel_scale  # 8px por pixel = 96x128px (~3.4 cm en pantalla)
+        self.pixel_scale = pixel_scale  # 8px por pixel = 96x128px (~3.4 cm)
         self.duck_w = 12 * pixel_scale
         self.duck_h = 16 * pixel_scale
 
-        # Dimensiones de la ventana transparente (Pato + burbuja de diálogo)
+        # Dimensiones de la ventana transparente
         self.win_w = 260
         self.win_h = 175
 
@@ -230,29 +267,41 @@ class DesktopDuckPet:
         self.BUBBLE_BORDER = "#333A4D"
         self.TEXT_COLOR = "#E2E8F0"
 
-        # Estado y física
-        self.direction = 1  # 1 = caminando hacia la derecha, -1 = hacia la izquierda
-        self.state = "walking"  # "walking", "idle", "pecking", "hopping"
+        # Física de Gravedad y Piso
+        work_l, work_t, work_r, work_b = get_taskbar_work_area()
+        self.min_x = work_l + 30
+        self.max_x = work_r - self.win_w - 30
+
+        # El piso físico exacto: la parte superior de la barra de tareas
+        self.floor_y = float(work_b - self.win_h + 8)
+
+        # Posición actual
+        self.pos_x = float(work_r - self.win_w - 140)
+        self.pos_y = self.floor_y
+
+        # Dinámica de caída libre
+        self.velocity_y = 0.0
+        self.gravity = 3.6  # Aceleración gravitacional en píxeles/frame^2
+        self.is_falling = False
+        self.landing_timer = 0
+
+        # Estado y animación
+        self.direction = 1  # 1 = caminando a la derecha, -1 = a la izquierda
+        self.state = "walking"  # "walking", "idle", "pecking", "hopping", "dragging", "falling", "landing"
         self.walk_frame_idx = 0
         self.walk_frames_list = ["WALK_1", "WALK_2", "WALK_3", "WALK_4"]
-        
-        work_l, work_t, work_r, work_b = get_taskbar_work_area()
-        self.min_x = work_l + 40
-        self.max_x = work_r - self.win_w - 40
-        self.pos_x = float(work_r - self.win_w - 120)
-        # Apoyar exactamente los pies en la barra de tareas
-        self.pos_y = float(work_b - self.win_h + 8)
 
         # Variables de arrastre con ratón
         self._drag_start_x = 0
         self._drag_start_y = 0
         self._is_dragging = False
+        self._is_launching = False
 
         # Temporizadores de comportamiento
         self.idle_counter = 0
-        self.step_speed = 4.0  # Píxeles por paso
+        self.step_speed = 4.0
         self.status_message = "💤 En guardia • 2 clics para entrar"
-        self.status_color = "#10B981"  # Verde esmeralda por defecto
+        self.status_color = "#10B981"
 
         # Inicializar Tkinter transparente
         self._init_window()
@@ -264,11 +313,11 @@ class DesktopDuckPet:
         self.root.title("MMAE Desktop Duck")
         self.root.overrideredirect(True)
         self.root.wm_attributes("-topmost", True)
-        
-        # Transparencia total en Windows (elimina por completo el recuadro blanco)
+
+        # Transparencia por hardware en Windows
         if sys.platform == "win32":
             self.root.wm_attributes("-transparentcolor", self.TRANS_COLOR)
-        
+
         self.root.config(bg=self.TRANS_COLOR)
         self.root.geometry(f"{self.win_w}x{self.win_h}+{int(self.pos_x)}+{int(self.pos_y)}")
 
@@ -283,7 +332,7 @@ class DesktopDuckPet:
         self.canvas.pack(fill="both", expand=True)
 
     def _load_sprites(self) -> None:
-        """Renderiza la biblioteca de sprites del pato en imágenes PhotoImage de Tkinter."""
+        """Renderiza los patrones a PhotoImages de Tkinter."""
         self.sprites: Dict[str, Dict[str, ImageTk.PhotoImage]] = {}
 
         for name, pattern in SPRITES_DATA.items():
@@ -293,32 +342,37 @@ class DesktopDuckPet:
                     color = PALETTE.get(char, (1, 1, 1, 0))
                     img.putpixel((c, r), color)
 
-            # Escalar limpiamente con interpolación Nearest (Pixel-Art nítido)
+            # Escalar nítido
             scaled_right = img.resize((self.duck_w, self.duck_h), Image.Resampling.NEAREST)
-            # Reflejar para cuando camina a la derecha
             scaled_left = ImageOps.mirror(scaled_right)
 
             self.sprites[name] = {
-                "right": ImageTk.PhotoImage(scaled_left),   # Dibujo base mira a la izquierda, mirror mira a la derecha
+                "right": ImageTk.PhotoImage(scaled_left),
                 "left": ImageTk.PhotoImage(scaled_right),
             }
 
     def _bind_events(self) -> None:
-        # Arrastre con clic izquierdo
+        # Clic y arrastre
         self.canvas.bind("<Button-1>", self._on_mouse_down)
         self.canvas.bind("<B1-Motion>", self._on_mouse_drag)
         self.canvas.bind("<ButtonRelease-1>", self._on_mouse_up)
 
-        # Doble clic para abrir el agente
+        # Doble clic para abrir Antigravity 2.0 / JARVIS
         self.canvas.bind("<Double-Button-1>", self._on_double_click)
 
-        # Clic derecho para menú contextual
+        # Menú contextual
         self.canvas.bind("<Button-3>", self._on_right_click)
 
     def _on_mouse_down(self, event: tk.Event) -> None:
         self._is_dragging = True
+        self.is_falling = False
+        self.velocity_y = 0.0
+        self.state = "dragging"
         self._drag_start_x = event.x
         self._drag_start_y = event.y
+        self.status_message = "¡Waaa! 🦆"
+        self.status_color = "#F59E0B"
+        self._draw_frame()
 
     def _on_mouse_drag(self, event: tk.Event) -> None:
         if self._is_dragging:
@@ -331,32 +385,63 @@ class DesktopDuckPet:
     def _on_mouse_up(self, event: tk.Event) -> None:
         self._is_dragging = False
 
+        # Si el pato quedó por encima del piso, ¡SE ACTIVA LA GRAVEDAD!
+        if self.pos_y < self.floor_y:
+            self.is_falling = True
+            self.velocity_y = 1.0
+            self.state = "falling"
+            self.status_message = "¡Cayendo! 🪂"
+            self.status_color = "#3B82F6"
+        else:
+            # Si fue arrastrado por debajo de la taskbar, apoyarlo en el piso
+            self.pos_y = self.floor_y
+            self.is_falling = False
+            self.state = "idle"
+            self.idle_counter = 0
+            self.root.geometry(f"{self.win_w}x{self.win_h}+{int(self.pos_x)}+{int(self.pos_y)}")
+
     def _on_double_click(self, event: tk.Event) -> None:
-        """Reacción física de salto y apertura del agente."""
+        """Doble clic: Salto alegre '¡CUAC!' y apertura garantizada de la interfaz Antigravity 2.0."""
+        self._is_dragging = False
+        self.is_falling = False
+        self.velocity_y = 0.0
         self.state = "hopping"
-        self.status_message = "¡CUAC! 🚀 Abriendo agente..."
+        self.status_message = "¡CUAC! 🚀 Abriendo Antigravity 2.0..."
         self.status_color = "#FF5500"
         self._draw_frame()
 
-        # Invocar apertura en un hilo desacoplado
-        threading.Thread(target=self._launch_or_focus_agent, daemon=True).start()
+        if not self._is_launching:
+            self._is_launching = True
+            threading.Thread(target=self._launch_or_focus_agent, daemon=True).start()
 
     def _on_right_click(self, event: tk.Event) -> None:
         menu = tk.Menu(self.root, tearoff=0)
-        menu.add_command(label="🚀 Abrir Agente JEV", command=self._launch_or_focus_agent)
-        menu.add_command(label="🦆 Picotear Suelo", command=lambda: setattr(self, "state", "pecking"))
+        menu.add_command(label="🚀 Abrir Antigravity 2.0", command=self._launch_or_focus_agent)
+        menu.add_command(label="🦆 Tirar al aire (Gravedad)", command=self._throw_in_the_air)
         menu.add_separator()
         menu.add_command(label="❌ Cerrar Pato", command=self.root.destroy)
         menu.post(event.x_root, event.y_root)
 
-    def _launch_or_focus_agent(self) -> None:
-        """Restaura la ventana existente o lanza app.py / jev_launcher.py."""
-        log.info("🦆 [DesktopDuck]: Doble clic detectado. Enfocando interfaz principal...")
+    def _throw_in_the_air(self) -> None:
+        """Lanza el pato hacia arriba para ver la gravedad."""
+        self.pos_y = max(50.0, self.floor_y - 450.0)
+        self.is_falling = True
+        self.velocity_y = 1.0
+        self.state = "falling"
+        self.status_message = "¡Gravedad! 🪂"
+        self.status_color = "#3B82F6"
+        self.root.geometry(f"{self.win_w}x{self.win_h}+{int(self.pos_x)}+{int(self.pos_y)}")
 
-        # 1. Buscar si la ventana ya existe en Windows y traerla al frente
+    def _launch_or_focus_agent(self) -> None:
+        """Enfoca la ventana de Antigravity 2.0 o la lanza mediante app.py."""
+        log.info("🦆 [DesktopDuck]: Abriendo interfaz Antigravity 2.0 (app.py)...")
+
+        # 1. Comprobar si ya existe la ventana de Antigravity 2.0 / Bable abierta
         if sys.platform == "win32":
             try:
                 found_hwnd = None
+                duck_hwnd = int(self.root.frame(), 16) if hasattr(self.root, "frame") else 0
+
                 def _enum_win(h, _):
                     nonlocal found_hwnd
                     if ctypes.windll.user32.IsWindowVisible(h):
@@ -365,7 +450,12 @@ class DesktopDuckPet:
                             buff = ctypes.create_unicode_buffer(length + 1)
                             ctypes.windll.user32.GetWindowTextW(h, buff, length + 1)
                             title = buff.value
-                            if "MMAE" in title or "JARVIS" in title or "Bable" in title:
+                            # IGNORAR la propia ventana del pato
+                            if "Desktop Duck" in title or "MMAE Desktop Duck" in title or h == duck_hwnd:
+                                return True
+
+                            # Detectar la interfaz principal de Antigravity 2.0 / Bable / JARVIS
+                            if "Bable 2.0" in title or "Antigravity 2.0" in title or "MMAE // Claude" in title or "JARVIS" in title:
                                 found_hwnd = h
                                 return False
                     return True
@@ -374,56 +464,64 @@ class DesktopDuckPet:
                 ctypes.windll.user32.EnumWindows(WNDENUMPROC(_enum_win), 0)
 
                 if found_hwnd:
+                    log.info(f"🦆 [DesktopDuck]: Ventana Antigravity encontrada (HWND {found_hwnd}). Restaurando...")
                     ctypes.windll.user32.ShowWindow(found_hwnd, 9)  # SW_RESTORE
                     ctypes.windll.user32.SetForegroundWindow(found_hwnd)
                     ctypes.windll.user32.BringWindowToTop(found_hwnd)
+                    time.sleep(1.5)
+                    self._is_launching = False
                     return
-            except Exception:
-                pass
+            except Exception as e:
+                log.warning(f"Error buscando ventana existente: {e}")
 
-        # 2. Si no está abierta, lanzarla
+        # 2. Si no está abierta, lanzar la interfaz mediante jev_launcher.py --classic o app.py
         try:
-            launcher_script = BASE_DIR / "jev_launcher.py"
-            app_script = BASE_DIR / "app.py"
+            # Resolver intérprete de Python seguro
             py_bin = sys.executable or "python.exe"
+            known_py = Path(r"C:\Users\juand\AppData\Roaming\uv\python\cpython-3.11.16-windows-x86_64-none\python.exe")
+            if (not Path(py_bin).exists() or "WindowsApps" in str(py_bin)) and known_py.exists():
+                py_bin = str(known_py)
 
-            cmd = [py_bin, str(launcher_script), "--classic"] if launcher_script.exists() else [py_bin, str(app_script)]
-            DETACHED = 0x00000008 | 0x00000200
-            subprocess.Popen(
+            launcher_script = BASE_DIR / "jev_launcher.py"
+            if launcher_script.exists():
+                cmd = [py_bin, str(launcher_script), "--classic"]
+            else:
+                cmd = [py_bin, str(BASE_DIR / "app.py")]
+
+            DETACHED = 0x00000008 | 0x00000200  # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
+            log.info(f"🦆 [DesktopDuck]: Lanzando proceso: {' '.join(cmd)}")
+            proc = subprocess.Popen(
                 cmd,
                 cwd=str(BASE_DIR),
                 creationflags=DETACHED if sys.platform == "win32" else 0,
                 close_fds=True,
             )
+            log.info(f"🦆 [DesktopDuck]: Proceso Antigravity 2.0 iniciado (PID {proc.pid}).")
         except Exception as e:
-            log.error(f"Error al abrir agente: {e}")
+            log.error(f"Error al abrir la interfaz: {e}")
+        finally:
+            time.sleep(2.0)
+            self._is_launching = False
 
     def _draw_frame(self) -> None:
         """Dibuja en el Canvas el pato y la burbuja de estado flotante."""
         self.canvas.delete("all")
 
-        # 1. Dibujar burbuja de diálogo redondeada con sombra
+        # 1. Dibujar burbuja de diálogo
         bubble_x1 = 20
         bubble_y1 = 6
         bubble_x2 = self.win_w - 20
         bubble_y2 = 38
         r = 10
 
-        # Fondo de la burbuja
-        self.canvas.create_rectangle(
-            bubble_x1 + r, bubble_y1, bubble_x2 - r, bubble_y2,
-            fill=self.BUBBLE_BG, outline=""
-        )
-        self.canvas.create_rectangle(
-            bubble_x1, bubble_y1 + r, bubble_x2, bubble_y2 - r,
-            fill=self.BUBBLE_BG, outline=""
-        )
+        self.canvas.create_rectangle(bubble_x1 + r, bubble_y1, bubble_x2 - r, bubble_y2, fill=self.BUBBLE_BG, outline="")
+        self.canvas.create_rectangle(bubble_x1, bubble_y1 + r, bubble_x2, bubble_y2 - r, fill=self.BUBBLE_BG, outline="")
         self.canvas.create_oval(bubble_x1, bubble_y1, bubble_x1 + 2*r, bubble_y1 + 2*r, fill=self.BUBBLE_BG, outline="")
         self.canvas.create_oval(bubble_x2 - 2*r, bubble_y1, bubble_x2, bubble_y1 + 2*r, fill=self.BUBBLE_BG, outline="")
         self.canvas.create_oval(bubble_x1, bubble_y2 - 2*r, bubble_x1 + 2*r, bubble_y2, fill=self.BUBBLE_BG, outline="")
         self.canvas.create_oval(bubble_x2 - 2*r, bubble_y2 - 2*r, bubble_x2, bubble_y2, fill=self.BUBBLE_BG, outline="")
 
-        # Borde exterior fino
+        # Bordes
         self.canvas.create_arc(bubble_x1, bubble_y1, bubble_x1 + 2*r, bubble_y1 + 2*r, start=90, extent=90, outline=self.BUBBLE_BORDER, style="arc", width=1)
         self.canvas.create_arc(bubble_x2 - 2*r, bubble_y1, bubble_x2, bubble_y1 + 2*r, start=0, extent=90, outline=self.BUBBLE_BORDER, style="arc", width=1)
         self.canvas.create_arc(bubble_x1, bubble_y2 - 2*r, bubble_x1 + 2*r, bubble_y2, start=180, extent=90, outline=self.BUBBLE_BORDER, style="arc", width=1)
@@ -433,42 +531,32 @@ class DesktopDuckPet:
         self.canvas.create_line(bubble_x1, bubble_y1 + r, bubble_x1, bubble_y2 - r, fill=self.BUBBLE_BORDER, width=1)
         self.canvas.create_line(bubble_x2, bubble_y1 + r, bubble_x2, bubble_y2 - r, fill=self.BUBBLE_BORDER, width=1)
 
-        # Pequeño triángulo apuntando al pato
+        # Flecha indicadora
         tri_x = (bubble_x1 + bubble_x2) // 2
-        self.canvas.create_polygon(
-            tri_x - 5, bubble_y2,
-            tri_x + 5, bubble_y2,
-            tri_x, bubble_y2 + 5,
-            fill=self.BUBBLE_BG, outline=""
-        )
+        self.canvas.create_polygon(tri_x - 5, bubble_y2, tri_x + 5, bubble_y2, tri_x, bubble_y2 + 5, fill=self.BUBBLE_BG, outline="")
 
-        # Punto indicador de estado
-        self.canvas.create_oval(
-            bubble_x1 + 12, bubble_y1 + 12, bubble_x1 + 20, bubble_y1 + 20,
-            fill=self.status_color, outline=""
-        )
+        # Punto de estado
+        self.canvas.create_oval(bubble_x1 + 12, bubble_y1 + 12, bubble_x1 + 20, bubble_y1 + 20, fill=self.status_color, outline="")
 
-        # Texto del estado
+        # Texto
         display_text = self.status_message
         if len(display_text) > 30:
             display_text = display_text[:27] + "..."
-        self.canvas.create_text(
-            bubble_x1 + 26, (bubble_y1 + bubble_y2) // 2,
-            text=display_text,
-            anchor="w",
-            fill=self.TEXT_COLOR,
-            font=("Segoe UI", 9, "bold")
-        )
+        self.canvas.create_text(bubble_x1 + 26, (bubble_y1 + bubble_y2) // 2, text=display_text, anchor="w", fill=self.TEXT_COLOR, font=("Segoe UI", 9, "bold"))
 
-        # 2. Determinar sprite actual del Pato
+        # 2. Sprite actual del Pato
         dir_key = "right" if self.direction == 1 else "left"
         sprite_name = "STAND"
-
         duck_draw_y = 42
 
-        if self.state == "walking":
+        if self.state in ("dragging", "falling"):
+            sprite_name = "FLAP"
+            duck_draw_y -= 4
+        elif self.state == "landing":
+            sprite_name = "SQUASH"
+            duck_draw_y += 6
+        elif self.state == "walking":
             sprite_name = self.walk_frames_list[self.walk_frame_idx]
-            # Leve bamboleo vertical al caminar
             if self.walk_frame_idx in (1, 3):
                 duck_draw_y -= 2
         elif self.state == "pecking":
@@ -488,14 +576,39 @@ class DesktopDuckPet:
         self.canvas.create_image(duck_center_x, duck_draw_y + (self.duck_h // 2), image=img)
 
     def _update_loop(self) -> None:
-        """Bucle de animación y física de caminata (60-120ms por frame)."""
+        """Bucle principal de física, gravedad y caminata."""
         if not self._is_dragging:
-            if self.state == "walking":
-                # Avanzar físicamente en la pantalla
+            # --- FÍSICA DE GRAVEDAD ---
+            if self.is_falling:
+                self.velocity_y += self.gravity
+                self.pos_y += self.velocity_y
+
+                # Colisión con el piso físico (barra de tareas)
+                if self.pos_y >= self.floor_y:
+                    self.pos_y = self.floor_y
+                    self.is_falling = False
+                    self.velocity_y = 0.0
+                    self.state = "landing"
+                    self.landing_timer = 3
+                    self.status_message = "¡Plaf! 🦆"
+                    self.status_color = "#10B981"
+
+                self.root.geometry(f"{self.win_w}x{self.win_h}+{int(self.pos_x)}+{int(self.pos_y)}")
+
+            elif self.state == "landing":
+                self.landing_timer -= 1
+                if self.landing_timer <= 0:
+                    self.state = "idle"
+                    self.idle_counter = 0
+                    self.status_message = "💤 En guardia • 2 clics para entrar"
+                    self.status_color = "#10B981"
+
+            elif self.state == "walking":
+                # Caminata horizontal sobre el piso
                 self.pos_x += self.direction * self.step_speed
                 self.walk_frame_idx = (self.walk_frame_idx + 1) % len(self.walk_frames_list)
 
-                # Si llega al borde de la pantalla, cambiar de dirección y pausar
+                # Rebote en los bordes de la pantalla
                 if self.pos_x >= self.max_x:
                     self.pos_x = self.max_x
                     self.direction = -1
@@ -507,25 +620,20 @@ class DesktopDuckPet:
                     self.state = "idle"
                     self.idle_counter = 0
 
-                # Cada cierto número de pasos, detenerse a descansar
                 self.idle_counter += 1
                 if self.idle_counter > 35:
                     self.state = "idle"
                     self.idle_counter = 0
 
-                # Mover la ventana en Windows
                 self.root.geometry(f"{self.win_w}x{self.win_h}+{int(self.pos_x)}+{int(self.pos_y)}")
 
             elif self.state == "idle":
                 self.idle_counter += 1
-                # Ocasionalmente picotea
                 if self.idle_counter == 15 and (time.time() % 4 < 2):
                     self.state = "pecking"
                 elif self.idle_counter > 28:
-                    # Reanudar caminata
                     self.state = "walking"
                     self.idle_counter = 0
-                    # 30% de probabilidad de cambiar dirección
                     if (time.time() % 3) > 1.8:
                         self.direction *= -1
 
@@ -544,14 +652,15 @@ class DesktopDuckPet:
                     self.status_color = "#10B981"
 
         self._draw_frame()
-        # Próximo frame de animación en 130ms (cadencia perfecta para caminata de pato)
-        self.root.after(130, self._update_loop)
+        # Cadencia de 80ms para caída suave y 120ms para caminata
+        tick_interval = 50 if self.is_falling else 125
+        self.root.after(tick_interval, self._update_loop)
 
     def _sync_agent_status_loop(self) -> None:
-        """Sincroniza periódicamente el mensaje de la burbuja con el agente en segundo plano."""
+        """Sincroniza periódicamente el mensaje de la burbuja."""
         try:
             status = get_agent_status()
-            if status and self.state != "hopping":
+            if status and self.state not in ("hopping", "dragging", "falling"):
                 if status.get("running") or status.get("state") == "thinking":
                     thought = status.get("thought", "")
                     self.status_message = f"🧠 {thought}" if thought else "🧠 Pensando y analizando..."
@@ -582,7 +691,6 @@ class DesktopDuckPet:
 
 
 def run_duck() -> int:
-    """Punto de entrada principal para lanzar el Pato de Escritorio."""
     pet = DesktopDuckPet(pixel_scale=8)
     pet.run()
     return 0
