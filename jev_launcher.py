@@ -177,7 +177,7 @@ def main() -> int:
         else:
             from jev_desktop import main as desktop_main
 
-            print(f"[{datetime.now().isoformat(timespec='seconds')}] Entrando en jev_desktop.main() [isla]...")
+            print(f"[{datetime.now().isoformat(timespec='seconds')}] Entrando en jev_desktop.main() [pato de escritorio]...")
             desktop_main()
             print(f"[{datetime.now().isoformat(timespec='seconds')}] jev_desktop.main() finalizó correctamente.")
         return 0

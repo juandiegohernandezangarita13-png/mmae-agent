@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>MMAE Desktop Duck</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background: transparent;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 8px;
+    }
+
+    /* Región de arrastre general */
+    .drag-zone {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* Contenedor del pato y el estado */
+    .companion-stage {
+      position: relative;
+      width: 280px;
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      z-index: 10;
+    }
+
+    /* Burbuja / Barra de estado flotante */
+    .status-capsule {
+      position: absolute;
+      top: 6px;
+      max-width: 260px;
+      background: rgba(15, 17, 23, 0.92);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 5px 12px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #E2E8F0;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(8px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      z-index: 20;
+    }
+
+    .status-capsule:hover {
+      background: rgba(22, 27, 34, 0.98);
+      border-color: rgba(255, 120, 60, 0.5);
+      transform: translateY(-2px);
+    }
+
+    /* Flecha del globo de diálogo apuntando al pato */
+    .status-capsule::after {
+      content: "";
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 5px 5px 0;
+      border-style: solid;
+      border-color: rgba(15, 17, 23, 0.92) transparent;
+      display: block;
+      width: 0;
+    }
+
+    /* Punto indicador de actividad */
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 6px #10B981;
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+
+    .status-dot.thinking {
+      background: #3B82F6;
+      box-shadow: 0 0 8px #3B82F6;
+      animation: pulse 1.2s infinite;
+    }
+
+    .status-dot.working {
+      background: #F59E0B;
+      box-shadow: 0 0 8px #F59E0B;
+      animation: pulse 0.8s infinite;
+    }
+
+    .status-dot.curiosity {
+      background: #8B5CF6;
+      box-shadow: 0 0 8px #8B5CF6;
+      animation: pulse 1.4s infinite;
+    }
+
+    .status-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 210px;
+    }
+
+    /* Contenedor del Pato Pixel-Art */
+    .duck-wrapper {
+      position: absolute;
+      bottom: 2px;
+      width: 96px;
+      height: 128px;
+      cursor: pointer;
+      z-index: 15;
+      transition: filter 0.2s;
+    }
+
+    .duck-wrapper:hover {
+      filter: drop-shadow(0 0 6px rgba(255, 140, 50, 0.6));
+    }
+
+    canvas#duckCanvas {
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      width: 96px;
+      height: 128px;
+    }
+
+    /* Notificación de Cuac al tocar dos veces */
+    .quack-bubble {
+      position: absolute;
+      top: -18px;
+      right: -10px;
+      background: #FF5500;
+      color: #FFF;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 8px;
+      opacity: 0;
+      transform: scale(0.6);
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      pointer-events: none;
+      box-shadow: 0 2px 8px rgba(255, 85, 0, 0.5);
+    }
+
+    .quack-bubble.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="drag-zone pywebview-drag-region"></div>
+
+  <div class="companion-stage">
+    <!-- Barra de estado y qué está haciendo -->
+    <div class="status-capsule" id="statusCapsule" title="Toca dos veces para hablar con el agente" ondblclick="onDuckDoubleClick(event)">
+      <div class="status-dot" id="statusDot"></div>
+      <span class="status-text" id="statusText">💤 En guardia • 2 clics para entrar</span>
+    </div>
+
+    <!-- Pato Pixel-Art Interactivo -->
+    <div class="duck-wrapper pywebview-drag-region" id="duckWrapper" ondblclick="onDuckDoubleClick(event)" onclick="onDuckClick(event)">
+      <div class="quack-bubble" id="quackBubble">¡CUAC! 🚀</div>
+      <canvas id="duckCanvas" width="12" height="16"></canvas>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // RENDERIZADOR PIXEL-ART DEL PATO (Fiel a la imagen provista)
+    // Dimensiones nativas: 12 columnas x 16 filas (Escalado a 96x128px = ~3.4cm)
+    // =========================================================================
+    const canvas = document.getElementById("duckCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+
+    // Paleta de colores
+    const C_BLACK = "#111111";
+    const C_WHITE = "#FFFFFF";
+    const C_SHADOW = "#E2E8F0";
+    const C_ORANGE = "#FF4500";
+    const C_ORANGE_DARK = "#D83A00";
+
+    // Estados del Pato
+    const STATE_IDLE = "idle";
+    const STATE_WALKING = "walking";
+    const STATE_PECKING = "pecking";
+    const STATE_HOP = "hop";
+
+    let currentState = STATE_IDLE;
+    let facingDirection = 1; // 1 = mira izquierda, -1 = mira derecha
+    let posX = 80;          // Posición horizontal en el escenario (px)
+    let posY = 0;           // Altura adicional (salto)
+    let walkPhase = 0;
+    let idleTimer = 0;
+    let blinkTimer = 0;
+    let isBlinking = false;
+    let peckCount = 0;
+    let hopVelocity = 0;
+
+    // Límites de caminata en la barra
+    const MIN_X = 20;
+    const MAX_X = 160;
+
+    // Matriz base de píxeles del Pato (12x16)
+    // B = Black, W = White, S = Shadow, O = Orange, D = Orange Dark, . = Transparent
+    const DUCK_SPRITE_STAND = [
+      "....BBBB....", // 0: corona cabeza
+      "...BWWBWB...", // 1: cabeza y ojo
+      ".OOBWWWB....", // 2: pico superior y mejilla
+      ".OOBBWB.....", // 3: pico inferior y cuello
+      "...BWWB.....", // 4: cuello
+      "...BWWB.....", // 5: cuello
+      "...BWWB.....", // 6: cuello
+      "..BWWWWB....", // 7: inicio del pecho
+      ".BWWWWWB....", // 8: lomo y pecho
+      ".BWWWWWWB...", // 9: cuerpo
+      ".BWWWWWWWBB.", // 10: cuerpo y cola extendida
+      "..BWWWWWWB..", // 11: base cuerpo
+      "...BBBBBB...", // 12: contorno inferior
+      "...BOOBB....", // 13: pata delantera
+      "...BOOB.OB..", // 14: pata trasera
+      "...BBBB.BB.."  // 15: base / botas
+    ];
+
+    function drawPixelDuck(frameData, eyeBlink = false, beakOpen = false, legOffset = 0) {
+      ctx.clearRect(0, 0, 12, 16);
+
+      for (let r = 0; r < 16; r++) {
+        let rowStr = frameData[r] || "............";
+        for (let c = 0; c < 12; c++) {
+          let char = rowStr[c] || ".";
+
+          // Modificaciones dinámicas
+          if (r === 1 && c === 5 && eyeBlink) {
+            char = "B"; // Parpadeo
+          }
+          if (r === 1 && c === 4 && eyeBlink) {
+            char = "B"; // Línea de ojo cerrado
+          }
+
+          if (beakOpen) {
+            if (r === 3 && (c === 1 || c === 2)) char = "."; // Boca abierta
+            if (r === 4 && (c === 1 || c === 2)) char = "O"; // Pico caído
+          }
+
+          // Alternancia de patas al caminar
+          if (r >= 13 && c >= 3) {
+            if (legOffset === 1 && c <= 6) {
+              // Adelanta pata delantera
+            } else if (legOffset === -1 && c >= 6) {
+              // Adelanta pata trasera
+            }
+          }
+
+          let color = null;
+          switch (char) {
+            case "B": color = C_BLACK; break;
+            case "W": color = C_WHITE; break;
+            case "S": color = C_SHADOW; break;
+            case "O": color = C_ORANGE; break;
+            case "D": color = C_ORANGE_DARK; break;
+          }
+
+          if (color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(c, r, 1, 1);
+          }
+        }
+      }
+    }
+
+    // =========================================================================
+    // BUCLE DE ANIMACIÓN Y FÍSICA
+    // =========================================================================
+    let lastTime = performance.now();
+
+    function updateDuck(timestamp) {
+      const dt = (timestamp - lastTime) / 1000;
+      lastTime = timestamp;
+
+      blinkTimer += dt;
+      if (blinkTimer > 3.8) {
+        isBlinking = true;
+        if (blinkTimer > 4.0) {
+          isBlinking = false;
+          blinkTimer = 0;
+        }
+      }
+
+      const duckEl = document.getElementById("duckWrapper");
+
+      if (currentState === STATE_WALKING) {
+        walkPhase += dt * 6.5;
+        posX += facingDirection * (dt * 32);
+
+        // Balanceo del pato paso a paso (Waddle)
+        const tilt = Math.sin(walkPhase) * 6;
+        const bob = Math.abs(Math.sin(walkPhase)) * 3;
+        const legStep = Math.sin(walkPhase) > 0 ? 1 : -1;
+
+        duckEl.style.transform = `translateX(${posX}px) translateY(${-bob}px) scaleX(${facingDirection}) rotate(${tilt * facingDirection}deg)`;
+        drawPixelDuck(DUCK_SPRITE_STAND, isBlinking, false, legStep);
+
+        // Giro al tocar los bordes del área
+        if (posX > MAX_X) {
+          posX = MAX_X;
+          facingDirection = -1;
+          currentState = STATE_IDLE;
+          idleTimer = 0;
+        } else if (posX < MIN_X) {
+          posX = MIN_X;
+          facingDirection = 1;
+          currentState = STATE_IDLE;
+          idleTimer = 0;
+        }
+      } 
+      else if (currentState === STATE_IDLE) {
+        idleTimer += dt;
+        // Respiración suave
+        const breath = Math.sin(timestamp * 0.003) * 1.5;
+        duckEl.style.transform = `translateX(${posX}px) translateY(${breath}px) scaleX(${facingDirection})`;
+        drawPixelDuck(DUCK_SPRITE_STAND, isBlinking, false, 0);
+
+        // Cada 3 a 5 segundos de ocio, decide caminar o picotear
+        if (idleTimer > 4.0) {
+          idleTimer = 0;
+          const roll = Math.random();
+          if (roll < 0.65) {
+            currentState = STATE_WALKING;
+            // A veces cambia de dirección
+            if (Math.random() < 0.35) facingDirection *= -1;
+          } else {
+            currentState = STATE_PECKING;
+            peckCount = 0;
+          }
+        }
+      }
+      else if (currentState === STATE_PECKING) {
+        idleTimer += dt;
+        const peckBob = Math.abs(Math.sin(idleTimer * 10)) * 6;
+        duckEl.style.transform = `translateX(${posX}px) translateY(${peckBob}px) scaleX(${facingDirection}) rotate(${peckBob * 2}deg)`;
+        drawPixelDuck(DUCK_SPRITE_STAND, false, false, 0);
+
+        if (idleTimer > 1.2) {
+          currentState = STATE_IDLE;
+          idleTimer = 0;
+        }
+      }
+      else if (currentState === STATE_HOP) {
+        // Salto animado al hacer doble clic
+        hopVelocity += dt * 35;
+        posY -= (12 - hopVelocity);
+        duckEl.style.transform = `translateX(${posX}px) translateY(${posY}px) scaleX(${facingDirection}) scale(1.15)`;
+        drawPixelDuck(DUCK_SPRITE_STAND, false, true, 0);
+
+        if (posY >= 0) {
+          posY = 0;
+          currentState = STATE_IDLE;
+          duckEl.style.transform = `translateX(${posX}px) translateY(0px) scaleX(${facingDirection})`;
+        }
+      }
+
+      requestAnimationFrame(updateDuck);
+    }
+
+    requestAnimationFrame(updateDuck);
+
+    // =========================================================================
+    // INTERACCIÓN: DOBLE CLIC PARA INGRESAR AL AGENTE
+    // =========================================================================
+    function onDuckDoubleClick(e) {
+      if (e) e.stopPropagation();
+      
+      // Animación inmediata de CUAC y salto
+      currentState = STATE_HOP;
+      posY = -18;
+      hopVelocity = 0;
+
+      const bubble = document.getElementById("quackBubble");
+      bubble.classList.add("show");
+      document.getElementById("statusText").innerText = "¡Abriendo agente MMAE...";
+      
+      setTimeout(() => {
+        bubble.classList.remove("show");
+      }, 1600);
+
+      // Invocar apertura de la interfaz principal en Python
+      if (window.pywebview && window.pywebview.api) {
+        window.pywebview.api.open_main().then(res => {
+          console.log("[DUCK] open_main ejecutado:", res);
+        }).catch(err => {
+          console.warn("[DUCK] Error invocando open_main:", err);
+        });
+      }
+    }
+
+    function onDuckClick(e) {
+      // Un solo clic: el pato se sobresalta amigablemente o gira
+      if (currentState === STATE_IDLE) {
+        facingDirection *= -1;
+      }
+    }
+
+    // =========================================================================
+    // SINCRONIZACIÓN DE ESTADO EN TIEMPO REAL CON PYTHON
+    // =========================================================================
+    function syncAgentStatus() {
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.get_status) {
+        window.pywebview.api.get_status().then(status => {
+          if (!status) return;
+
+          const dot = document.getElementById("statusDot");
+          const textEl = document.getElementById("statusText");
+
+          dot.className = "status-dot";
+
+          if (status.running || status.state === "thinking") {
+            dot.classList.add("thinking");
+            textEl.innerText = status.thought ? `🧠 ${status.thought}` : "🧠 Analizando y pensando...";
+          } else if (status.tool_in_progress || status.tool) {
+            dot.classList.add("working");
+            textEl.innerText = `⚡ Ejecutando: ${status.tool || "herramienta"}`;
+          } else if (status.state === "curiosity") {
+            dot.classList.add("curiosity");
+            textEl.innerText = `🦉 Curiosidad Nivel 0: ${status.task || "verificando"}`;
+          } else if (status.state === "talking") {
+            dot.classList.add("working");
+            textEl.innerText = `🔊 Hablando: ${status.thought || ""}`;
+          } else {
+            textEl.innerText = "💤 En guardia • 2 clics para entrar";
+          }
+        }).catch(() => {});
+      }
+    }
+
+    // Polling ligero de estado cada 1.5s
+    setInterval(syncAgentStatus, 1500);
+    setTimeout(syncAgentStatus, 300);
+  </script>
+</body>
+</html>
