@@ -31,6 +31,7 @@ from core.goldfish_critic import GoldfishCritic
 from core.script_runner import ScriptRunner
 from core.voice_announcer import VoiceAnnouncer
 from core.curiosity_daemon import CuriosityDaemon
+from core.harness import HarnessTree, ExperienceLibrary, RecursiveHarnessImprover
 
 from skills.base import SkillRegistry
 from skills.terminal import SafeTerminalSkill
@@ -112,8 +113,13 @@ class MMAEAutonomousAgent:
         )
         if getattr(self.config, "curiosity_enabled", False):
             self.curiosity_daemon.start()
+
+        # 8. Sistema de Harness Recursivo y Biblioteca de Experiencia (Harness² Architecture)
+        self.harness_tree = HarnessTree.create_default()
+        self.experience_library = ExperienceLibrary(domain="general")
+        self.recursive_improver = RecursiveHarnessImprover(config=self.config)
         
-        log.info("MMAE inicializado y listo para operar.")
+        log.info(f"MMAE inicializado. Harness activo: {self.harness_tree.inventory()}")
 
     def _register_skills(self):
         # Terminal segura
@@ -187,6 +193,30 @@ class MMAEAutonomousAgent:
             "Alias para execute_script."
         )(lambda script_code, timeout_seconds=30: self.script_runner.run_script(script_code=script_code, timeout_seconds=timeout_seconds).to_dict())
 
+        # Gestión de Harness y Biblioteca de Experiencias (Harness² Architecture)
+        self.registry.register(
+            "harness_inspect",
+            "Inspecciona los 8 componentes activos del arnés del agente (c1..c8) y su inventario."
+        )(lambda: self.harness_tree.to_dict())
+
+        self.registry.register(
+            "experience_search",
+            "Busca lecciones transferibles previas (cue, lesson, evidence) en la biblioteca de experiencia."
+        )(lambda query, domain="general": [
+            {"cue": e.cue, "lesson": e.lesson, "evidence": e.evidence, "confidence": e.confidence}
+            for e in ExperienceLibrary(domain=domain).find_relevant(query, top_k=3)
+        ])
+
+        self.registry.register(
+            "experience_record",
+            "Registra formalmente una lección transferible demostrada mediante evidencia física en la biblioteca."
+        )(lambda cue, lesson, evidence, domain="general", task_id="manual_record": self.experience_library.add(
+            task_id=task_id,
+            harness=self.harness_tree,
+            experience={"cue": cue, "lesson": lesson, "evidence": evidence, "confidence": 0.95},
+            why="Lección registrada manualmente o tras verificación física."
+        ).as_posix())
+
         # Conectar herramientas del núcleo avanzado si existen
         if self.agent_core and hasattr(self.agent_core, "registry"):
             for tool_name in self.agent_core.registry.list_tools():
@@ -223,6 +253,12 @@ class MMAEAutonomousAgent:
         memory_context = self.unified_memory.build_unified_context(query=user_goal)
         if memory_context:
             log.info(f"🧠 [Memoria Unificada]: Contexto activo recuperado ({len(memory_context)} caracteres).")
+
+        # Recuperación de Lecciones Transferibles (Harness² Experience Library)
+        harness_lessons = self.experience_library.export_prompt_injection(user_goal, top_k=2)
+        if harness_lessons:
+            log.info(f"📚 [ExperienceLibrary]: Inyectando lecciones aprendidas previas en el contexto macro.")
+            memory_context = f"{memory_context}\n\n{harness_lessons}" if memory_context else harness_lessons
 
         # Fase 1: Esqueleto Macro y Desglose en Tareas
         log.info("📋 Generando esqueleto macro...")
@@ -306,6 +342,27 @@ class MMAEAutonomousAgent:
             task_success=overall_success,
             sync=True
         )
+
+        # Registro formal en Biblioteca de Experiencia Persistente (Harness² Architecture)
+        if overall_success and results:
+            try:
+                import time
+                task_slug = f"task_{int(time.time())}"
+                exp_payload = {
+                    "cue": f"Objetivo: {user_goal[:80]}",
+                    "lesson": f"Ejecutar desglose de {len(tasks)} tareas mediante macro_engine y herramientas verificadas.",
+                    "evidence": f"Todas las tareas ({len(results)}) finalizaron con success==True sin bloqueos críticos.",
+                    "confidence": 0.95
+                }
+                self.experience_library.add(
+                    task_id=task_slug,
+                    harness=self.harness_tree,
+                    experience=exp_payload,
+                    why=f"Misión '{user_goal[:50]}' superada satisfactoriamente con verificación física.",
+                    label="adopted_production"
+                )
+            except Exception as e:
+                log.warning(f"Error registrando en ExperienceLibrary: {e}")
 
         log.info("🏁 Objetivo completado. Estado persistido con éxito.")
         return {
